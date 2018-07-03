@@ -17,7 +17,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "DaydreamLab\\JJAJ\\JjajServiceProvider"
+                "DaydreamLab\\JJAJ\\JJAJServiceProvider"
             ]
         }
     }

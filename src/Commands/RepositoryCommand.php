@@ -2,7 +2,6 @@
 
 namespace DaydreamLab\JJAJ\Commands;
 
-use DaydreamLab\Helpers\Helper;
 use Illuminate\Console\GeneratorCommand;
 
 class RepositoryCommand extends GeneratorCommand

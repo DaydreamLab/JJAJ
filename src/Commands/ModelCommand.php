@@ -2,9 +2,9 @@
 
 namespace DaydreamLab\JJAJ\Commands;
 
-use DaydreamLab\Helpers\Helper;
+
 use Illuminate\Console\GeneratorCommand;
-use Illuminate\Foundation\Console\ModelMakeCommand;
+
 
 class ModelCommand extends GeneratorCommand
 {
