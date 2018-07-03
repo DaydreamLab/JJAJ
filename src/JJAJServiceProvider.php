@@ -11,6 +11,7 @@ class JJAJServiceProvider extends ServiceProvider
         'DaydreamLab\JJAJ\Commands\ModelCommand',
         'DaydreamLab\JJAJ\Commands\RepositoryCommand',
         'DaydreamLab\JJAJ\Commands\ServiceCommand',
+        'DaydreamLab\JJAJ\Commands\McCommand',
     ];
 
     /**

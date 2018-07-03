@@ -13,7 +13,9 @@
         }
     },
     "minimum-stability": "dev",
-    "require": {},
+    "require": {
+        "daydreamlab/jjaj": "dev-master"
+    },
     "extra": {
         "laravel": {
             "providers": [
