@@ -1,0 +1,24 @@
+{
+    "name": "daydreamlab/jjaj",
+    "description": "For Jordan, Jerry, Alex and Jackie",
+    "authors": [
+        {
+            "name": "Jordan Tsai",
+            "email": "jordan@daydream-lab.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "DaydreamLab\\JJAJ\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {},
+    "extra": {
+        "laravel": {
+            "providers": [
+                "DaydreamLab\\JJAJ\\JjajServiceProvider"
+            ]
+        }
+    }
+}

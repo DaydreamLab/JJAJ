@@ -1,0 +1,16 @@
+<?php
+
+namespace DummyNamespace;
+
+use DaydreamLab\JJAJ\Controllers\BaseController;
+use App\Services\DummyService;
+
+class DummyClass extends BaseController
+{
+    protected $dummyService;
+
+    public function __construct(DummyService $dummyService)
+    {
+        $this->dummyService = $dummyService;
+    }
+}
