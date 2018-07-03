@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace DaydreamLab\JJAJ\Commands;
 
 use Illuminate\Console\GeneratorCommand;
 
