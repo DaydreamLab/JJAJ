@@ -11,21 +11,6 @@ class BaseModel extends Model
 
     protected static $ordering = 'desc';
 
-
-    public function setLimit($limit)
-    {
-        if ($limit && $limit != ''){
-            self::$limit = $limit;
-        }
-    }
-
-    public function setOrdering($ordering)
-    {
-        if ($ordering && $ordering != ''){
-            self::$ordering = $ordering;
-        }
-    }
-
     protected static function boot()
     {
         parent::boot();
@@ -43,5 +28,19 @@ class BaseModel extends Model
                 $item->updated_by = $user->id;
             }
         });
+    }
+
+    public function setLimit($limit)
+    {
+        if ($limit && $limit != ''){
+            self::$limit = $limit;
+        }
+    }
+
+    public function setOrdering($ordering)
+    {
+        if ($ordering && $ordering != ''){
+            self::$ordering = $ordering;
+        }
     }
 }
