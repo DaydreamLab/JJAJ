@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use DaydreamLab\Requests\ListRequest;
+use DaydreamLab\JJAJ\Requests\ListRequest;
 
 class DummyClass extends ListRequest
 {

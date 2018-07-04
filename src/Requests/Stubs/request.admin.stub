@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use DaydreamLab\Requests\AdminRequest;
+use DaydreamLab\JJAJ\Requests\AdminRequest;
 
 class DummyClass extends AdminRequest
 {
