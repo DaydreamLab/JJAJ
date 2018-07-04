@@ -1,6 +1,6 @@
 <?php
 
-namespace DaydreamLab\Requests;
+namespace DaydreamLab\JJAJ\Requests;
 
 
 class AdminRequest extends BaseRequest
