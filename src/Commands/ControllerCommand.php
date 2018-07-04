@@ -2,9 +2,9 @@
 
 namespace DaydreamLab\JJAJ\Commands;
 
-use Illuminate\Console\GeneratorCommand;
+use Illuminate\Routing\Console\ControllerMakeCommand;
 
-class ControllerCommand extends GeneratorCommand
+class ControllerCommand extends ControllerMakeCommand
 {
     /**
      * The name and signature of the console command.
