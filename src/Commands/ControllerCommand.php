@@ -21,6 +21,7 @@ class ControllerCommand extends GeneratorCommand
     protected $description = 'Create Controller';
 
 
+    protected $type = 'Controller';
 
     protected function getStub()
     {

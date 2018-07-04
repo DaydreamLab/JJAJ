@@ -22,7 +22,7 @@ class ModelCommand extends GeneratorCommand
      */
     protected $description = 'Create model';
 
-
+    protected $type = 'Model';
 
     protected function getStub()
     {

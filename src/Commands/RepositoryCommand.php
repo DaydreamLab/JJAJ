@@ -21,6 +21,8 @@ class RepositoryCommand extends GeneratorCommand
     protected $description = 'Generate repository';
 
 
+    protected $type = 'Repository';
+
 
     protected function buildClass($name)
     {

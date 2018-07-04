@@ -21,6 +21,9 @@ class ServiceCommand extends GeneratorCommand
     protected $description = 'Generate service';
 
 
+    protected $type = 'Service';
+
+
     protected function buildClass($name)
     {
         $stub = $this->files->get($this->getStub());
