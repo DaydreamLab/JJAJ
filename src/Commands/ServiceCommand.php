@@ -31,7 +31,7 @@ class ServiceCommand extends GeneratorCommand
 
     public function getStub()
     {
-        return base_path().'/DaydreamLab/Services/Stubs/service.stub';
+        return __DIR__.'/../Services/Stubs/service.stub';
     }
 
     protected function replaceScaffold(&$stub, $name)

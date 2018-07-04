@@ -32,7 +32,7 @@ class RepositoryCommand extends GeneratorCommand
 
     public function getStub()
     {
-        return base_path().'/DaydreamLab/Repositories/Stubs/repository.stub';
+        return __DIR__.'/../Repositories/Stubs/repository.stub';
     }
 
     protected function replaceScaffold(&$stub, $name)

@@ -26,7 +26,7 @@ class ModelCommand extends GeneratorCommand
 
     protected function getStub()
     {
-        return base_path().'/DaydreamLab/Models/Stubs/model.stub';
+        return __DIR__.'/../Models/Stubs/model.stub';
     }
 
 
