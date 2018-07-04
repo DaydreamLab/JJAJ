@@ -25,7 +25,7 @@ class ControllerCommand extends GeneratorCommand
 
     protected function getStub()
     {
-        return __DIR__.'/../Controllers/stubs/controller.stub';
+        return __DIR__.'/../Controllers/Stubs/controller.stub';
     }
 
 
