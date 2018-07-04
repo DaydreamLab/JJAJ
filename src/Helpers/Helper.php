@@ -1,5 +1,5 @@
 <?php
-namespace DaydreamLab\Helpers;
+namespace DaydreamLab\JJAJ\Helpers;
 
 class Helper {
 
