@@ -8,7 +8,8 @@ class ResponseHelper
 {
     public static function genResponse($status, $data = null)
     {
-        $config = Config::get('constants.'.$status);
+        $type = strtolower(explode('_', $status)[0]);
+        $config = config('constants.'.$type.'.'.$status);
         $config['data'] = $data;
         $config['status'] = $status;
 
