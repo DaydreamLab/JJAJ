@@ -61,4 +61,9 @@ class ResponseHelper
         return $response;
     }
 
+    public static function response($status, $responseData)
+    {
+        return self::genResponse($status, $responseData);
+    }
+
 }
