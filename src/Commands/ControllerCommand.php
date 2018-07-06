@@ -11,7 +11,7 @@ class ControllerCommand extends ControllerMakeCommand
      *
      * @var string
      */
-    protected $signature = 'daydreamlab:controller {name}';
+    protected $signature = 'jjaj:controller {name}';
 
     /**
      * The console command description.

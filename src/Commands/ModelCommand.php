@@ -13,7 +13,7 @@ class ModelCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'daydreamlab:model {name}';
+    protected $signature = 'jjaj:model {name}';
 
     /**
      * The console command description.

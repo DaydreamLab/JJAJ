@@ -11,7 +11,7 @@ class RepositoryCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'daydreamlab:repository {name}';
+    protected $signature = 'jjaj:repository {name}';
 
     /**
      * The console command description.

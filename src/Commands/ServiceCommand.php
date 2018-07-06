@@ -11,7 +11,7 @@ class ServiceCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'daydreamlab:service {name}';
+    protected $signature = 'jjaj:service {name}';
 
     /**
      * The console command description.

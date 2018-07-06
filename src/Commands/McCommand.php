@@ -3,6 +3,7 @@
 namespace DaydreamLab\JJAJ\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class McCommand extends Command
 {
@@ -11,7 +12,7 @@ class McCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'daydreamlab:mc {name}';
+    protected $signature = 'jjaj:mc {name}';
 
     /**
      * The console command description.
@@ -40,9 +41,20 @@ class McCommand extends Command
         $input = ucfirst($this->argument('name'));
 
         $this->call('make:migration', ['name' => 'create_'.strtolower($input).'s_table', '--create' => strtolower($input).'s']);
-        $this->call('daydreamlab:controller', ['name' => 'API/'.$input.'Controller']);
-        $this->call('daydreamlab:service', ['name' => 'Services/'.$input.'Service']);
-        $this->call('daydreamlab:repository', ['name' => 'Repositories/'.$input.'Repository']);
-        $this->call('daydreamlab:model', ['name' => 'Models/'.$input]);
+        $this->call('jjaj:controller', ['name' => 'API/'.$input.'Controller']);
+        $this->call('jjaj:service', ['name' => 'Services/'.$input.'Service']);
+        $this->call('jjaj:repository', ['name' => 'Repositories/'.$input.'Repository']);
+        $this->call('jjaj:model', ['name' => 'Models/'.$input]);
+    }
+
+    public function convertTableName($input)
+    {
+        $input_snake = Str::snake($input);
+        $items = explode('_', $input_snake);
+        $snake = '';
+        foreach ($items as $item) {
+            $snake .=ucfirst($item . 's');
+        }
+        return Str::snake($snake);
     }
 }

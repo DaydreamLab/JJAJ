@@ -11,7 +11,7 @@ class RequestCommand extends RequestMakeCommand
      *
      * @var string
      */
-    protected $signature = 'daydreamlab:request {name}, {--list} {--admin}';
+    protected $signature = 'jjaj:request {name}, {--list} {--admin}';
 
     /**
      * The console command description.
@@ -27,13 +27,14 @@ class RequestCommand extends RequestMakeCommand
     {
         $stub = $this->files->get($this->getStub());
 
-        return $this->replaceClass($stub, $name);
+        return  $this->replaceNamespace($stub, $name)->replaceClass($stub, $name);
     }
 
 
     public function getStub()
     {
         $option = $this->option('list');
+
 
         if ($option) {
             return __DIR__.'/../Requests/Stubs/request.list.stub';
