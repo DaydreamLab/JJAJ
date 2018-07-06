@@ -45,6 +45,8 @@ class RepositoryCommand extends GeneratorCommand
 
         $stub  = str_replace('DummyModel', $model , $stub);
 
+        $stub  = str_replace('DummyType', $model , $stub);
+
         return  $this;
     }
 

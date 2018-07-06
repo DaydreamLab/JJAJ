@@ -45,6 +45,8 @@ class ServiceCommand extends GeneratorCommand
 
         $stub  = str_replace('DummyRepository', $model . 'Repository' , $stub);
 
+        $stub  = str_replace('DummyType', $model, $stub);
+
         return  $this;
     }
 }

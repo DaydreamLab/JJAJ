@@ -46,6 +46,7 @@ class ControllerCommand extends ControllerMakeCommand
 
         $service = strtolower($Model).'Service';
 
+        $stub  = str_replace('DummyType', $Model, $stub);
 
         $stub  = str_replace('DummyService', $Service, $stub);
 

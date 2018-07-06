@@ -3,7 +3,7 @@
 namespace DummyNamespace;
 
 use DaydreamLab\JJAJ\Controllers\BaseController;
-use App\Services\DummyService;
+use App\Services\DummyType\DummyService;
 
 class DummyClass extends BaseController
 {

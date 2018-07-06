@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Commands;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
@@ -38,13 +39,15 @@ class McCommand extends Command
      */
     public function handle()
     {
-        $input = ucfirst($this->argument('name'));
+        $name = ucfirst($this->argument('name'));
+        $type =  ucfirst(explode('_', Str::snake($name))[0]);
+        $table = $this->convertTableName($name);
 
-        $this->call('make:migration', ['name' => 'create_'.strtolower($input).'s_table', '--create' => strtolower($input).'s']);
-        $this->call('jjaj:controller', ['name' => 'API/'.$input.'Controller']);
-        $this->call('jjaj:service', ['name' => 'Services/'.$input.'Service']);
-        $this->call('jjaj:repository', ['name' => 'Repositories/'.$input.'Repository']);
-        $this->call('jjaj:model', ['name' => 'Models/'.$input]);
+        $this->call('make:migration', ['name' => 'create_'.$table.'_table', '--create' => $table]);
+        $this->call('jjaj:controller', ['name' => 'API/'. $type . '/' .$name.'Controller']);
+        $this->call('jjaj:service', ['name' => 'Services/'.$type.'/'.$name.'Service']);
+        $this->call('jjaj:repository', ['name' => 'Repositories/'.$type.'/'.$name.'Repository']);
+        $this->call('jjaj:model', ['name' => 'Models/'.$type.'/'.$name]);
     }
 
     public function convertTableName($input)

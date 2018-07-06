@@ -45,6 +45,7 @@ class ModelCommand extends GeneratorCommand
 
         $stub  = str_replace('DummyTable', strtolower($model.'s'), $stub);
 
+
         return $this;
     }
 }
