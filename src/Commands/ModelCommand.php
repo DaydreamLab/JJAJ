@@ -3,6 +3,7 @@
 namespace DaydreamLab\JJAJ\Commands;
 
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Console\GeneratorCommand;
 
 
@@ -43,8 +44,7 @@ class ModelCommand extends GeneratorCommand
     {
         $model = str_replace($this->getNamespace($name).'\\', '', $name);
 
-        $stub  = str_replace('DummyTable', strtolower($model.'s'), $stub);
-
+        $stub  = str_replace('DummyTable', Helper::convertTableName($model), $stub);
 
         return $this;
     }

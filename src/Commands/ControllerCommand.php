@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Commands;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Routing\Console\ControllerMakeCommand;
 
 class ControllerCommand extends ControllerMakeCommand
@@ -46,7 +47,7 @@ class ControllerCommand extends ControllerMakeCommand
 
         $service = strtolower($Model).'Service';
 
-        $stub  = str_replace('DummyType', $Model, $stub);
+        $stub  = str_replace('DummyType', Helper::getType($name), $stub);
 
         $stub  = str_replace('DummyService', $Service, $stub);
 

@@ -41,7 +41,7 @@ class McCommand extends Command
     {
         $name = ucfirst($this->argument('name'));
         $type =  ucfirst(explode('_', Str::snake($name))[0]);
-        $table = $this->convertTableName($name);
+        $table = Helper::convertTableName($name);
 
         $this->call('make:migration', ['name' => 'create_'.$table.'_table', '--create' => $table]);
         $this->call('jjaj:controller', ['name' => 'API/'. $type . '/' .$name.'Controller']);
@@ -50,14 +50,5 @@ class McCommand extends Command
         $this->call('jjaj:model', ['name' => 'Models/'.$type.'/'.$name]);
     }
 
-    public function convertTableName($input)
-    {
-        $input_snake = Str::snake($input);
-        $items = explode('_', $input_snake);
-        $snake = '';
-        foreach ($items as $item) {
-            $snake .=ucfirst($item . 's');
-        }
-        return Str::snake($snake);
-    }
+
 }

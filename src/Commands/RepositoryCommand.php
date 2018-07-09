@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Commands;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Console\GeneratorCommand;
 
 class RepositoryCommand extends GeneratorCommand
@@ -27,7 +28,6 @@ class RepositoryCommand extends GeneratorCommand
     protected function buildClass($name)
     {
         $stub = $this->files->get($this->getStub());
-
         return $this->replaceNamespace($stub, $name)->replaceScaffold($stub, $name)->replaceClass($stub, $name);
     }
 
@@ -45,7 +45,7 @@ class RepositoryCommand extends GeneratorCommand
 
         $stub  = str_replace('DummyModel', $model , $stub);
 
-        $stub  = str_replace('DummyType', $model , $stub);
+        $stub  = str_replace('DummyType', Helper::getType($name) , $stub);
 
         return  $this;
     }

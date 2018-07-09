@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Commands;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Console\GeneratorCommand;
 
 class ServiceCommand extends GeneratorCommand
@@ -45,7 +46,7 @@ class ServiceCommand extends GeneratorCommand
 
         $stub  = str_replace('DummyRepository', $model . 'Repository' , $stub);
 
-        $stub  = str_replace('DummyType', $model, $stub);
+        $stub  = str_replace('DummyType', Helper::getType($name), $stub);
 
         return  $this;
     }
