@@ -29,6 +29,11 @@ class BaseService
         return $this->repo->delete($id);
     }
 
+    public function find($id)
+    {
+        return $this->repo->find($id);
+    }
+
     public function findBy($filed, $operator, $value)
     {
         return $this->repo->findBy($filed, $operator, $value);
