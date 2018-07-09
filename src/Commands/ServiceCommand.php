@@ -42,7 +42,7 @@ class ServiceCommand extends GeneratorCommand
     {
         $Service = str_replace($this->getNamespace($name).'\\', '', $name);
 
-        $model = str_replace('Service', '', $Service);
+        $model = substr_replace($Service, '', strrpos($Service, 'Service'));;
 
         $stub  = str_replace('DummyRepository', $model . 'Repository' , $stub);
 
