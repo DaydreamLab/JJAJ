@@ -7,10 +7,10 @@ use App\Services\DummyType\DummyService;
 
 class DummyClass extends BaseController
 {
-    protected $dummyService;
 
     public function __construct(DummyService $dummyService)
     {
-        $this->dummyService = $dummyService;
+        parent::__construct($dummyService);
+        //$this->dummyService = $dummyService;
     }
 }
