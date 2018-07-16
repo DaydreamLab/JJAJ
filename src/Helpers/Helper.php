@@ -1,6 +1,7 @@
 <?php
 namespace DaydreamLab\JJAJ\Helpers;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class Helper {
@@ -26,6 +27,16 @@ class Helper {
             echo '<pre>' . print_r($data, 1) . '</pre>';
         }
     }
+
+
+    public function collect(Collection $collect)
+    {
+        $collect->each(function ($item, $key) use ($collect) {
+            $collect->{$key} = $item;
+        });
+        return $collect;
+    }
+
 
     public static function convertTableName($input)
     {
