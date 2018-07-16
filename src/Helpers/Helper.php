@@ -29,7 +29,7 @@ class Helper {
     }
 
 
-    public function collect($data)
+    public static function collect($data)
     {
         $collect = new Collection($data);
         $collect->each(function ($item, $key) use ($collect) {
