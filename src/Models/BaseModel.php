@@ -30,14 +30,14 @@ class BaseModel extends Model
         });
     }
 
-    public function setLimit($limit)
+    public static function setLimit($limit)
     {
         if ($limit && $limit != ''){
             self::$limit = $limit;
         }
     }
 
-    public function setOrdering($ordering)
+    public static function setOrdering($ordering)
     {
         if ($ordering && $ordering != ''){
             self::$ordering = $ordering;
