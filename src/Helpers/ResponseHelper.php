@@ -63,7 +63,7 @@ class ResponseHelper
 
     public static function response($status, $responseData)
     {
-        return self::genResponse($status, $responseData);
+        return self::genResponse($status, self::format($responseData));
     }
 
 }
