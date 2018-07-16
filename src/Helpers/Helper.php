@@ -29,8 +29,9 @@ class Helper {
     }
 
 
-    public function collect(Collection $collect)
+    public function collect($data)
     {
+        $collect = new Collection($data);
         $collect->each(function ($item, $key) use ($collect) {
             $collect->{$key} = $item;
         });
