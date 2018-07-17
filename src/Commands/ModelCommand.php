@@ -3,7 +3,7 @@
 namespace DaydreamLab\JJAJ\Commands;
 
 
-use DaydreamLab\JJAJ\Helpers\Helper;
+use DaydreamLab\JJAJ\Helpers\CommandHelper;
 use Illuminate\Console\GeneratorCommand;
 
 
@@ -14,7 +14,7 @@ class ModelCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:model {name} {--front} {--admin}';
+    protected $signature = 'jjaj:model {name} {--table=} {--front} {--admin}';
 
     /**
      * The console command description.
@@ -39,11 +39,10 @@ class ModelCommand extends GeneratorCommand
     }
 
 
-
     protected function buildClass($name)
     {
         $stub = $this->files->get($this->getStub());
-exit();
+
         return $this->replaceNamespace($stub, $name)->replaceScaffold($stub, $name)->replaceClass($stub, $name);
     }
 
@@ -51,10 +50,18 @@ exit();
     protected function replaceScaffold(&$stub, $name)
     {
         $model = str_replace($this->getNamespace($name).'\\', '', $name);
-Helper::show($model);
-        $stub  = str_replace('DummyTable', Helper::convertTableName($model), $stub);
 
-        //$stub  = str_replace('DummyFrontModel', Helper::convertTableName($model), $stub);
+        if ($this->option('front') || $this->option('admin')) {
+            $parent_model       = CommandHelper::getParent($model);
+            $parent_namespace   = CommandHelper::getParentNameSpace($this->getNamespace($name));
+            $stub  = str_replace('DummyParentNamespace', $parent_namespace.$parent_model, $stub);
+            $stub  = str_replace('DummyFrontModel', $parent_model, $stub);
+            $stub  = str_replace('DummyAdminModel', $parent_model, $stub);
+            $stub  = str_replace('DummyTable', CommandHelper::convertTableName($parent_model), $stub);
+        }
+        else {
+            $stub  = str_replace('DummyTable', CommandHelper::convertTableName($model), $stub);
+        }
 
         return $this;
     }
