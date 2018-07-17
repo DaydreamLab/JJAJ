@@ -7,10 +7,6 @@ use DaydreamLab\JJAJ\Services\BaseService;
 
 class DummyClass extends BaseService
 {
-    public $status;
-
-    public $response;
-
     public function __construct(DummyRepository $repo)
     {
         parent::__construct($repo);

@@ -9,6 +9,10 @@ class BaseService
 {
     protected $repo;
 
+    protected $status;
+
+    protected $response;
+
     public function __construct(BaseRepository $repo)
     {
         $this->repo = $repo;
