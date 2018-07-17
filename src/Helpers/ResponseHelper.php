@@ -22,6 +22,10 @@ class ResponseHelper
 
     public static function format($data)
     {
+        if(!$data) {
+            return null;
+        }
+
         if (gettype($data) == 'array' ) {
             $response['items']      = $data;
             $response['records']    = count([$data]);
