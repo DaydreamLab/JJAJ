@@ -39,17 +39,21 @@ class Helper {
     }
 
 
-    public static function convertTableName($input)
+    public static function convertTableName($name)
     {
-        $input_snake = Str::snake($input);
+        $input_snake = Str::snake($name);
         $items = explode('_', $input_snake);
         $snake = '';
 
         for ($i = 0 ; $i < count($items) ; $i++) {
-
-
             if ($i == 0 || $i == count($items) - 1) {
-                $snake .=ucfirst($items[$i] . 's');
+                if (substr($items[$i],-1) == 'y') {
+                    $snake .= substr($items[$i],-1, -1) . 'ies';
+                }
+                else {
+                    $snake .=ucfirst($items[$i] . 's');
+                }
+
             }
             else {
                 $snake .=ucfirst($items[$i]);

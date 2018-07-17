@@ -13,14 +13,14 @@ class McCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'jjaj:mc {name}';
+    protected $signature = 'jjaj:mc {name} {--admin} {--front}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Create model, controller implement service/repository design pattern';
 
     /**
      * Create a new command instance.
@@ -39,15 +39,32 @@ class McCommand extends Command
      */
     public function handle()
     {
-        $name = ucfirst($this->argument('name'));
-        $type =  ucfirst(explode('_', Str::snake($name))[0]);
+        $name  = ucfirst($this->argument('name'));
+        $type  = ucfirst(explode('_', Str::snake($name))[0]);
         $table = Helper::convertTableName($name);
 
-        $this->call('make:migration', ['name' => 'create_'.$table.'_table', '--create' => $table]);
-        $this->call('jjaj:controller', ['name' => 'API/'. $type . '/' .$name.'Controller']);
-        $this->call('jjaj:service', ['name' => 'Services/'.$type.'/'.$name.'Service']);
-        $this->call('jjaj:repository', ['name' => 'Repositories/'.$type.'/'.$name.'Repository']);
-        $this->call('jjaj:model', ['name' => 'Models/'.$type.'/'.$name]);
+        //$this->call('make:migration', ['name' => 'create_'.$table.'_table', '--create' => $table]);
+
+
+        //$this->call('jjaj:controller', ['name' => 'API/'. $type . '/' .$name.'Controller']);
+        //$this->call('jjaj:service', ['name' => 'Services/'.$type.'/'.$name.'Service']);
+        //$this->call('jjaj:repository', ['name' => 'Repositories/'.$type.'/'.$name.'Repository']);
+        //$this->call('jjaj:model', ['name' => 'Models/'.$type.'/'.$name]);
+
+
+        if ($this->option('front')) {
+            //$this->call('jjaj:controller', ['name' => 'API/'. $type . '/Front/' .$name.'FrontController']);
+            //$this->call('jjaj:service', ['name' => 'Services/'.$type.'/Front/'.$name.'FrontService']);
+            //$this->call('jjaj:repository', ['name' => 'Repositories/'.$type.'/Front/'.$name.'FrontRepository']);
+            $this->call('jjaj:model', ['name' => 'Models/'.$type.'/Front/'.$name.'Front', '--front']);
+        }
+
+        if ($this->option('admin')) {
+            //$this->call('jjaj:controller', ['name' => 'API/'. $type . '/Admin/' .$name.'AdminController']);
+            //$this->call('jjaj:service', ['name' => 'Services/'.$type.'/Admin/'.$name.'AdminService']);
+            //$this->call('jjaj:repository', ['name' => 'Repositories/'.$type.'/Admin/'.$name.'AdminRepository']);
+            //$this->call('jjaj:model', ['name' => 'Models/'.$type.'/Admin/'.$name.'Admin']);
+        }
     }
 
 

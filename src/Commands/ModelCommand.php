@@ -14,7 +14,7 @@ class ModelCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:model {name}';
+    protected $signature = 'jjaj:model {name} {--front} {--admin}';
 
     /**
      * The console command description.
@@ -27,7 +27,15 @@ class ModelCommand extends GeneratorCommand
 
     protected function getStub()
     {
-        return __DIR__.'/../Models/Stubs/model.stub';
+        if($this->option('front')) {
+            return __DIR__.'/../Models/Stubs/model.front.stub';
+        }
+        elseif ($this->option('admin')) {
+            return __DIR__.'/../Models/Stubs/model.admin.stub';
+        }
+        else {
+            return __DIR__.'/../Models/Stubs/model.stub';
+        }
     }
 
 
@@ -35,7 +43,7 @@ class ModelCommand extends GeneratorCommand
     protected function buildClass($name)
     {
         $stub = $this->files->get($this->getStub());
-
+exit();
         return $this->replaceNamespace($stub, $name)->replaceScaffold($stub, $name)->replaceClass($stub, $name);
     }
 
@@ -43,8 +51,10 @@ class ModelCommand extends GeneratorCommand
     protected function replaceScaffold(&$stub, $name)
     {
         $model = str_replace($this->getNamespace($name).'\\', '', $name);
-
+Helper::show($model);
         $stub  = str_replace('DummyTable', Helper::convertTableName($model), $stub);
+
+        //$stub  = str_replace('DummyFrontModel', Helper::convertTableName($model), $stub);
 
         return $this;
     }

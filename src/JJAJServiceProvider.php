@@ -13,6 +13,7 @@ class JJAJServiceProvider extends ServiceProvider
         'DaydreamLab\JJAJ\Commands\ServiceCommand',
         'DaydreamLab\JJAJ\Commands\McCommand',
         'DaydreamLab\JJAJ\Commands\RequestCommand',
+        'DaydreamLab\JJAJ\Commands\DeleteCommand',
     ];
 
     /**
