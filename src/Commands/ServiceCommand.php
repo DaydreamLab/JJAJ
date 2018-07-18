@@ -13,7 +13,7 @@ class ServiceCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:service {name} {--table=} {--admin} {--front}';
+    protected $signature = 'jjaj:service {name} {--admin} {--front}';
 
     /**
      * The console command description.

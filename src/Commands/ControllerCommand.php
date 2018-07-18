@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Commands;
 
+use DaydreamLab\JJAJ\Helpers\CommandHelper;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Routing\Console\ControllerMakeCommand;
 
@@ -12,7 +13,7 @@ class ControllerCommand extends ControllerMakeCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:controller {name}';
+    protected $signature = 'jjaj:controller {name} {--admin} {--front}';
 
     /**
      * The console command description.
@@ -26,7 +27,15 @@ class ControllerCommand extends ControllerMakeCommand
 
     protected function getStub()
     {
-        return __DIR__.'/../Controllers/Stubs/controller.stub';
+        if($this->option('front')) {
+            return __DIR__.'/../Controllers/Stubs/controller.front.stub';
+        }
+        elseif ($this->option('admin')) {
+            return __DIR__.'/../Controllers/Stubs/controller.admin.stub';
+        }
+        else {
+            return __DIR__.'/../Controllers/Stubs/controller.stub';
+        }
     }
 
 
@@ -39,19 +48,30 @@ class ControllerCommand extends ControllerMakeCommand
 
     protected function replaceScaffold(&$stub, $name)
     {
-        $Controller = str_replace($this->getNamespace($name).'\\', '', $name);
+        $controller = str_replace($this->getNamespace($name).'\\', '', $name);
+        $model      = str_replace('Controller', '', $controller);
+        $type       = CommandHelper::getType($name);
 
-        $Model = str_replace('Controller', '', $Controller);
+        if ($this->option('front')) {
+            $site = 'Front';
+        }
+        elseif ($this->option('admin')) {
+            $site = 'Admin';
+        }
 
-        $Service = $Model. 'Service';
+        if ($this->option('front') || $this->option('admin')) {
+            $parent_controller  = CommandHelper::getParent($controller);
+            $parent_namespace   = CommandHelper::getParentNameSpace($this->getNamespace($name));
 
-        $service = strtolower($Model).'Service';
+            $stub  = str_replace('DummyParentControllerNamespace', $parent_namespace.$parent_controller, $stub);
+            $stub  = str_replace('DummyFrontController', $parent_controller, $stub);
+            $stub  = str_replace('DummyAdminController', $parent_controller, $stub);
+            $stub  = str_replace('DummySite', $site, $stub);
+        }
 
-        $stub  = str_replace('DummyType', Helper::getType($name), $stub);
 
-        $stub  = str_replace('DummyService', $Service, $stub);
-
-        $stub  = str_replace('dummyService', $service, $stub);
+        $stub  = str_replace('DummyType', $type , $stub);
+        $stub  = str_replace('DummyService', $model.'Service', $stub);
 
 
         return $this;

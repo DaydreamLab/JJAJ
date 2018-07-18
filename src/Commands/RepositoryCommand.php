@@ -13,7 +13,7 @@ class RepositoryCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:repository {name} {--table=} {--admin} {--front}';
+    protected $signature = 'jjaj:repository {name} {--admin} {--front}';
 
     /**
      * The console command description.
@@ -44,8 +44,6 @@ class RepositoryCommand extends GeneratorCommand
         else {
             return __DIR__.'/../Repositories/Stubs/repository.stub';
         }
-
-
     }
 
     protected function replaceScaffold(&$stub, $name)
@@ -71,9 +69,7 @@ class RepositoryCommand extends GeneratorCommand
             $stub  = str_replace('DummyAdminRepository', $parent_repo, $stub);
             $stub  = str_replace('DummySite', $site, $stub);
         }
-        else {
 
-        }
         $stub  = str_replace('DummyType', $type , $stub);
         $stub  = str_replace('DummyModel', $model, $stub);
 

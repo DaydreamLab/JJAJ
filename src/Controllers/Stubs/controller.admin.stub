@@ -1,0 +1,14 @@
+<?php
+
+namespace DummyNamespace;
+
+use DummyParentControllerNamespace;
+use App\Services\DummyType\DummySite\DummyService;
+
+class DummyClass extends DummyAdminController
+{
+    public function __construct(DummyService $service)
+    {
+        parent::__construct($service);
+    }
+}
