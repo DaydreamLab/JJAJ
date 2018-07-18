@@ -15,12 +15,11 @@ class CommandHelper
         for ($i = 0 ; $i < count($items) ; $i++) {
             if ($i == 0 || $i == count($items) - 1) {
                 if (substr($items[$i],-1) == 'y') {
-                    $snake .= substr($items[$i],-1, -1) . 'ies';
+                    $snake .= substr($items[$i],0, -1) . 'ies';
                 }
                 else {
                     $snake .=ucfirst($items[$i] . 's');
                 }
-
             }
             else {
                 $snake .=ucfirst($items[$i]);
