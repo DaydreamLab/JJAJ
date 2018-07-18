@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Commands;
 
+use DaydreamLab\JJAJ\Helpers\CommandHelper;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Console\GeneratorCommand;
 
@@ -12,7 +13,7 @@ class RepositoryCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:repository {name}';
+    protected $signature = 'jjaj:repository {name} {--table=} {--admin} {--front}';
 
     /**
      * The console command description.
@@ -34,18 +35,48 @@ class RepositoryCommand extends GeneratorCommand
 
     public function getStub()
     {
-        return __DIR__.'/../Repositories/Stubs/repository.stub';
+        if($this->option('front')) {
+            return __DIR__.'/../Repositories/Stubs/repository.front.stub';
+        }
+        elseif ($this->option('admin')) {
+            return __DIR__.'/../Repositories/Stubs/repository.admin.stub';
+        }
+        else {
+            return __DIR__.'/../Repositories/Stubs/repository.stub';
+        }
+
+
     }
 
     protected function replaceScaffold(&$stub, $name)
     {
         $repository = str_replace($this->getNamespace($name).'\\', '', $name);
+        $model      = str_replace('Repository', '', $repository);
+        $type       = CommandHelper::getType($name);
 
-        $model = str_replace('Repository', '', $repository);
 
-        $stub  = str_replace('DummyModel', $model , $stub);
+        if ($this->option('front')) {
+            $site = 'Front';
+        }
+        elseif ($this->option('admin')) {
+            $site = 'Admin';
+        }
 
-        $stub  = str_replace('DummyType', Helper::getType($name) , $stub);
+        if ($this->option('front') || $this->option('admin')) {
+            $parent_repo        = CommandHelper::getParent($repository);
+            $parent_namespace   = CommandHelper::getParentNameSpace($this->getNamespace($name));
+
+            $stub  = str_replace('DummyParentRepositoryNamespace', $parent_namespace.$parent_repo, $stub);
+            $stub  = str_replace('DummyFrontRepository', $parent_repo, $stub);
+            $stub  = str_replace('DummyAdminRepository', $parent_repo, $stub);
+            $stub  = str_replace('DummySite', $site, $stub);
+        }
+        else {
+
+        }
+        $stub  = str_replace('DummyType', $type , $stub);
+        $stub  = str_replace('DummyModel', $model, $stub);
+
 
         return  $this;
     }

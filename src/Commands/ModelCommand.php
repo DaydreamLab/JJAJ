@@ -4,6 +4,7 @@ namespace DaydreamLab\JJAJ\Commands;
 
 
 use DaydreamLab\JJAJ\Helpers\CommandHelper;
+use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Console\GeneratorCommand;
 
 

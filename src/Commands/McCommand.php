@@ -49,15 +49,23 @@ class McCommand extends Command
 
 
         //$this->call('jjaj:controller', ['name' => 'API/'. $type . '/' .$name.'Controller']);
-        //$this->call('jjaj:service', ['name' => 'Services/'.$type.'/'.$name.'Service']);
-        //$this->call('jjaj:repository', ['name' => 'Repositories/'.$type.'/'.$name.'Repository']);
+        $this->call('jjaj:service', ['name' => 'Services/'.$type.'/'.$name.'Service']);
+        $this->call('jjaj:repository', ['name' => 'Repositories/'.$type.'/'.$name.'Repository']);
         $this->call('jjaj:model', ['name' => 'Models/'.$type.'/'.$name]);
 
 
         if ($this->option('front')) {
             //$this->call('jjaj:controller', ['name' => 'API/'. $type . '/Front/' .$name.'FrontController']);
-            //$this->call('jjaj:service', ['name' => 'Services/'.$type.'/Front/'.$name.'FrontService']);
-            //$this->call('jjaj:repository', ['name' => 'Repositories/'.$type.'/Front/'.$name.'FrontRepository']);
+            $this->call('jjaj:service', [
+                'name'      => 'Services/'.$type.'/Front/'.$name.'FrontService',
+                '--front'   => true,
+                '--table'   => $name
+            ]);
+            $this->call('jjaj:repository', [
+                'name'      => 'Repositories/'.$type.'/Front/'.$name.'FrontRepository',
+                '--front'   => true,
+                '--table'   => $name
+            ]);
             $this->call('jjaj:model', [
                 'name' => 'Models/'.$type.'/Front/'.$name.'Front',
                 '--front'   => true,
@@ -67,8 +75,16 @@ class McCommand extends Command
 
         if ($this->option('admin')) {
             //$this->call('jjaj:controller', ['name' => 'API/'. $type . '/Admin/' .$name.'AdminController']);
-            //$this->call('jjaj:service', ['name' => 'Services/'.$type.'/Admin/'.$name.'AdminService']);
-            //$this->call('jjaj:repository', ['name' => 'Repositories/'.$type.'/Admin/'.$name.'AdminRepository']);
+            $this->call('jjaj:service', [
+                'name' => 'Services/'.$type.'/Admin/'.$name.'AdminService',
+                 '--admin'   => true,
+                 '--table'   => $name
+            ]);
+            $this->call('jjaj:repository', [
+                'name'      => 'Repositories/'.$type.'/Admin/'.$name.'AdminRepository',
+                '--admin'   => true,
+                '--table'   => $name
+            ]);
             $this->call('jjaj:model', [
                 'name' => 'Models/'.$type.'/Admin/'.$name.'Admin',
                 '--admin'   => true,

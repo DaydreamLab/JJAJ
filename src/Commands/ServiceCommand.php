@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Commands;
 
+use DaydreamLab\JJAJ\Helpers\CommandHelper;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Console\GeneratorCommand;
 
@@ -12,7 +13,7 @@ class ServiceCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:service {name}';
+    protected $signature = 'jjaj:service {name} {--table=} {--admin} {--front}';
 
     /**
      * The console command description.
@@ -35,18 +36,47 @@ class ServiceCommand extends GeneratorCommand
 
     public function getStub()
     {
-        return __DIR__.'/../Services/Stubs/service.stub';
+        if($this->option('front')) {
+            return __DIR__.'/../Services/Stubs/service.front.stub';
+        }
+        elseif ($this->option('admin')) {
+            return __DIR__.'/../Services/Stubs/service.admin.stub';
+        }
+        else {
+            return __DIR__.'/../Services/Stubs/service.stub';
+        }
+
     }
 
     protected function replaceScaffold(&$stub, $name)
     {
-        $Service = str_replace($this->getNamespace($name).'\\', '', $name);
+        $service = str_replace($this->getNamespace($name).'\\', '', $name);
+        $model   = substr_replace($service, '', strrpos($service, 'Service'));;
+        $type    = CommandHelper::getType($name);
+        if ($this->option('front')) {
+            $site = 'Front';
+        }
+        elseif ($this->option('admin')) {
+            $site = 'Admin';
+        }
 
-        $model = substr_replace($Service, '', strrpos($Service, 'Service'));;
+        if ($this->option('front') || $this->option('admin')) {
+            $parent_service        = CommandHelper::getParent($service);
+            $parent_namespace   = CommandHelper::getParentNameSpace($this->getNamespace($name));
+            $stub  = str_replace('DummyParentNamespace', $parent_namespace.$parent_service, $stub);
+            $stub  = str_replace('DummyFrontService', $parent_service, $stub);
+            $stub  = str_replace('DummyAdminService', $parent_service, $stub);
+            $stub  = str_replace('DummySite', $site, $stub);
+        }
+        else {
 
+        }
+        $stub  = str_replace('DummyType', $type , $stub);
         $stub  = str_replace('DummyRepository', $model . 'Repository' , $stub);
 
-        $stub  = str_replace('DummyType', Helper::getType($name), $stub);
+
+
+
 
         return  $this;
     }
