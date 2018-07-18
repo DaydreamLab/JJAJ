@@ -45,9 +45,7 @@ class McCommand extends Command
         $table = CommandHelper::convertTableName($name);
 
         Helper::show($name);
-        //$this->call('make:migration', ['name' => 'create_'.$table.'_table', '--create' => $table]);
-
-
+        $this->call('make:migration', ['name' => 'create_'.$table.'_table', '--create' => $table]);
         $this->call('jjaj:controller', ['name' => 'API/'. $type . '/' .$name.'Controller']);
         $this->call('jjaj:service', ['name' => 'Services/'.$type.'/'.$name.'Service']);
         $this->call('jjaj:repository', ['name' => 'Repositories/'.$type.'/'.$name.'Repository']);
