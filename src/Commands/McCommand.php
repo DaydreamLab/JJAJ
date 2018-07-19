@@ -49,7 +49,10 @@ class McCommand extends Command
         $this->call('jjaj:service', ['name' => 'Services/'.$type.'/'.$name.'Service']);
         $this->call('jjaj:repository', ['name' => 'Repositories/'.$type.'/'.$name.'Repository']);
         $this->call('jjaj:model', ['name' => 'Models/'.$type.'/'.$name]);
-
+        $this->call('jjaj:request', ['name' => $type.'/'.$name.'StorePost']);
+        $this->call('jjaj:request', ['name' => $type.'/'.$name.'DeletePost']);
+        $this->call('jjaj:request', ['name' => $type.'/'.$name.'TrashPost']);
+        $this->call('jjaj:constant', ['name' => 'constants/'.$type]);
 
         if ($this->option('front')) {
             $this->call('jjaj:controller', [
@@ -68,6 +71,19 @@ class McCommand extends Command
                 'name' => 'Models/'.$type.'/Front/'.$name.'Front',
                 '--front'   => true,
                 '--table'   => $name
+            ]);
+
+            $this->call('jjaj:request', [
+                'name' => $type.'/Front/'.$name.'FrontStorePost',
+                '--front'   => true
+            ]);
+            $this->call('jjaj:request', [
+                'name' => $type.'/Front/'.$name.'FrontDeletePost',
+                '--front'   => true
+            ]);
+            $this->call('jjaj:request', [
+                'name' => $type.'/Front/'.$name.'FrontTrashPost',
+                '--front'   => true
             ]);
         }
 
@@ -88,6 +104,19 @@ class McCommand extends Command
                 'name' => 'Models/'.$type.'/Admin/'.$name.'Admin',
                 '--admin'   => true,
                 '--table'   => $name
+            ]);
+
+            $this->call('jjaj:request', [
+                'name' => $type.'/Admin/'.$name.'AdminStorePost',
+                '--admin'   => true
+            ]);
+            $this->call('jjaj:request', [
+                'name' => $type.'/Admin/'.$name.'AdminDeletePost',
+                '--admin'   => true
+            ]);
+            $this->call('jjaj:request', [
+                'name' => $type.'/Admin/'.$name.'AdminTrashPost',
+                '--admin'   => true
             ]);
         }
     }

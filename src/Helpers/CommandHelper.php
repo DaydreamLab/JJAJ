@@ -35,6 +35,7 @@ class CommandHelper
         $nameapace = trim(implode('\\', array_slice(explode('\\', $name), 0, -1)), '\\');
 
         $str = explode('\\', $nameapace);
+
         $type = array_pop($str);
         if ($type == 'Admin' || $type == 'Front') {
             return array_pop($str);

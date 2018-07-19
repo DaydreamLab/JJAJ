@@ -2,13 +2,40 @@
 
 namespace DummyNamespace;
 
-use DummyParentControllerNamespace;
+use DaydreamLab\JJAJ\Controllers\BaseController;
+use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use App\Services\DummyType\DummySite\DummyService;
+use App\Http\Requests\DummyType\DummySite\DummyDeletePostRequest;
+use App\Http\Requests\DummyType\DummySite\DummyStorePostRequest;
+use App\Http\Requests\DummyType\DummySite\DummyTrashPostRequest;
 
-class DummyClass extends DummyAdminController
+class DummyClass extends BaseController
 {
     public function __construct(DummyService $service)
     {
         parent::__construct($service);
+    }
+
+    public function delete(DummyDeletePostRequest $request)
+    {
+        $this->service->delete($request->rulesInput());
+
+        return ResponseHelper::response($this->service->status, $this->service->response);
+    }
+
+
+    public function trash(DummyTrashPostRequest $request)
+    {
+        $this->service->trash($request->rulesInput());
+
+        return ResponseHelper::response($this->service->status, $this->service->response);
+    }
+
+
+    public function store(DummyStorePostRequest $request)
+    {
+        $this->service->store($request->rulesInput());
+
+        return ResponseHelper::response($this->service->status, $this->service->response);
     }
 }

@@ -10,6 +10,11 @@ use Illuminate\Contracts\Validation\Validator;
 
 class BaseRequest extends FormRequest
 {
+    public function __construct(array $query = array(), array $request = array(), array $attributes = array(), array $cookies = array(), array $files = array(), array $server = array(), $content = null)
+    {
+        parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
+    }
+
     public function authorize()
     {
         return true;

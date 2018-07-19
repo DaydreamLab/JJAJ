@@ -45,6 +45,18 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    public function trash($id)
+    {
+        $item = $this->find($id);
+        if ($item) {
+            $item->trash = 1;
+            return $item->save();
+        }
+        else {
+            return false;
+        }
+    }
+
     public function update($item)
     {
         return $this->model->find($item['id'])->update($item);

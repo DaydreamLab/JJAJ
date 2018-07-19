@@ -1,0 +1,53 @@
+<?php
+
+return [
+
+    // Create
+    'DummyType_CREATE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType create success'
+    ],
+
+    'DummyType_CREATE_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType delete fail'
+    ],
+
+
+
+    // Update
+    'DummyType_UPDATE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType update success'
+    ],
+
+    'DummyType_UPDATE_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType update fail'
+    ],
+
+
+
+    // Trash
+    'DummyType_TRASH_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType trash success'
+    ],
+
+    'DummyType_TRASH_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType trash fail'
+    ],
+
+
+    // Delete
+    'DummyType_DELETE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType delete success'
+    ],
+
+    'DummyType_DELETE_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType delete fail'
+    ],
+];

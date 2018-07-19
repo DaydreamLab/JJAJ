@@ -68,15 +68,10 @@ class ServiceCommand extends GeneratorCommand
             $stub  = str_replace('DummyAdminService', $parent_service, $stub);
             $stub  = str_replace('DummySite', $site, $stub);
         }
-        else {
 
-        }
+        $stub  = str_replace('DummyModel', $model , $stub);
         $stub  = str_replace('DummyType', $type , $stub);
         $stub  = str_replace('DummyRepository', $model . 'Repository' , $stub);
-
-
-
-
 
         return  $this;
     }
