@@ -35,7 +35,7 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function find($id)
     {
-        return $this->model->find($id);
+        return $this->model->find($id)->first();
     }
 
 
