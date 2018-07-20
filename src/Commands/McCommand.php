@@ -52,7 +52,7 @@ class McCommand extends Command
         $this->call('jjaj:request', ['name' => $type.'/'.$name.'StorePost']);
         $this->call('jjaj:request', ['name' => $type.'/'.$name.'DeletePost']);
         $this->call('jjaj:request', ['name' => $type.'/'.$name.'StatePost']);
-        $this->call('jjaj:constant', ['name' => 'constants/'.$type]);
+        $this->call('jjaj:constant', ['name' => 'constants/'.Str::lower($type)]);
 
         if ($this->option('front')) {
             $this->call('jjaj:controller', [
