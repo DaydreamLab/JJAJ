@@ -38,8 +38,4 @@ class Helper {
     }
 
 
-
-
-
-
 }
