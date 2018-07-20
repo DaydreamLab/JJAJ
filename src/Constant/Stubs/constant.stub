@@ -5,27 +5,27 @@ return [
     // Create
     'DummyType_CREATE_SUCCESS' => [
         'code'      => 200,
-        'message'   => 'DummyType create success'
+        'message'   => 'ucDummyType create success'
     ],
     'DummyType_ADMIN_CREATE_SUCCESS' => [
-            'code'      => 200,
-            'message'   => 'DummyType admin create success'
+        'code'      => 200,
+        'message'   => 'ucDummyType admin create success'
     ],
     'DummyType_FRONT_CREATE_SUCCESS' => [
         'code'      => 200,
-        'message'   => 'DummyType front create success'
+        'message'   => 'ucDummyType front create success'
     ],
     'DummyType_CREATE_FAIL' => [
         'code'      => 500,
-        'message'   => 'DummyType create fail'
+        'message'   => 'ucDummyType create fail'
     ],
     'DummyType_ADMIN_CREATE_FAIL' => [
         'code'      => 500,
-        'message'   => 'DummyType admin create fail'
+        'message'   => 'ucDummyType admin create fail'
     ],
     'DummyType_FRONT_CREATE_FAIL' => [
         'code'      => 500,
-        'message'   => 'DummyType front create fail'
+        'message'   => 'ucDummyType front create fail'
     ],
 
 
@@ -33,56 +33,56 @@ return [
     // Update
     'DummyType_UPDATE_SUCCESS' => [
         'code'      => 200,
-        'message'   => 'DummyType update success'
+        'message'   => 'ucDummyType update success'
     ],
     'DummyType_ADMIN_UPDATE_SUCCESS' => [
         'code'      => 200,
-        'message'   => 'DummyType admin update success'
+        'message'   => 'ucDummyType admin update success'
     ],
     'DummyType_FRONT_UPDATE_SUCCESS' => [
         'code'      => 200,
-        'message'   => 'DummyType front update success'
+        'message'   => 'ucDummyType front update success'
     ],
 
     'DummyType_UPDATE_FAIL' => [
         'code'      => 500,
-        'message'   => 'DummyType update fail'
+        'message'   => 'ucDummyType update fail'
     ],
     'DummyType_ADMIN_UPDATE_FAIL' => [
         'code'      => 500,
-        'message'   => 'DummyType admin update fail'
+        'message'   => 'ucDummyType admin update fail'
     ],
     'DummyType_FRONT_UPDATE_FAIL' => [
         'code'      => 500,
-        'message'   => 'DummyType front update fail'
+        'message'   => 'ucDummyType front update fail'
     ],
 
 
     // Trash
     'DummyType_TRASH_SUCCESS' => [
         'code'      => 200,
-        'message'   => 'DummyType trash success'
+        'message'   => 'ucDummyType trash success'
     ],
     'DummyType_ADMIN_TRASH_SUCCESS' => [
         'code'      => 200,
-        'message'   => 'DummyType admin trash success'
+        'message'   => 'ucDummyType admin trash success'
     ],
     'DummyType_FRONT_TRASH_SUCCESS' => [
         'code'      => 200,
-        'message'   => 'DummyType front trash success'
+        'message'   => 'ucDummyType front trash success'
     ],
 
     'DummyType_TRASH_FAIL' => [
         'code'      => 500,
-        'message'   => 'DummyType trash fail'
+        'message'   => 'ucDummyType trash fail'
     ],
     'DummyType_ADMIN_TRASH_FAIL' => [
         'code'      => 500,
-        'message'   => 'DummyType admin trash fail'
+        'message'   => 'ucDummyType admin trash fail'
     ],
     'DummyType_FRONT_TRASH_FAIL' => [
         'code'      => 500,
-        'message'   => 'DummyType front trash fail'
+        'message'   => 'ucDummyType front trash fail'
     ],
 
 
