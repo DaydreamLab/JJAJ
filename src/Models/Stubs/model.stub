@@ -5,7 +5,6 @@ use DaydreamLab\JJAJ\Models\BaseModel;
 
 class DummyClass extends BaseModel
 {
-
     /**
      * The table associated with the model.
      *
