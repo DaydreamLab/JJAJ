@@ -45,11 +45,11 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function trash($id)
+    public function state($id, $state)
     {
         $item = $this->find($id);
         if ($item) {
-            $item->trash = 1;
+            $item->state = $state;
             return $item->save();
         }
         else {

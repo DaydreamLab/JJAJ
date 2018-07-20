@@ -62,15 +62,15 @@ class ControllerCommand extends ControllerMakeCommand
         if ($this->option('front') || $this->option('admin')) {
             $parent_controller  = CommandHelper::getParent($controller);
             $parent_namespace   = CommandHelper::getParentNameSpace($this->getNamespace($name));
-            $parent_model       =  CommandHelper::getParent($model);
+            $parent_model       = CommandHelper::getParent($model);
 
             //$stub  = str_replace('DummyParentControllerNamespace', $parent_namespace.$parent_controller, $stub);
             $stub  = str_replace('DummyFrontController', $parent_controller, $stub);
             $stub  = str_replace('DummyAdminController', $parent_controller, $stub);
             $stub  = str_replace('DummySite', $site, $stub);
-            $stub  = str_replace('DummyStorePostParentRequest', $parent_model.'StorePost', $stub);
-            $stub  = str_replace('DummyDeletePostParentRequest', $parent_model.'DeletePost', $stub);
-            $stub  = str_replace('DummyTrashPostParentRequest', $parent_model.'TrashPost', $stub);
+            //$stub  = str_replace('DummyStorePostParentRequest', $parent_model.'StorePost', $stub);
+            //$stub  = str_replace('DummyDeletePostParentRequest', $parent_model.'DeletePost', $stub);
+            //$stub  = str_replace('DummyStatePostParentRequest', $parent_model.'StatePost', $stub);
         }
 
 
@@ -78,7 +78,7 @@ class ControllerCommand extends ControllerMakeCommand
         $stub  = str_replace('DummyService', $model.'Service', $stub);
         $stub  = str_replace('DummyStorePostRequest', $model.'StorePost', $stub);
         $stub  = str_replace('DummyDeletePostRequest', $model.'DeletePost', $stub);
-        $stub  = str_replace('DummyTrashPostRequest', $model.'TrashPost', $stub);
+        $stub  = str_replace('DummyStatePostRequest', $model.'StatePost', $stub);
 
 
 

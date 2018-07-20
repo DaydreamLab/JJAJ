@@ -2,7 +2,6 @@
 
 namespace DaydreamLab\JJAJ\Services;
 
-
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -90,20 +89,30 @@ class BaseService
     }
 
 
-    public function trash(Collection $input)
+    public function state(Collection $input)
     {
-        foreach ($input->ids as $id) {
-            $result = $this->repo->trash($id);
+        foreach ($input->ids as $key => $id) {
+            $result = $this->repo->state($id, $input->state);
             if (!$result) {
-               break;
+                break;
             }
         }
 
+        if ($input->state == '1') {
+            $action = 'Publish';
+        }
+        elseif ($input->state == '0') {
+            $action = 'Unpublish';
+        }
+        elseif ($input->state == '-2') {
+            $action = 'Trash';
+        }
+
         if($result) {
-            $this->status =  Str::upper(Str::snake($this->type.'TrashSuccess'));
+            $this->status =  Str::upper(Str::snake($this->type. $action . 'Success'));
         }
         else {
-            $this->status =  Str::upper(Str::snake($this->type.'TrashFail'));
+            $this->status =  Str::upper(Str::snake($this->type. $action . 'Fail'));
         }
         return $result;
     }

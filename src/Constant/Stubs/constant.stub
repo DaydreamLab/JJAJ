@@ -50,4 +50,28 @@ return [
         'code'      => 500,
         'message'   => 'DummyType delete fail'
     ],
+
+
+    // Publish
+    'DummyType_PUBLISH_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType publish success'
+    ],
+
+    'DummyType_PUBLISH_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType publish fail'
+    ],
+
+
+    // Unpublish
+    'DummyType_UNPUBLISH_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType unpublish success'
+    ],
+
+    'DummyType_UNPUBLISH_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType unpublish fail'
+    ],
 ];

@@ -51,7 +51,7 @@ class McCommand extends Command
         $this->call('jjaj:model', ['name' => 'Models/'.$type.'/'.$name]);
         $this->call('jjaj:request', ['name' => $type.'/'.$name.'StorePost']);
         $this->call('jjaj:request', ['name' => $type.'/'.$name.'DeletePost']);
-        $this->call('jjaj:request', ['name' => $type.'/'.$name.'TrashPost']);
+        $this->call('jjaj:request', ['name' => $type.'/'.$name.'StatePost']);
         $this->call('jjaj:constant', ['name' => 'constants/'.$type]);
 
         if ($this->option('front')) {
@@ -82,7 +82,7 @@ class McCommand extends Command
                 '--front'   => true
             ]);
             $this->call('jjaj:request', [
-                'name' => $type.'/Front/'.$name.'FrontTrashPost',
+                'name' => $type.'/Front/'.$name.'FrontStatePost',
                 '--front'   => true
             ]);
         }
@@ -115,7 +115,7 @@ class McCommand extends Command
                 '--admin'   => true
             ]);
             $this->call('jjaj:request', [
-                'name' => $type.'/Admin/'.$name.'AdminTrashPost',
+                'name' => $type.'/Admin/'.$name.'AdminStatePost',
                 '--admin'   => true
             ]);
         }
