@@ -75,6 +75,7 @@ class BaseService
             else {
                 $this->status =  Str::upper(Str::snake($this->type.'CreateFail'));;
             }
+            return $model;
         }
         else {
             $update = $this->update($input->toArray());
@@ -85,6 +86,7 @@ class BaseService
             else {
                 $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
             }
+            return $update;
         }
     }
 
