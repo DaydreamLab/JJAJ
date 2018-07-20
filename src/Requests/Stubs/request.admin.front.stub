@@ -23,8 +23,9 @@ class DummyClass extends DummyParentRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             //
         ];
+        return array_merge($rules, parent::rules());
     }
 }

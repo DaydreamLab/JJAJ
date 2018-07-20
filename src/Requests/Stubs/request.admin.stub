@@ -3,6 +3,7 @@
 namespace DummyNamespace;
 
 use DaydreamLab\JJAJ\Requests\AdminRequest;
+use Illuminate\Validation\Rule;
 
 class DummyClass extends AdminRequest
 {
