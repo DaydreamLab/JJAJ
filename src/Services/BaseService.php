@@ -56,10 +56,10 @@ class BaseService
             }
         }
         if($result) {
-            $this->status =  Str::upper(Str::snake($this->type.'RemoveSuccess'));
+            $this->status =  Str::upper(Str::snake($this->type.'DeleteSuccess'));
         }
         else {
-            $this->status =  Str::upper(Str::snake($this->type.'RemoveFail'));
+            $this->status =  Str::upper(Str::snake($this->type.'DeleteFail'));
         }
         return $result;
     }

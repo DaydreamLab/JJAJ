@@ -16,9 +16,9 @@ class DummyClass extends BaseController
         parent::__construct($dummyService);
     }
 
-    public function delete(DummyDeletePostRequest $request)
+    public function remove(DummyRemovePostRequest $request)
     {
-        $this->service->delete($request->rulesInput());
+        $this->service->remove($request->rulesInput());
 
         return ResponseHelper::response($this->service->status, $this->service->response);
     }
