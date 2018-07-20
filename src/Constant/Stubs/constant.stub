@@ -7,10 +7,25 @@ return [
         'code'      => 200,
         'message'   => 'DummyType create success'
     ],
-
+    'DummyType_ADMIN_CREATE_SUCCESS' => [
+            'code'      => 200,
+            'message'   => 'DummyType admin create success'
+    ],
+    'DummyType_FRONT_CREATE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType front create success'
+    ],
     'DummyType_CREATE_FAIL' => [
         'code'      => 500,
-        'message'   => 'DummyType delete fail'
+        'message'   => 'DummyType create fail'
+    ],
+    'DummyType_ADMIN_CREATE_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType admin create fail'
+    ],
+    'DummyType_FRONT_CREATE_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType front create fail'
     ],
 
 
@@ -20,12 +35,27 @@ return [
         'code'      => 200,
         'message'   => 'DummyType update success'
     ],
+    'DummyType_ADMIN_UPDATE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType admin update success'
+    ],
+    'DummyType_FRONT_UPDATE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType front update success'
+    ],
 
     'DummyType_UPDATE_FAIL' => [
         'code'      => 500,
         'message'   => 'DummyType update fail'
     ],
-
+    'DummyType_ADMIN_UPDATE_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType admin update fail'
+    ],
+    'DummyType_FRONT_UPDATE_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType front update fail'
+    ],
 
 
     // Trash
@@ -33,11 +63,28 @@ return [
         'code'      => 200,
         'message'   => 'DummyType trash success'
     ],
+    'DummyType_ADMIN_TRASH_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType admin trash success'
+    ],
+    'DummyType_FRONT_TRASH_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType front trash success'
+    ],
 
     'DummyType_TRASH_FAIL' => [
         'code'      => 500,
         'message'   => 'DummyType trash fail'
     ],
+    'DummyType_ADMIN_TRASH_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType admin trash fail'
+    ],
+    'DummyType_FRONT_TRASH_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType front trash fail'
+    ],
+
 
 
     // Delete
@@ -45,10 +92,27 @@ return [
         'code'      => 200,
         'message'   => 'DummyType delete success'
     ],
+    'DummyType_ADMIN_DELETE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType admin delete success'
+    ],
+    'DummyType_FRONT_DELETE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType front delete success'
+    ],
+
 
     'DummyType_DELETE_FAIL' => [
         'code'      => 500,
         'message'   => 'DummyType delete fail'
+    ],
+    'DummyType_ADMIN_DELETE_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType admin delete fail'
+    ],
+    'DummyTyp_FRONT_DELETE_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType front delete fail'
     ],
 
 
@@ -57,10 +121,26 @@ return [
         'code'      => 200,
         'message'   => 'DummyType publish success'
     ],
+    'DummyType_ADMIN_PUBLISH_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType admin publish success'
+    ],
+    'DummyType_FRONT_PUBLISH_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType front publish success'
+    ],
 
     'DummyType_PUBLISH_FAIL' => [
         'code'      => 500,
         'message'   => 'DummyType publish fail'
+    ],
+    'DummyType_ADMIN_PUBLISH_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType admin publish fail'
+    ],
+    'DummyType_FRONT_PUBLISH_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType front publish fail'
     ],
 
 
@@ -69,9 +149,24 @@ return [
         'code'      => 200,
         'message'   => 'DummyType unpublish success'
     ],
-
+    'DummyType_ADMIN_UNPUBLISH_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType admin unpublish success'
+    ],
+    'DummyType_FRONT_UNPUBLISH_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'DummyType front unpublish success'
+    ],
     'DummyType_UNPUBLISH_FAIL' => [
         'code'      => 500,
         'message'   => 'DummyType unpublish fail'
+    ],
+    'DummyType_ADMIN_UNPUBLISH_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType admin unpublish fail'
+    ],
+    'DummyType_FRONT_UNPUBLISH_FAIL' => [
+        'code'      => 500,
+        'message'   => 'DummyType front unpublish fail'
     ],
 ];
