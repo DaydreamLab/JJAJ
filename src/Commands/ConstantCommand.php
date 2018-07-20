@@ -42,7 +42,7 @@ class ConstantCommand extends GeneratorCommand
     {
         $model = str_replace($this->getNamespace($name).'\\', '', $name);
 
-        $stub = str_replace('DummyType', $model, $stub);
+        $stub = str_replace('DummyType', strtoupper($model), $stub);
 
         return $this;
     }
