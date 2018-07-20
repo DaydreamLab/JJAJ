@@ -49,9 +49,18 @@ class McCommand extends Command
         $this->call('jjaj:service', ['name' => 'Services/'.$type.'/'.$name.'Service']);
         $this->call('jjaj:repository', ['name' => 'Repositories/'.$type.'/'.$name.'Repository']);
         $this->call('jjaj:model', ['name' => 'Models/'.$type.'/'.$name]);
-        $this->call('jjaj:request', ['name' => $type.'/'.$name.'StorePost']);
-        $this->call('jjaj:request', ['name' => $type.'/'.$name.'RemovePost']);
-        $this->call('jjaj:request', ['name' => $type.'/'.$name.'StatePost']);
+        $this->call('jjaj:request', [
+            'name'      => $type.'/'.$name.'StorePost',
+            '--store'   => true
+        ]);
+        $this->call('jjaj:request', [
+            'name'      => $type.'/'.$name.'RemovePost',
+            '--remove'  => true
+        ]);
+        $this->call('jjaj:request', [
+            'name'      => $type.'/'.$name.'StatePost',
+            '--state'   => true
+        ]);
         $this->call('jjaj:constant', ['name' => 'constants/'.Str::lower($type)]);
 
         if ($this->option('front')) {

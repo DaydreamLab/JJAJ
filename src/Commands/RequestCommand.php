@@ -13,7 +13,7 @@ class RequestCommand extends RequestMakeCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:request {name}, {--list} {--admin} {--front}';
+    protected $signature = 'jjaj:request {name}, {--list} {--admin} {--front} {--remove} {--store} {--state}';
 
     /**
      * The console command description.
@@ -44,7 +44,16 @@ class RequestCommand extends RequestMakeCommand
         elseif($this->option('front')){
             return __DIR__.'/../Requests/Stubs/request.admin.front.stub';
         }
-        else{
+        else if($this->option('remove')){
+            return __DIR__.'/../Requests/Stubs/request.admin.remove.stub';
+        }
+        else if($this->option('state')){
+            return __DIR__.'/../Requests/Stubs/request.admin.state.stub';
+        }
+        else if($this->option('store')){
+            return __DIR__.'/../Requests/Stubs/request.admin.store.stub';
+        }
+        else {
             return __DIR__.'/../Requests/Stubs/request.admin.stub';
         }
     }

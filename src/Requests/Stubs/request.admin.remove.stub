@@ -24,7 +24,8 @@ class DummyClass extends AdminRequest
     public function rules()
     {
         return [
-            //
+            'ids'       => 'required|array',
+            'ids.*'     => 'required|integer'
         ];
     }
 }
