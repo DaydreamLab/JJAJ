@@ -50,7 +50,7 @@ class BaseService
     public function remove(Collection $input)
     {
         foreach ($input->ids as $id) {
-            $result = $this->repo->delete($id['id']);
+            $result = $this->repo->delete($id);
             if (!$result) {
               break;
             }
