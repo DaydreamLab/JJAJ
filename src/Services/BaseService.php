@@ -67,7 +67,7 @@ class BaseService
 
     public function store(Collection $input)
     {
-        if ($input->id) {
+        if ($input->has('id') && $input->id) {
             $model = $this->create($input->toArray());
             if ($model) {
                 $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));;
