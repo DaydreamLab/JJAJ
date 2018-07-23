@@ -30,6 +30,12 @@ class CommandHelper
     }
 
 
+    public static function getMainName($name, $type)
+    {
+        return str_replace($type, '', $name);
+    }
+
+
     public static function getType($name)
     {
         $nameapace = trim(implode('\\', array_slice(explode('\\', $name), 0, -1)), '\\');

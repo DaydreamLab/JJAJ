@@ -65,6 +65,12 @@ class BaseService
     }
 
 
+    public function search(Collection $input)
+    {
+
+    }
+
+
     public function store(Collection $input)
     {
         if (!$input->has('id') || ($input->has('id') && $input->id == '')) {

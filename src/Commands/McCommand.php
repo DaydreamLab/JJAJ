@@ -61,6 +61,11 @@ class McCommand extends Command
             'name'      => $type.'/'.$name.'StatePost',
             '--state'   => true
         ]);
+        $this->call('jjaj:request', [
+            'name'      => $type.'/'.$name.'SearchPost',
+            '--search'    => true,
+        ]);
+
         $this->call('jjaj:constant', ['name' => 'constants/'.Str::lower($type)]);
 
         if ($this->option('front')) {
@@ -94,6 +99,10 @@ class McCommand extends Command
                 'name' => $type.'/Front/'.$name.'FrontStatePost',
                 '--front'   => true
             ]);
+            $this->call('jjaj:request', [
+                'name'      => $type.'/Front/'.$name.'FrontSearchPost',
+                '--front'    => true,
+            ]);
         }
 
         if ($this->option('admin')) {
@@ -126,6 +135,10 @@ class McCommand extends Command
             $this->call('jjaj:request', [
                 'name' => $type.'/Admin/'.$name.'AdminStatePost',
                 '--admin'   => true
+            ]);
+            $this->call('jjaj:request', [
+                'name'      => $type.'/Admin/'.$name.'AdminSearchPost',
+                '--admin'   => true,
             ]);
         }
     }

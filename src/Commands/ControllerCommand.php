@@ -5,6 +5,7 @@ namespace DaydreamLab\JJAJ\Commands;
 use DaydreamLab\JJAJ\Helpers\CommandHelper;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Routing\Console\ControllerMakeCommand;
+use Illuminate\Support\Str;
 
 class ControllerCommand extends ControllerMakeCommand
 {
@@ -77,10 +78,10 @@ class ControllerCommand extends ControllerMakeCommand
         $stub  = str_replace('DummyType', $type , $stub);
         $stub  = str_replace('DummyService', $model.'Service', $stub);
         $stub  = str_replace('DummyStorePostRequest', $model.'StorePost', $stub);
-        $stub  = str_replace('DummyDeletePostRequest', $model.'DeletePost', $stub);
+        $stub  = str_replace('DummyRemovePostRequest', $model.'RemovePost', $stub);
         $stub  = str_replace('DummyStatePostRequest', $model.'StatePost', $stub);
-
-
+        $stub  = str_replace('DummySearchPostRequest', $model.'SearchPost', $stub);
+        //$stub  = str_replace('DummyMainName', Str::lower($main_name.'s'), $stub);
 
         return $this;
     }

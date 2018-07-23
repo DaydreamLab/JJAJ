@@ -5,9 +5,10 @@ namespace DummyNamespace;
 use DaydreamLab\JJAJ\Controllers\BaseController;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use App\Services\DummyType\DummySite\DummyService;
-use App\Http\Requests\DummyType\DummySite\DummyDeletePostRequest;
+use App\Http\Requests\DummyType\DummySite\DummyRemovePostRequest;
 use App\Http\Requests\DummyType\DummySite\DummyStorePostRequest;
 use App\Http\Requests\DummyType\DummySite\DummyStatePostRequest;
+use App\Http\Requests\DummyType\DummySite\DummySearchPostRequest;
 
 class DummyClass extends BaseController
 {
@@ -35,6 +36,13 @@ class DummyClass extends BaseController
     public function store(DummyStorePostRequest $request)
     {
         $this->service->store($request->rulesInput());
+
+        return ResponseHelper::response($this->service->status, $this->service->response);
+    }
+
+    public function search(DummySearchPostRequest $request)
+    {
+        $this->service->search($request->rulesInput());
 
         return ResponseHelper::response($this->service->status, $this->service->response);
     }
