@@ -55,7 +55,7 @@ class BaseRepository implements BaseRepositoryInterface
         $collection = $this->model;
         foreach ($input->toArray() as $key => $item) {
             if ($key != 'limit' && $key !='ordering' && $key !='order_by') {
-                $collection = $collection->where("$key", '=', $item);
+                $collection = $collection->where("$key", 'LIKE', '%%'.$item.'%%');
             }
         }
 
