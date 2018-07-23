@@ -2,15 +2,15 @@
 
 namespace DaydreamLab\JJAJ\Repositories;
 
-use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 class BaseRepository implements BaseRepositoryInterface
 {
     protected $model;
 
-    public function __construct(BaseModel $model)
+    public function __construct(Model $model)
     {
         $this->model = $model;
     }
