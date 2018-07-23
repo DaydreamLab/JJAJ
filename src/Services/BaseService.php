@@ -67,7 +67,11 @@ class BaseService
 
     public function search(Collection $input)
     {
+        $result         = $this->repo->search($input);
+        $this->status   = Str::upper(Str::snake($this->type.'SearchSuccess'));
+        $this->response = $result;
 
+        return $result;
     }
 
 

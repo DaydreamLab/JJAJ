@@ -2,14 +2,15 @@
 
 namespace DaydreamLab\JJAJ\Repositories;
 
+use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class BaseRepository implements BaseRepositoryInterface
 {
     protected $model;
 
-    public function __construct(Model $model)
+    public function __construct(BaseModel $model)
     {
         $this->model = $model;
     }
@@ -42,6 +43,23 @@ class BaseRepository implements BaseRepositoryInterface
     public function findBy($field, $operator, $value)
     {
         return $this->model->where($field, $operator, $value)->get();
+    }
+
+
+    public function search(Collection $input)
+    {
+        $order_by   = $input->has('order_by') ? $input->order_by : $this->model->getOrderBy();
+        $limit      = $input->has('limit') ? $input->limit : $this->model->getLimit();
+        $ordering   = $input->has('ordering') ? $input->ordering : $this->model->getOrdering();
+
+        $collection = $this->model;
+        foreach ($input->toArray() as $key => $item) {
+            if ($key != 'limit' && $key !='ordering' && $key !='order_by') {
+                $collection = $collection->where("$key", '=', $item);
+            }
+        }
+
+        return $collection->orderBy($order_by, $ordering)->paginate($limit);
     }
 
 

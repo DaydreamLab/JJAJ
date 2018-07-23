@@ -17,6 +17,7 @@ class DummyClass extends BaseController
         parent::__construct($service);
     }
 
+
     public function remove(DummyRemovePostRequest $request)
     {
         $this->service->remove($request->rulesInput());
@@ -39,6 +40,7 @@ class DummyClass extends BaseController
 
         return ResponseHelper::response($this->service->status, $this->service->response);
     }
+
 
     public function search(DummySearchPostRequest $request)
     {

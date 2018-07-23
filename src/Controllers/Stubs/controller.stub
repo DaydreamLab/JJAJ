@@ -40,6 +40,7 @@ class DummyClass extends BaseController
         return ResponseHelper::response($this->service->status, $this->service->response);
     }
 
+
     public function search(DummySearchPostRequest $request)
     {
         $this->service->search($request->rulesInput());

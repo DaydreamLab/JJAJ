@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Auth;
 
 class BaseModel extends Model
 {
+
+    protected static $order_by = 'id';
+
     protected static $limit = 25;
 
     protected static $ordering = 'desc';
@@ -30,6 +33,25 @@ class BaseModel extends Model
         });
     }
 
+
+    public function getLimit()
+    {
+        return self::$limit;
+    }
+
+
+    public function getOrdering()
+    {
+        return self::$ordering;
+    }
+
+
+    public function getOrderBy()
+    {
+        return self::$order_by;
+    }
+
+
     public static function setLimit($limit)
     {
         if ($limit && $limit != ''){
@@ -41,6 +63,14 @@ class BaseModel extends Model
     {
         if ($ordering && $ordering != ''){
             self::$ordering = $ordering;
+        }
+    }
+
+
+    public static function setOrderBy($order_by)
+    {
+        if ($order_by && $order_by != ''){
+            self::$order_by = $order_by;
         }
     }
 }
