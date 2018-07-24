@@ -5,6 +5,7 @@ namespace DaydreamLab\JJAJ\Repositories;
 use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class BaseRepository implements BaseRepositoryInterface
 {
@@ -57,6 +58,10 @@ class BaseRepository implements BaseRepositoryInterface
             if ($key != 'limit' && $key !='ordering' && $key !='order_by') {
                 $collection = $collection->where("$key", 'LIKE', '%%'.$item.'%%');
             }
+        }
+
+        if(Schema::hasColumn( $this->model->getTable(), '_lft')) {
+            $collection = $collection->where('title', '!=', 'ROOT');
         }
 
         return $collection->orderBy($order_by, $ordering)->paginate($limit);
