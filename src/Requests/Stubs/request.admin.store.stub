@@ -24,8 +24,10 @@ class DummyClass extends AdminRequest
     public function rules()
     {
         return [
-            'id'        => 'nullable|integer',
-            'state'      => 'required|integer',
+            'id'            => 'nullable|integer',
+            'title'         => 'required|string',
+            'state'         => 'required|integer',
+            'description'   => 'nullable|string',
         ];
     }
 }
