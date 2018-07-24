@@ -13,11 +13,4 @@ class DummyClass extends DummyAdminModel
     protected $table = 'DummyTable';
 
 
-    /**
-     * The attributes that should be hidden for arrays
-     *
-     * @var array
-     */
-    protected $hidden = [
-    ];
 }

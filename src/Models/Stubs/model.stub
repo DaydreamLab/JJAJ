@@ -31,5 +31,14 @@ class DummyClass extends BaseModel
     ];
 
 
+    /**
+     * The attributes that should be append for arrays
+     *
+     * @var array
+     */
+    protected $append = [
+    ];
+
+
 
 }
