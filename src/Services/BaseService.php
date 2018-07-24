@@ -26,6 +26,20 @@ class BaseService
         return $this->repo->all();
     }
 
+
+    public function add($data)
+    {
+        $model = $this->create($data);
+        if ($model) {
+            $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));;
+        }
+        else {
+            $this->status =  Str::upper(Str::snake($this->type.'CreateFail'));;
+        }
+        return $model;
+    }
+
+
     public function create($data)
     {
         return $this->repo->create($data);
@@ -44,6 +58,20 @@ class BaseService
     public function findBy($filed, $operator, $value)
     {
         return $this->repo->findBy($filed, $operator, $value);
+    }
+
+
+    public function modify($data)
+    {
+        $update = $this->update($data);
+        if ($update) {
+
+            $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
+        }
+        else {
+            $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
+        }
+        return $update;
     }
 
 
@@ -78,25 +106,10 @@ class BaseService
     public function store(Collection $input)
     {
         if (!$input->has('id') || ($input->has('id') && $input->id == '')) {
-            $model = $this->create($input->toArray());
-            if ($model) {
-                $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));;
-            }
-            else {
-                $this->status =  Str::upper(Str::snake($this->type.'CreateFail'));;
-            }
-            return $model;
+            return $this->add($input->toArray());
         }
         else {
-            $update = $this->update($input->toArray());
-            if ($update) {
-
-                $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
-            }
-            else {
-                $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
-            }
-            return $update;
+            return $this->modify($input->toArray());
         }
     }
 
