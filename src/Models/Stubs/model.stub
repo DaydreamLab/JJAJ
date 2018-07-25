@@ -19,6 +19,12 @@ class DummyClass extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'title',
+        'category_id',
+        'state',
+        'description',
+        'created_by',
+        'updated_by'
     ];
 
 
