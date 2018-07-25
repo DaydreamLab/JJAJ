@@ -137,7 +137,7 @@ class McCommand extends Command
                 '--admin'   => true
             ]);
             $this->call('jjaj:request', [
-                'name'      => $type.'/Front/'.$name.'AdminSearchPost',
+                'name'      => $type.'/Admin/'.$name.'AdminSearchPost',
                 '--admin'   => true,
             ]);
         }
