@@ -23,7 +23,7 @@ class DummyClass extends ListRequest
         $rules = [
             'title' => 'nullable|string',
             'state'     => [
-                'required',
+                'nullable',
                 'integer',
                 Rule::in([0,1,-2])
             ]
