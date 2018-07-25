@@ -110,7 +110,7 @@ return [
         'code'      => 500,
         'message'   => 'UcModel admin delete fail'
     ],
-    'DummyTyp_FRONT_DELETE_FAIL' => [
+    'DummyType_FRONT_DELETE_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel front delete fail'
     ],
