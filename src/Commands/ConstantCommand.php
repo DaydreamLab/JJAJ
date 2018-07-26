@@ -14,7 +14,7 @@ class ConstantCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:constant {name} {--model}';
+    protected $signature = 'jjaj:constant {name} {--model=}';
 
     /**
      * The console command description.
@@ -44,7 +44,7 @@ class ConstantCommand extends GeneratorCommand
         $model = str_replace($this->getNamespace($name).'\\', '', $name);
 
         $stub = str_replace('DummyModel', Str::upper(Str::snake($this->option('model'))), $stub);
-        $stub = str_replace('UcModel', ucfirst($model), $stub);
+        $stub = str_replace('UcModel', str_replace('_', ' ',ucfirst(Str::snake($this->option('model')))), $stub);
 
         return $this;
     }
