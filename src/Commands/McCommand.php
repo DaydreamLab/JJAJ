@@ -66,7 +66,7 @@ class McCommand extends Command
             '--search'    => true,
         ]);
 
-        $this->call('jjaj:constant', ['name' => 'constants/'.Str::lower($type)]);
+        $this->call('jjaj:constant', ['name' => 'constants/'.Str::lower($type), '--model' => $name]);
 
         if ($this->option('front')) {
             $this->call('jjaj:controller', [

@@ -5,6 +5,7 @@ namespace DaydreamLab\JJAJ\Commands;
 use DaydreamLab\JJAJ\Helpers\CommandHelper;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Console\GeneratorCommand;
+use Illuminate\Support\Str;
 
 class ConstantCommand extends GeneratorCommand
 {
@@ -13,7 +14,7 @@ class ConstantCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:constant {name}';
+    protected $signature = 'jjaj:constant {name} {--model}';
 
     /**
      * The console command description.
@@ -42,7 +43,7 @@ class ConstantCommand extends GeneratorCommand
     {
         $model = str_replace($this->getNamespace($name).'\\', '', $name);
 
-        $stub = str_replace('DummyType', strtoupper($model), $stub);
+        $stub = str_replace('DummyModel', Str::upper(Str::snake($this->option('model'))), $stub);
         $stub = str_replace('UcModel', ucfirst($model), $stub);
 
         return $this;

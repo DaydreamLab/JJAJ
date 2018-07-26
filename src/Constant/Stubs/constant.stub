@@ -3,27 +3,27 @@
 return [
 
     // Create
-    'DummyType_CREATE_SUCCESS' => [
+    'DummyModel_CREATE_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel create success'
     ],
-    'DummyType_ADMIN_CREATE_SUCCESS' => [
+    'DummyModel_ADMIN_CREATE_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel admin create success'
     ],
-    'DummyType_FRONT_CREATE_SUCCESS' => [
+    'DummyModel_FRONT_CREATE_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel front create success'
     ],
-    'DummyType_CREATE_FAIL' => [
+    'DummyModel_CREATE_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel create fail'
     ],
-    'DummyType_ADMIN_CREATE_FAIL' => [
+    'DummyModel_ADMIN_CREATE_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel admin create fail'
     ],
-    'DummyType_FRONT_CREATE_FAIL' => [
+    'DummyModel_FRONT_CREATE_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel front create fail'
     ],
@@ -31,56 +31,56 @@ return [
 
 
     // Update
-    'DummyType_UPDATE_SUCCESS' => [
+    'DummyModel_UPDATE_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel update success'
     ],
-    'DummyType_ADMIN_UPDATE_SUCCESS' => [
+    'DummyModel_ADMIN_UPDATE_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel admin update success'
     ],
-    'DummyType_FRONT_UPDATE_SUCCESS' => [
+    'DummyModel_FRONT_UPDATE_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel front update success'
     ],
 
-    'DummyType_UPDATE_FAIL' => [
+    'DummyModel_UPDATE_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel update fail'
     ],
-    'DummyType_ADMIN_UPDATE_FAIL' => [
+    'DummyModel_ADMIN_UPDATE_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel admin update fail'
     ],
-    'DummyType_FRONT_UPDATE_FAIL' => [
+    'DummyModel_FRONT_UPDATE_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel front update fail'
     ],
 
 
     // Trash
-    'DummyType_TRASH_SUCCESS' => [
+    'DummyModel_TRASH_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel trash success'
     ],
-    'DummyType_ADMIN_TRASH_SUCCESS' => [
+    'DummyModel_ADMIN_TRASH_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel admin trash success'
     ],
-    'DummyType_FRONT_TRASH_SUCCESS' => [
+    'DummyModel_FRONT_TRASH_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel front trash success'
     ],
 
-    'DummyType_TRASH_FAIL' => [
+    'DummyModel_TRASH_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel trash fail'
     ],
-    'DummyType_ADMIN_TRASH_FAIL' => [
+    'DummyModel_ADMIN_TRASH_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel admin trash fail'
     ],
-    'DummyType_FRONT_TRASH_FAIL' => [
+    'DummyModel_FRONT_TRASH_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel front trash fail'
     ],
@@ -88,111 +88,111 @@ return [
 
 
     // Delete
-    'DummyType_DELETE_SUCCESS' => [
+    'DummyModel_DELETE_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel delete success'
     ],
-    'DummyType_ADMIN_DELETE_SUCCESS' => [
+    'DummyModel_ADMIN_DELETE_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel admin delete success'
     ],
-    'DummyType_FRONT_DELETE_SUCCESS' => [
+    'DummyModel_FRONT_DELETE_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel front delete success'
     ],
 
 
-    'DummyType_DELETE_FAIL' => [
+    'DummyModel_DELETE_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel delete fail'
     ],
-    'DummyType_ADMIN_DELETE_FAIL' => [
+    'DummyModel_ADMIN_DELETE_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel admin delete fail'
     ],
-    'DummyType_FRONT_DELETE_FAIL' => [
+    'DummyModel_FRONT_DELETE_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel front delete fail'
     ],
 
 
     // Publish
-    'DummyType_PUBLISH_SUCCESS' => [
+    'DummyModel_PUBLISH_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel publish success'
     ],
-    'DummyType_ADMIN_PUBLISH_SUCCESS' => [
+    'DummyModel_ADMIN_PUBLISH_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel admin publish success'
     ],
-    'DummyType_FRONT_PUBLISH_SUCCESS' => [
+    'DummyModel_FRONT_PUBLISH_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel front publish success'
     ],
 
-    'DummyType_PUBLISH_FAIL' => [
+    'DummyModel_PUBLISH_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel publish fail'
     ],
-    'DummyType_ADMIN_PUBLISH_FAIL' => [
+    'DummyModel_ADMIN_PUBLISH_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel admin publish fail'
     ],
-    'DummyType_FRONT_PUBLISH_FAIL' => [
+    'DummyModel_FRONT_PUBLISH_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel front publish fail'
     ],
 
 
     // Unpublish
-    'DummyType_UNPUBLISH_SUCCESS' => [
+    'DummyModel_UNPUBLISH_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel unpublish success'
     ],
-    'DummyType_ADMIN_UNPUBLISH_SUCCESS' => [
+    'DummyModel_ADMIN_UNPUBLISH_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel admin unpublish success'
     ],
-    'DummyType_FRONT_UNPUBLISH_SUCCESS' => [
+    'DummyModel_FRONT_UNPUBLISH_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel front unpublish success'
     ],
-    'DummyType_UNPUBLISH_FAIL' => [
+    'DummyModel_UNPUBLISH_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel unpublish fail'
     ],
-    'DummyType_ADMIN_UNPUBLISH_FAIL' => [
+    'DummyModel_ADMIN_UNPUBLISH_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel admin unpublish fail'
     ],
-    'DummyType_FRONT_UNPUBLISH_FAIL' => [
+    'DummyModel_FRONT_UNPUBLISH_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel front unpublish fail'
     ],
 
 
     //Search
-    'DummyType_SEARCH_SUCCESS' => [
+    'DummyModel_SEARCH_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel search success'
     ],
-    'DummyType_ADMIN_SEARCH_SUCCESS' => [
+    'DummyModel_ADMIN_SEARCH_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel admin search success'
     ],
-    'DummyType_FRONT_SEARCH_SUCCESS' => [
+    'DummyModel_FRONT_SEARCH_SUCCESS' => [
         'code'      => 200,
         'message'   => 'UcModel front search success'
     ],
-    'DummyType_SEARCH_FAIL' => [
+    'DummyModel_SEARCH_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel search fail'
     ],
-    'DummyType_ADMIN_SEARCH_FAIL' => [
+    'DummyModel_ADMIN_SEARCH_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel admin search fail'
     ],
-    'DummyType_FRONT_SEARCH_FAIL' => [
+    'DummyModel_FRONT_SEARCH_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel front search fail'
     ],
