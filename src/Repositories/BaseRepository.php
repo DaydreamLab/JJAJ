@@ -47,6 +47,16 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    public function findByChain($fields, $operators, $values)
+    {
+        $model = $this->model;
+        foreach ($fields as $key => $field) {
+            $model = $model->where($field , $operators, $values[$key]);
+        }
+        return $model->get();
+    }
+
+
     public function search(Collection $input)
     {
         $order_by   = $input->has('order_by') ? $input->order_by : $this->model->getOrderBy();
