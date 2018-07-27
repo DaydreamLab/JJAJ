@@ -51,7 +51,7 @@ class BaseRepository implements BaseRepositoryInterface
     {
         $model = $this->model;
         foreach ($fields as $key => $field) {
-            $model = $model->where($field , $operators, $values[$key]);
+            $model = $model->where($field[$key] , $operators[$key], $values[$key]);
         }
         return $model->get();
     }
