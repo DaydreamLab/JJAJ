@@ -26,7 +26,7 @@ class DummyClass extends AdminRequest
     {
         return [
             'ids'       => 'required|array',
-            'ids.*.id'  => 'required|integer',
+            'ids.*'     => 'required|integer',
             'state'     => [
                 'required',
                 'integer',
