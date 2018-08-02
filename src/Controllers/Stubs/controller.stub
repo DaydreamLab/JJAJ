@@ -12,9 +12,9 @@ use App\Http\Requests\DummyType\DummySearchPostRequest;
 
 class DummyClass extends BaseController
 {
-    public function __construct(DummyService $dummyService)
+    public function __construct(DummyService $service)
     {
-        parent::__construct($dummyService);
+        parent::__construct($service);
     }
 
     public function remove(DummyRemovePostRequest $request)
