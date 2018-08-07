@@ -100,7 +100,7 @@ class McCommand extends Command
                 '--front'   => true
             ]);
             $this->call('jjaj:request', [
-                'name'      => $type.'/Front/'.$name.'SearchPost',
+                'name'      => $type.'/Front/'.$name.'FrontSearchPost',
                 '--front'    => true,
             ]);
         }
