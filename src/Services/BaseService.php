@@ -60,6 +60,11 @@ class BaseService
         return $this->repo->findBy($filed, $operator, $value);
     }
 
+    public function findByChain($fields, $operators, $values)
+    {
+        return $this->repo->findByChain($fields , $operators, $values);
+    }
+
 
     public function modify($data)
     {
