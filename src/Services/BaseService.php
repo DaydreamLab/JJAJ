@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Services;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -130,7 +131,11 @@ class BaseService
                 return $this->find($node->id);
             }
             else {
-                return $this->add($input->toArray());
+                $root = $this->find(1);
+                $node = $this->add($input->toArray());
+                $root->prependNode($node);
+
+                return $node;
             }
         }
         else {
