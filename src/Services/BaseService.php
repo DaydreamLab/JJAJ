@@ -55,10 +55,12 @@ class BaseService
     {
         $item = $this->repo->find($id);
         if($item) {
-            $this->status = Str::upper(Str::snake($this->type.'FindSuccess'));;
+            $this->status   = Str::upper(Str::snake($this->type.'FindSuccess'));
+            $this->response = $item;
         }
         else {
-            $this->status = Str::upper(Str::snake($this->type.'FindFail'));;
+            $this->status   = Str::upper(Str::snake($this->type.'FindFail'));
+            $this->response = $item;
         }
 
         return $item;
