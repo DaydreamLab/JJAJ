@@ -17,6 +17,13 @@ class DummyClass extends BaseController
         parent::__construct($service);
     }
 
+    public function getItem(id)
+    {
+        $this->service->find($id);
+
+        return ResponseHelper::response($this->service->status, $this->service->response);
+    }
+
 
     public function remove(DummyRemovePostRequest $request)
     {

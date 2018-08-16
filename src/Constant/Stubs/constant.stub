@@ -196,4 +196,30 @@ return [
         'code'      => 500,
         'message'   => 'UcModel front search fail'
     ],
+
+    // Find
+    'DummyModel_FIND_SUCCESS' => [
+            'code'      => 200,
+            'message'   => 'UcModel find success'
+    ],
+    'DummyModel_ADMIN_FIND_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel admin find success'
+    ],
+    'DummyModel_FRONT_FIND_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel front find success'
+    ],
+    'DummyModel_FIND_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel find fail'
+    ],
+    'DummyModel_ADMIN_FIND_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel find search fail'
+    ],
+    'DummyModel_FRONT_FIND_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel front find fail'
+    ],
 ];

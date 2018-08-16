@@ -53,7 +53,15 @@ class BaseService
 
     public function find($id)
     {
-        return $this->repo->find($id);
+        $item = $this->repo->find($id);
+        if($item) {
+            $this->status = Str::upper(Str::snake($this->type.'FindSuccess'));;
+        }
+        else {
+            $this->status = Str::upper(Str::snake($this->type.'FindFail'));;
+        }
+
+        return $item;
     }
 
     public function findBy($filed, $operator, $value)
