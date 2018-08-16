@@ -71,7 +71,12 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
         if(Schema::hasColumn( $this->model->getTable(), '_lft')) {
-            $collection = $collection->where('title', '!=', 'ROOT');
+            if (Schema::hasColumn( $this->model->getTable(), 'title')) {
+                $collection = $collection->where('title', '!=', 'ROOT');
+            }
+            else {
+                $collection = $collection->where('name', '!=', 'ROOT');
+            }
         }
 
         return $collection->orderBy($order_by, $ordering)->paginate($limit);
