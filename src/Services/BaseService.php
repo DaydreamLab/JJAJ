@@ -119,6 +119,24 @@ class BaseService
     }
 
 
+    public function storeNested(Collection $input)
+    {
+        if (!$input->has('id') || ($input->has('id') && $input->id == '')) {
+            if ($input->has('parent_id') && $input->parent_id != '') {
+                $node   = $this->add($input->toArray());
+                $parent = $this->find($input->parent_id);
+                $parent->prependNode($node);
+            }
+            else {
+                return $this->add($input->toArray());
+            }
+        }
+        else {
+            return $this->modify($input->toArray());
+        }
+    }
+
+
     public function state(Collection $input)
     {
         foreach ($input->ids as $key => $id) {
