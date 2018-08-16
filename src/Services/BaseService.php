@@ -126,13 +126,22 @@ class BaseService
                 $node   = $this->add($input->toArray());
                 $parent = $this->find($input->parent_id);
                 $parent->prependNode($node);
+
+                return $this->find($node->id);
             }
             else {
                 return $this->add($input->toArray());
             }
         }
         else {
-            return $this->modify($input->toArray());
+            $node = $this->find($input->id);
+            if ($node->parent_id == $input->parent_id) {
+                return $this->modify($input->toArray());
+            }
+            else {
+                $new_parent = $this->find($input->parent_id);
+                return $new_parent->prependNode($node);
+            }
         }
     }
 
