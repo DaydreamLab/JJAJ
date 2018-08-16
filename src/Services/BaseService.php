@@ -145,7 +145,15 @@ class BaseService
             }
             else {
                 $new_parent = $this->find($input->parent_id);
-                return $new_parent->prependNode($node);
+
+                if ($new_parent->prependNode($node)) {
+                    $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
+                    return true;
+                }
+                else {
+                    $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
+                    return false;
+                }
             }
         }
     }
