@@ -5,6 +5,7 @@ namespace DaydreamLab\JJAJ\Commands;
 use DaydreamLab\JJAJ\Helpers\CommandHelper;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Routing\Console\ControllerMakeCommand;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class ControllerCommand extends ControllerMakeCommand
@@ -27,7 +28,7 @@ class ControllerCommand extends ControllerMakeCommand
     protected $type = 'Controller';
 
     protected function getStub()
-    {
+    { new Collection();
         if($this->option('front')) {
             return __DIR__.'/../Controllers/Stubs/controller.front.stub';
         }

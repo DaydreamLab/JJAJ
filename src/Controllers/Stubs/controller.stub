@@ -4,6 +4,7 @@ namespace DummyNamespace;
 
 use DaydreamLab\JJAJ\Controllers\BaseController;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
+use Illuminate\Support\Collection;
 use App\Services\DummyType\DummyService;
 use App\Http\Requests\DummyType\DummyRemovePostRequest;
 use App\Http\Requests\DummyType\DummyStorePostRequest;
@@ -21,6 +22,14 @@ class DummyClass extends BaseController
     public function getItem(id)
     {
         $this->service->find($id);
+
+        return ResponseHelper::response($this->service->status, $this->service->response);
+    }
+
+
+    public function getItems()
+    {
+        $this->service->search(new Collection());
 
         return ResponseHelper::response($this->service->status, $this->service->response);
     }
