@@ -28,7 +28,7 @@ class ResponseHelper
 
         if (gettype($data) == 'array' ) {
             $response['items']      = $data;
-            $response['records']    = count([$data]);
+            $response['records']    = count($data);
         }
         elseif(gettype($data) == 'string') {
             $response['items']      = $data;
