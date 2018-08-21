@@ -25,7 +25,7 @@ class ResponseHelper
         if($data === null) {
             return null;
         }
-
+echo '1';
         if (gettype($data) == 'array' ) {
             $response['items']      = $data;
             $response['records']    = count([$data]);
