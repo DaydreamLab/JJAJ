@@ -22,7 +22,7 @@ class ResponseHelper
 
     public static function format($data)
     {
-        if(!$data) {
+        if($data === null) {
             return null;
         }
 
