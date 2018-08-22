@@ -19,7 +19,7 @@ class DummyClass extends BaseController
     }
 
 
-    public function getItem(id)
+    public function getItem($id)
     {
         $this->service->find($id);
 

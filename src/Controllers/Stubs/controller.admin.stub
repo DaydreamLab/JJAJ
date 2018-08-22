@@ -18,7 +18,7 @@ class DummyClass extends BaseController
         parent::__construct($service);
     }
 
-    public function getItem(id)
+    public function getItem($id)
     {
         $this->service->find($id);
 
