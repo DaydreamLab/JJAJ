@@ -137,14 +137,16 @@ class BaseService
                 $node   = $this->add($input->toArray());
                 $parent = $this->find($input->parent_id);
                 $parent->prependNode($node);
-
-                return $this->find($node->id);
+                $this->status = Str::upper(Str::snake($this->type.'CreateSuccess'));
+                $this->response = $node;
+                return $node;
             }
             else {
                 $root = $this->find(1);
                 $node = $this->add($input->toArray());
                 $root->prependNode($node);
-
+                $this->status = Str::upper(Str::snake($this->type.'CreateSuccess'));
+                $this->response = $node;
                 return $node;
             }
         }
