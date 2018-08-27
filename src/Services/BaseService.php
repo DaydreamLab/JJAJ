@@ -144,11 +144,11 @@ class BaseService
 
         $delete_items = $this->findBy($mainKey, '=', $input->{$mainKey});
         if ($delete_items->count() > 0) {
-            $ids = [];
+            $data = [];
             foreach ($delete_items as $item) {
-                $ids[] = $item->id;
+                $data['ids'][] = $item->id;
             }
-            if ($this->remove(Helper::collect($ids))) {
+            if ($this->remove(Helper::collect($data))) {
                 return false;
             }
         }
