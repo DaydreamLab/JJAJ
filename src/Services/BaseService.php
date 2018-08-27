@@ -153,8 +153,8 @@ class BaseService
             }
         }
 
-        if (count($input->{$mapKey}) > 0) {
-            foreach ($input->{$mapKey} as $id) {
+        if (count($input->{$mapKey.'s'}) > 0) {
+            foreach ($input->{$mapKey.'s'} as $id) {
                 $asset = $this->add([
                     $mainKey    => $input->{$mainKey},
                     Str::substr($mapKey, 0, -1) => $id
