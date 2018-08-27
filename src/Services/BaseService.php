@@ -148,7 +148,7 @@ class BaseService
             foreach ($delete_items as $item) {
                 $data['ids'][] = $item->id;
             }
-            if ($this->remove(Helper::collect($data))) {
+            if (!$this->remove(Helper::collect($data))) {
                 return false;
             }
         }
