@@ -130,6 +130,36 @@ class BaseService
     }
 
 
+    public function storeKeysMap(Collection $input, $mainKey, $mapKey)
+    {
+        // delete
+        $delete_items = $this->findBy($mainKey, '=', $input->{$mainKey});
+        if ($delete_items->count() > 0) {
+            $ids = [];
+            foreach ($delete_items as $item) {
+                $ids[] = $item->id;
+            }
+            if ($this->remove(Helper::collect($ids))) {
+                return false;
+            }
+        }
+
+        if ($input->{$mapKey.'_ids'} -> count() > 0) {
+            foreach ($input->{$mapKey.'_ids'} as $id) {
+                $asset = $this->add([
+                    $mainKey    => $input->{$mainKey},
+                    $mapKey     => $id
+                ]);
+                if (!$asset) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+
     public function storeNested(Collection $input)
     {
         if (!$input->has('id') || ($input->has('id') && $input->id == '')) {
