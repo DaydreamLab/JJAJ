@@ -142,7 +142,6 @@ class BaseService
             }
         }
 
-
         $delete_items = $this->findBy($mainKey, '=', $input->{$mainKey});
         if ($delete_items->count() > 0) {
             $ids = [];
@@ -154,9 +153,8 @@ class BaseService
             }
         }
 
-        if ($input->{$mapKey} -> count() > 0) {
+        if (count($input->{$mapKey}) > 0) {
             foreach ($input->{$mapKey} as $id) {
-
                 $asset = $this->add([
                     $mainKey    => $input->{$mainKey},
                     Str::substr($mapKey, 0, -1) => $id
