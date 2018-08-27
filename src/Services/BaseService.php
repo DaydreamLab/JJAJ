@@ -130,9 +130,19 @@ class BaseService
     }
 
 
-    public function storeKeysMap(Collection $input, $mainKey, $mapKey)
+    public function storeKeysMap(Collection $input)
     {
-        // delete
+        $mainKey = $mapKey = null;
+        foreach ($input->keys() as $key) {
+            if (gettype($input->{$key}) == 'array') {
+                $mapKey = $key;
+            }
+            else {
+                $mainKey = $key;
+            }
+        }
+
+
         $delete_items = $this->findBy($mainKey, '=', $input->{$mainKey});
         if ($delete_items->count() > 0) {
             $ids = [];
@@ -144,11 +154,12 @@ class BaseService
             }
         }
 
-        if ($input->{$mapKey.'_ids'} -> count() > 0) {
-            foreach ($input->{$mapKey.'_ids'} as $id) {
+        if ($input->{$mapKey} -> count() > 0) {
+            foreach ($input->{$mapKey} as $id) {
+
                 $asset = $this->add([
                     $mainKey    => $input->{$mainKey},
-                    $mapKey     => $id
+                    Str::substr($mapKey, 0, -1) => $id
                 ]);
                 if (!$asset) {
                     return false;
