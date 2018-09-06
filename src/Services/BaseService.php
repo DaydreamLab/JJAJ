@@ -77,6 +77,17 @@ class BaseService
     }
 
 
+    public function getOrder($parent) {
+        $descendants = $parent->descendants;
+        if ($descendants->count() > 0) {
+            $last = $descendants->sortBy('order')->last();
+            return $last->order + 1 ;
+        }
+        else {
+            return 1;
+        }
+    }
+
     public function modify($data)
     {
         $update = $this->update($data);
@@ -171,38 +182,59 @@ class BaseService
 
     public function storeNested(Collection $input)
     {
+        // 新增
         if (!$input->has('id') || ($input->has('id') && $input->id == '')) {
             if ($input->has('parent_id') && $input->parent_id != '') {
-                $node   = $this->add($input->toArray());
                 $parent = $this->find($input->parent_id);
+                $input->put('order', $this->getOrder($parent));
+                $node   = $this->add($input->toArray());
                 $parent->prependNode($node);
                 $this->status = Str::upper(Str::snake($this->type.'CreateSuccess'));
                 $this->response = $node;
                 return $node;
             }
             else {
-                $root = $this->find(1);
+                if ($input->has('extension') && $input->get('extension') != '') {
+                    $root = $this->findByChain(['title', 'extension'],['=', '='],['ROOT', $input->extension])->first();
+                }
+                else {
+                    $root = $this->find(1);
+                }
+                $input->put('order', $this->getOrder($root));
                 $node = $this->add($input->toArray());
                 $root->prependNode($node);
                 $this->status = Str::upper(Str::snake($this->type.'CreateSuccess'));
                 $this->response = $node;
                 return $node;
             }
-        }
+        }//編輯
         else {
             $node = $this->find($input->id);
             if ($node->parent_id == $input->parent_id) {
                 return $this->modify($input->toArray());
             }
             else {
+                // 處理搬移的 order 問題
+                $items = $this->findByChain(['parent_id', 'order'], ['=', '>'], [$node->parent_id, $node->order]);
+                $items->each(function ($item, $key) {
+                   $item->order = $item->order - 1;
+                   $item->save();
+                });
+
                 $new_parent = $this->find($input->parent_id);
+
+                $input->forget('order');
+                $input->put('order', $this->getOrder($new_parent));
+                $this->modify($input->toArray());
 
                 if ($new_parent->prependNode($node)) {
                     $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
+                    $this->response = null;
                     return true;
                 }
                 else {
                     $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
+                    $this->response = null;
                     return false;
                 }
             }
@@ -236,6 +268,27 @@ class BaseService
             $this->status =  Str::upper(Str::snake($this->type. $action . 'Fail'));
         }
         return $result;
+    }
+
+
+    public function traverseTitle(&$categories, $prefix = '-', &$str = '')
+    {
+        $categories  = $categories->sortBy('order');
+        foreach ($categories as $category) {
+            $str = $str . PHP_EOL.$prefix.' '.$category->title;
+            $this->traverseTitle($category->children, $prefix.'-', $str);
+        }
+        return $str;
+    }
+
+
+    public function tree($extension)
+    {
+        $tree = $this->findBy('extension', '=', $extension)->toTree();
+        $this->status =  Str::upper(Str::snake($this->type . 'GetTreeSuccess'));
+        $this->response = $tree;
+
+        return $tree;
     }
 
 

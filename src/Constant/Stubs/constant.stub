@@ -222,4 +222,19 @@ return [
         'code'      => 500,
         'message'   => 'UcModel front find fail'
     ],
+
+
+    //Get tree
+    'DummyModel_GET_TREE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel get tree success'
+    ],
+    'DummyModel_ADMIN_GET_TREE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel admin get tree success'
+    ],
+    'DummyModel_FRONT_GET_TREE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel front get tree success'
+    ],
 ];
