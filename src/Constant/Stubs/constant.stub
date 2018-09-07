@@ -171,6 +171,32 @@ return [
     ],
 
 
+    // Archive
+    'DummyModel_ARCHIVE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel archive success'
+    ],
+    'DummyModel_ADMIN_ARCHIVE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel admin archive success'
+    ],
+    'DummyModel_FRONT_ARCHIVE_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel front archive success'
+    ],
+    'DummyModel_ARCHIVE_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel archive fail'
+    ],
+    'DummyModel_ADMIN_ARCHIVE_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel admin archive fail'
+    ],
+    'DummyModel_FRONT_ARCHIVE_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel front archive fail'
+    ],
+
     //Search
     'DummyModel_SEARCH_SUCCESS' => [
         'code'      => 200,

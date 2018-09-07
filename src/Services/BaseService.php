@@ -183,7 +183,7 @@ class BaseService
     public function storeNested(Collection $input)
     {
         // 新增
-        if (!$input->has('id') || ($input->has('id') && $input->id == '')) {
+        if ($input->get('id') == null || $input->get('id') == '') {
             if ($input->has('parent_id') && $input->parent_id != '') {
                 $parent = $this->find($input->parent_id);
                 $input->put('order', $this->getOrder($parent));
@@ -194,8 +194,9 @@ class BaseService
                 return $node;
             }
             else {
-                if ($input->has('extension') && $input->get('extension') != '') {
-                    $root = $this->findByChain(['title', 'extension'],['=', '='],['ROOT', $input->extension])->first();
+
+                if ($input->get('extension') != '') {
+                    $root = $this->findByChain(['title', 'extension'],['=', '='],['ROOT', $input->get('extension')])->first();
                 }
                 else {
                     $root = $this->find(1);
@@ -256,6 +257,9 @@ class BaseService
         }
         elseif ($input->state == '0') {
             $action = 'Unpublish';
+        }
+        elseif ($input->state == '0') {
+            $action = 'Archive';
         }
         elseif ($input->state == '-2') {
             $action = 'Trash';

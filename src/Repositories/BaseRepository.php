@@ -60,13 +60,26 @@ class BaseRepository implements BaseRepositoryInterface
     public function search(Collection $input)
     {
         $order_by   = $input->has('order_by') ? $input->order_by : $this->model->getOrderBy();
-        $limit      = $input->has('limit') ? $input->limit : $this->model->getLimit();
+        $limit      = $input->has('limit')    ? $input->limit    : $this->model->getLimit();
         $ordering   = $input->has('ordering') ? $input->ordering : $this->model->getOrdering();
 
         $collection = $this->model;
         foreach ($input->toArray() as $key => $item) {
             if ($key != 'limit' && $key !='ordering' && $key !='order_by') {
-                $collection = $collection->where("$key", 'LIKE', '%%'.$item.'%%');
+                if ($key == 'search') {
+                    $collection->where(function ($query) use ($item){
+                        $query->where('title', 'LIKE', '%%'.$item.'%%');
+                        if (Schema::hasColumn($this->model->getTable(), 'introtext')) {
+                            $query->orWhere('introtext', 'LIKE', '%%'.$item.'%%');
+                        }
+                        if (Schema::hasColumn($this->model->getTable(), 'description')) {
+                            $query->orWhere('description', 'LIKE', '%%'.$item.'%%');
+                        }
+                    });
+                }
+                else {
+                    $collection = $collection->where("$key", '=', $item);
+                }
             }
         }
 
