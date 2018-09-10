@@ -13,7 +13,7 @@ class RequestCommand extends RequestMakeCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:request {name}, {--list} {--admin} {--front} {--remove} {--store} {--state} {--search}';
+    protected $signature = 'jjaj:request {name}, {--list} {--admin} {--front} {--remove} {--store} {--state} {--search} {--component=}';
 
     /**
      * The console command description.
@@ -27,8 +27,17 @@ class RequestCommand extends RequestMakeCommand
 
     protected function buildClass($name)
     {
-        $stub = $this->files->get($this->getStub());
+        try {
+            $stub = $this->files->get($this->getStub());
+        }
+        catch (\Exception $e) {
+            echo $e->getMessage();
+            return false;
+        }
 
+        if ($this->option('component')) {
+            $name = str_replace('App\Http\Requests\\', '', $name);
+        }
         return  $this->replaceNamespace($stub, $name)->replaceScaffold($stub,$name)->replaceClass($stub, $name);
     }
 

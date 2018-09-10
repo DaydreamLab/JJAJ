@@ -3,7 +3,7 @@
 namespace DummyNamespace;
 
 use DummyParentRepositoryNamespace;
-use App\Models\DummyType\DummySite\DummyModel;
+use DummyPathModel\Models\DummyType\DummySite\DummyModel;
 
 class DummyClass extends DummyAdminRepository
 {

@@ -15,7 +15,7 @@ class ControllerCommand extends ControllerMakeCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:controller {name} {--admin} {--front}';
+    protected $signature = 'jjaj:controller {name} {--admin} {--front} {--component=}';
 
     /**
      * The console command description.
@@ -28,7 +28,7 @@ class ControllerCommand extends ControllerMakeCommand
     protected $type = 'Controller';
 
     protected function getStub()
-    { new Collection();
+    {
         if($this->option('front')) {
             return __DIR__.'/../Controllers/Stubs/controller.front.stub';
         }
@@ -43,16 +43,38 @@ class ControllerCommand extends ControllerMakeCommand
 
     protected function buildClass($name)
     {
-        $stub = $this->files->get($this->getStub());
+        try {
+            $stub = $this->files->get($this->getStub());
+        }
+        catch (\Exception $e) {
+            echo $e->getMessage();
+            return false;
+        }
+
+        if ($this->option('component')) {
+            $name = str_replace('App\Http\Controllers\\', '', $name);
+        }
 
         return $this->replaceNamespace($stub, $name)->replaceScaffold($stub, $name)->replaceClass($stub, $name);
     }
+
 
     protected function replaceScaffold(&$stub, $name)
     {
         $controller = str_replace($this->getNamespace($name).'\\', '', $name);
         $model      = str_replace('Controller', '', $controller);
         $type       = CommandHelper::getType($name);
+        $component  = $this->option('component');
+
+        if ($component) {
+            $service_path = 'DaydreamLab\\'.$component;
+            $request_path = 'DaydreamLab\\'.$component;
+        }
+        else {
+            $service_path = 'App';
+            $request_path = 'App\Http';
+        }
+
 
         if ($this->option('front')) {
             $site = 'Front';
@@ -61,28 +83,19 @@ class ControllerCommand extends ControllerMakeCommand
             $site = 'Admin';
         }
 
+
         if ($this->option('front') || $this->option('admin')) {
-            $parent_controller  = CommandHelper::getParent($controller);
-            $parent_namespace   = CommandHelper::getParentNameSpace($this->getNamespace($name));
-            $parent_model       = CommandHelper::getParent($model);
-
-            //$stub  = str_replace('DummyParentControllerNamespace', $parent_namespace.$parent_controller, $stub);
-            $stub  = str_replace('DummyFrontController', $parent_controller, $stub);
-            $stub  = str_replace('DummyAdminController', $parent_controller, $stub);
             $stub  = str_replace('DummySite', $site, $stub);
-            //$stub  = str_replace('DummyStorePostParentRequest', $parent_model.'StorePost', $stub);
-            //$stub  = str_replace('DummyDeletePostParentRequest', $parent_model.'DeletePost', $stub);
-            //$stub  = str_replace('DummyStatePostParentRequest', $parent_model.'StatePost', $stub);
         }
-
 
         $stub  = str_replace('DummyType', $type , $stub);
         $stub  = str_replace('DummyService', $model.'Service', $stub);
+        $stub  = str_replace('DummyPathService', $service_path, $stub);
+        $stub  = str_replace('DummyPathRequest', $request_path, $stub);
         $stub  = str_replace('DummyStorePostRequest', $model.'StorePost', $stub);
         $stub  = str_replace('DummyRemovePostRequest', $model.'RemovePost', $stub);
         $stub  = str_replace('DummyStatePostRequest', $model.'StatePost', $stub);
         $stub  = str_replace('DummySearchPostRequest', $model.'SearchPost', $stub);
-        //$stub  = str_replace('DummyMainName', Str::lower($main_name.'s'), $stub);
 
         return $this;
     }

@@ -2,7 +2,7 @@
 
 namespace DummyNamespace;
 
-use App\Repositories\DummyType\DummySite\DummyRepository;
+use DummyPathRepository\Repositories\DummyType\DummySite\DummyRepository;
 use DummyParentNamespace;
 
 class DummyClass extends DummyFrontService

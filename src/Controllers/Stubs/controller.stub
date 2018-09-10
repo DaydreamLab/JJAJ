@@ -5,11 +5,11 @@ namespace DummyNamespace;
 use DaydreamLab\JJAJ\Controllers\BaseController;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use Illuminate\Support\Collection;
-use App\Services\DummyType\DummyService;
-use App\Http\Requests\DummyType\DummyRemovePostRequest;
-use App\Http\Requests\DummyType\DummyStorePostRequest;
-use App\Http\Requests\DummyType\DummyStatePostRequest;
-use App\Http\Requests\DummyType\DummySearchPostRequest;
+use DummyPathService\Services\DummyType\DummyService;
+use DummyPathRequest\Requests\DummyType\DummyRemovePostRequest;
+use DummyPathRequest\Requests\DummyType\DummyStorePostRequest;
+use DummyPathRequest\Requests\DummyType\DummyStatePostRequest;
+use DummyPathRequest\Requests\DummyType\DummySearchPostRequest;
 
 class DummyClass extends BaseController
 {

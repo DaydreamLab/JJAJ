@@ -5,6 +5,7 @@ namespace DaydreamLab\JJAJ\Commands;
 use DaydreamLab\JJAJ\Helpers\CommandHelper;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 class McCommand extends Command
@@ -14,7 +15,7 @@ class McCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'jjaj:mc {name} {--admin} {--front}';
+    protected $signature = 'jjaj:mc {name} {--admin} {--front} {--component=}';
 
     /**
      * The console command description.
@@ -23,6 +24,7 @@ class McCommand extends Command
      */
     protected $description = 'Create model, controller implement service/repository design pattern';
 
+    
     /**
      * Create a new command instance.
      *
@@ -40,29 +42,92 @@ class McCommand extends Command
      */
     public function handle()
     {
-        $name  = ucfirst($this->argument('name'));
-        $type  = ucfirst(explode('_', Str::snake($name))[0]);
-        $table = CommandHelper::convertTableName($name);
+        $name       = ucfirst($this->argument('name'));
+        $type       = ucfirst(explode('_', Str::snake($name))[0]);
+        $table      = CommandHelper::convertTableName($name);
+       
+        $component  = $this->option('component');
+        if ($component) {
+            $component_namespace = 'DaydreamLab/'. $component;
+            $controller_namespace       = $component_namespace.'/Controllers/'.$type.'/'.$name.'Controller';
+            $controller_front_namespace = $component_namespace.'/Controllers/'.$type.'/Front/'.$name.'FrontController';
+            $controller_admin_namespace = $component_namespace.'/Controllers/'.$type.'/Admin/'.$name.'AdminController';
 
-        $this->call('jjaj:migration', ['name' => 'create_'.$table.'_table', '--create' => $table]);
-        $this->call('jjaj:controller', ['name' => 'API/'. $type . '/' .$name.'Controller']);
-        $this->call('jjaj:service', ['name' => 'Services/'.$type.'/'.$name.'Service']);
-        $this->call('jjaj:repository', ['name' => 'Repositories/'.$type.'/'.$name.'Repository']);
-        $this->call('jjaj:model', ['name' => 'Models/'.$type.'/'.$name]);
+            $service_namespace          = $component_namespace.'/Services/'.$type.'/'.$name.'Service';
+            $service_front_namespace    = $component_namespace.'/Services/'.$type.'/Front/'.$name.'FrontService';
+            $service_admin_namespace    = $component_namespace.'/Services/'.$type.'/Admin/'.$name.'AdminService';
+
+            $repository_namespace       = $component_namespace.'/Repositories/'.$type.'/'.$name.'Repository';
+            $repository_front_namespace = $component_namespace.'/Repositories/'.$type.'/Front/'.$name.'FrontRepository';
+            $repository_admin_namespace = $component_namespace.'/Repositories/'.$type.'/Admin/'.$name.'AdminRepository';
+
+            $model_namespace            = $component_namespace.'/Models/'.$type.'/'.$name;
+            $model_front_namespace      = $component_namespace.'/Models/'.$type.'/Front/'.$name.'Front';
+            $model_admin_namespace      = $component_namespace.'/Models/'.$type.'/Admin/'.$name.'Admin';
+
+            $request_namespace          = $component_namespace.'/Requests/'.$type.'/'.$name;
+            $request_front_namespace    = $component_namespace.'/Requests/'.$type.'/Front/'.$name;
+            $request_admin_namespace    = $component_namespace.'/Requests/'.$type.'/Admin/'.$name;
+        }
+        else {
+            $controller_namespace       = 'API/'. $type . '/' .$name.'Controller';
+            $controller_front_namespace = 'API/'. $type . '/Front/' .$name.'FrontController';
+            $controller_admin_namespace = 'API/'. $type . '/Admin/' .$name.'AdminController';
+
+            $service_namespace          = 'Services/'.$type . '/' .$name.'Service';
+            $service_front_namespace    = 'Services/'.$type . '/Front/' .$name.'FrontService';
+            $service_admin_namespace    = 'Services/'.$type . '/Admin/' .$name.'AdminService';
+
+            $repository_namespace       = 'Repositories/'.$type . '/' .$name.'Repository';
+            $repository_front_namespace = 'Repositories/'.$type . '/Front/' .$name.'FrontRepository';
+            $repository_admin_namespace = 'Repositories/'.$type . '/Admin/' .$name.'AdminRepository';
+
+            $model_namespace            = 'Models/'.$type . '/' .$name;
+            $model_front_namespace      = 'Models/'.$type . '/Front/' .$name.'Front';
+            $model_admin_namespace      = 'Models/'.$type . '/Admin/' .$name.'Admin';
+
+            $request_namespace = $type.'/'.$name;
+            $request_front_namespace = $type.'/Front/'.$name;
+            $request_admin_namespace = $type.'/Admin/'.$name;
+        }
+
+        //$this->call('jjaj:migration', ['name' => 'create_'.$table.'_table', '--create' => $table]);
+        $this->call('jjaj:controller', [
+            'name'          => $controller_namespace,
+            '--component'   => $component
+        ]);
+
+        $this->call('jjaj:service', [
+            'name'          => $service_namespace,
+            '--component'   => $component,
+        ]);
+        $this->call('jjaj:repository', [
+            'name'          => $repository_namespace,
+            '--component'   => $component,
+        ]);
+        $this->call('jjaj:model', [
+            'name'          => $model_namespace,
+            '--component'   => $component,
+        ]);
+
         $this->call('jjaj:request', [
-            'name'      => $type.'/'.$name.'StorePost',
+            'name'      => $request_namespace.'StorePost',
+            '--component'   => $component,
             '--store'   => true
         ]);
         $this->call('jjaj:request', [
-            'name'      => $type.'/'.$name.'RemovePost',
+            'name'      => $request_namespace.'RemovePost',
+            '--component'   => $component,
             '--remove'  => true
         ]);
         $this->call('jjaj:request', [
-            'name'      => $type.'/'.$name.'StatePost',
+            'name'      => $request_namespace.'StatePost',
+            '--component'   => $component,
             '--state'   => true
         ]);
         $this->call('jjaj:request', [
-            'name'      => $type.'/'.$name.'SearchPost',
+            'name'      => $request_namespace.'SearchPost',
+            '--component'   => $component,
             '--search'    => true,
         ]);
 
@@ -70,78 +135,114 @@ class McCommand extends Command
 
         if ($this->option('front')) {
             $this->call('jjaj:controller', [
-                'name'      => 'API/'. $type . '/Front/' .$name.'FrontController',
-                '--front'     => true
+                'name'          => $controller_front_namespace,
+                '--component'   => $component,
+                '--front'       => true
             ]);
             $this->call('jjaj:service', [
-                'name'      => 'Services/'.$type.'/Front/'.$name.'FrontService',
-                '--front'   => true,
+                'name'          => $service_front_namespace,
+                '--component'   => $component,
+                '--front'       => true,
             ]);
             $this->call('jjaj:repository', [
-                'name'      => 'Repositories/'.$type.'/Front/'.$name.'FrontRepository',
-                '--front'   => true,
+                'name'          => $repository_front_namespace,
+                '--component'   => $component,
+                '--front'       => true,
             ]);
             $this->call('jjaj:model', [
-                'name' => 'Models/'.$type.'/Front/'.$name.'Front',
-                '--front'   => true,
-                '--table'   => $name
+                'name'          => $model_front_namespace,
+                '--component'   => $component,
+                '--front'       => true,
+                '--table'       => $name
             ]);
 
             $this->call('jjaj:request', [
-                'name' => $type.'/Front/'.$name.'FrontStorePost',
-                '--front'   => true
+                'name'          => $request_front_namespace.'FrontStorePost',
+                '--component'   => $component,
+                '--front'       => true
             ]);
             $this->call('jjaj:request', [
-                'name' => $type.'/Front/'.$name.'FrontRemovePost',
-                '--front'   => true
+                'name'          => $request_front_namespace.'FrontRemovePost',
+                '--component'   => $component,
+                '--front'       => true
             ]);
             $this->call('jjaj:request', [
-                'name' => $type.'/Front/'.$name.'FrontStatePost',
-                '--front'   => true
+                'name'          => $request_front_namespace.'FrontStatePost',
+                '--component'   => $component,
+                '--front'       => true
             ]);
             $this->call('jjaj:request', [
-                'name'      => $type.'/Front/'.$name.'FrontSearchPost',
-                '--front'    => true,
+                'name'          => $request_front_namespace.'FrontSearchPost',
+                '--component'   => $component,
+                '--front'       => true,
             ]);
         }
 
         if ($this->option('admin')) {
             $this->call('jjaj:controller', [
-                'name'      => 'API/'. $type . '/Admin/' .$name.'AdminController',
-                '--admin'   => true
+                'name'          => $controller_admin_namespace,
+                '--component'   => $component,
+                '--admin'       => true
             ]);
             $this->call('jjaj:service', [
-                'name'      => 'Services/'.$type.'/Admin/'.$name.'AdminService',
-                 '--admin'  => true,
+                'name'          => $service_admin_namespace,
+                '--component'   => $component,
+                 '--admin'      => true,
             ]);
             $this->call('jjaj:repository', [
-                'name'      => 'Repositories/'.$type.'/Admin/'.$name.'AdminRepository',
-                '--admin'   => true,
+                'name'          => $repository_admin_namespace,
+                '--component'   => $component,
+                '--admin'       => true,
             ]);
             $this->call('jjaj:model', [
-                'name' => 'Models/'.$type.'/Admin/'.$name.'Admin',
-                '--admin'   => true,
-                '--table'   => $name
+                'name'          => $model_admin_namespace,
+                '--component'   => $component,
+                '--admin'       => true,
+                '--table'       => $name
             ]);
 
             $this->call('jjaj:request', [
-                'name' => $type.'/Admin/'.$name.'AdminStorePost',
-                '--admin'   => true
+                'name'          => $request_admin_namespace.'AdminStorePost',
+                '--component'   => $component,
+                '--admin'       => true
             ]);
             $this->call('jjaj:request', [
-                'name' => $type.'/Admin/'.$name.'AdminRemovePost',
-                '--admin'   => true
+                'name'          => $request_admin_namespace.'AdminRemovePost',
+                '--component'   => $component,
+                '--admin'       => true
             ]);
             $this->call('jjaj:request', [
-                'name' => $type.'/Admin/'.$name.'AdminStatePost',
-                '--admin'   => true
+                'name'          => $request_admin_namespace.'AdminStatePost',
+                '--component'   => $component,
+                '--admin'       => true
             ]);
             $this->call('jjaj:request', [
-                'name'      => $type.'/Admin/'.$name.'AdminSearchPost',
-                '--admin'   => true,
+                'name'          => $request_admin_namespace.'AdminSearchPost',
+                '--component'   => $component,
+                '--admin'       => true,
             ]);
+        }
+
+
+        if ($component) {
+            $this->movePackage($component);
         }
     }
 
+
+    public function movePackage($component)
+    {
+
+        if (!File::exists('packages')) {
+            File::makeDirectory('packages');
+        }
+
+        //File::moveDirectory('app/Http/Controllers/Daydreamlab/'.$component, 'packages/',true);
+        //File::moveDirectory('app/Http/Requests/Daydreamlab/'.$component, 'packages/', true);
+        //File::moveDirectory('app/Daydreamlab/'.$component, 'packages/', true);
+        //File::moveDirectory('app/Daydreamlab/'.$component, 'packages/', true);
+        //File::moveDirectory('app/Daydreamlab/'.$component, 'packages/', true);
+        //File::moveDirectory('app/constants', 'packages/DaydreamLab/'.$this->option('component'), true);
+    }
 
 }

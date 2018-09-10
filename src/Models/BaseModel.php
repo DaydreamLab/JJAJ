@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Models;
 
+use DaydreamLab\User\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
@@ -72,5 +73,19 @@ class BaseModel extends Model
         if ($order_by && $order_by != ''){
             $this->order_by = $order_by;
         }
+    }
+
+
+    public function creator()
+    {
+        $creator = $this->belongsTo(User::class, 'id', 'created_by')->first();
+        return $creator ? $creator->nickname : null;
+    }
+
+
+    public function updater()
+    {
+        $updater =  $this->belongsTo(User::class, 'id', 'updated_by')->first();
+        return $updater ? $updater->nickname : null;
     }
 }

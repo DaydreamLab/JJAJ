@@ -2,7 +2,7 @@
 
 namespace DummyNamespace;
 
-use App\Repositories\DummyType\DummyRepository;
+use DummyPathRepository\Repositories\DummyType\DummyRepository;
 use DaydreamLab\JJAJ\Services\BaseService;
 
 class DummyClass extends BaseService

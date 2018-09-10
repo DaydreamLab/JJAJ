@@ -3,7 +3,7 @@
 namespace DummyNamespace;
 
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
-use App\Models\DummyType\DummyModel;
+use DummyPathModel\Models\DummyType\DummyModel;
 
 class DummyClass extends BaseRepository
 {

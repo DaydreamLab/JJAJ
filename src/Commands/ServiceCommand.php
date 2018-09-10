@@ -13,7 +13,7 @@ class ServiceCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:service {name} {--admin} {--front}';
+    protected $signature = 'jjaj:service {name} {--admin} {--front} {--component=}';
 
     /**
      * The console command description.
@@ -28,7 +28,17 @@ class ServiceCommand extends GeneratorCommand
 
     protected function buildClass($name)
     {
-        $stub = $this->files->get($this->getStub());
+        try {
+            $stub = $this->files->get($this->getStub());
+        }
+        catch (\Exception $e) {
+            echo $e->getMessage();
+            return false;
+        }
+
+        if ($this->option('component')) {
+            $name = str_replace('App\\', '', $name);
+        }
 
         return $this->replaceNamespace($stub, $name)->replaceScaffold($stub, $name)->replaceClass($stub, $name);
     }
@@ -50,9 +60,11 @@ class ServiceCommand extends GeneratorCommand
 
     protected function replaceScaffold(&$stub, $name)
     {
-        $service = str_replace($this->getNamespace($name).'\\', '', $name);
-        $model   = substr_replace($service, '', strrpos($service, 'Service'));;
-        $type    = CommandHelper::getType($name);
+        $service    = str_replace($this->getNamespace($name).'\\', '', $name);
+        $model      = substr_replace($service, '', strrpos($service, 'Service'));;
+        $type       = CommandHelper::getType($name);
+        $component  = $this->option('component');
+
         if ($this->option('front')) {
             $site = 'Front';
         }
@@ -60,8 +72,16 @@ class ServiceCommand extends GeneratorCommand
             $site = 'Admin';
         }
 
+
+        if ($component) {
+            $repository_path = 'DaydreamLab\\'.$component;
+        }
+        else {
+            $repository_path = 'App';
+        }
+
         if ($this->option('front') || $this->option('admin')) {
-            $parent_service        = CommandHelper::getParent($service);
+            $parent_service     = CommandHelper::getParent($service);
             $parent_namespace   = CommandHelper::getParentNameSpace($this->getNamespace($name));
             $stub  = str_replace('DummyParentNamespace', $parent_namespace.$parent_service, $stub);
             $stub  = str_replace('DummyFrontService', $parent_service, $stub);
@@ -72,6 +92,7 @@ class ServiceCommand extends GeneratorCommand
         $stub  = str_replace('DummyModel', $model , $stub);
         $stub  = str_replace('DummyType', $type , $stub);
         $stub  = str_replace('DummyRepository', $model . 'Repository' , $stub);
+        $stub  = str_replace('DummyPathRepository', $repository_path , $stub);
 
         return  $this;
     }

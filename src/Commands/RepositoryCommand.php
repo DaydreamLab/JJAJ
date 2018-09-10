@@ -13,7 +13,7 @@ class RepositoryCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:repository {name} {--admin} {--front}';
+    protected $signature = 'jjaj:repository {name} {--admin} {--front} {--component=}';
 
     /**
      * The console command description.
@@ -28,7 +28,18 @@ class RepositoryCommand extends GeneratorCommand
 
     protected function buildClass($name)
     {
-        $stub = $this->files->get($this->getStub());
+        try {
+            $stub = $this->files->get($this->getStub());
+        }
+        catch (\Exception $e) {
+            echo $e->getMessage();
+            return false;
+        }
+
+        if ($this->option('component')) {
+            $name = str_replace('App\\', '', $name);
+        }
+
         return $this->replaceNamespace($stub, $name)->replaceScaffold($stub, $name)->replaceClass($stub, $name);
     }
 
@@ -51,7 +62,7 @@ class RepositoryCommand extends GeneratorCommand
         $repository = str_replace($this->getNamespace($name).'\\', '', $name);
         $model      = str_replace('Repository', '', $repository);
         $type       = CommandHelper::getType($name);
-
+        $component  = $this->option('component');
 
         if ($this->option('front')) {
             $site = 'Front';
@@ -59,6 +70,14 @@ class RepositoryCommand extends GeneratorCommand
         elseif ($this->option('admin')) {
             $site = 'Admin';
         }
+
+        if ($component) {
+            $model_path = 'DaydreamLab\\'.$component;
+        }
+        else {
+            $model_path = 'App';
+        }
+
 
         if ($this->option('front') || $this->option('admin')) {
             $parent_repo        = CommandHelper::getParent($repository);
@@ -72,6 +91,7 @@ class RepositoryCommand extends GeneratorCommand
 
         $stub  = str_replace('DummyType', $type , $stub);
         $stub  = str_replace('DummyModel', $model, $stub);
+        $stub  = str_replace('DummyPathModel', $model_path, $stub);
 
 
         return  $this;
