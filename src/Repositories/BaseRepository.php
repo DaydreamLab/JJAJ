@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Repositories;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -78,7 +79,9 @@ class BaseRepository implements BaseRepositoryInterface
                     });
                 }
                 else {
-                    $collection = $collection->where("$key", '=', $item);
+                    if ($item != null) {
+                        $collection = $collection->where("$key", '=', $item);
+                    }
                 }
             }
         }
