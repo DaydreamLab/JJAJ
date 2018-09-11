@@ -32,10 +32,12 @@ class BaseService
     {
         $model = $this->create($data);
         if ($model) {
-            $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));;
+            $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));
+            $this->response = $model;
         }
         else {
-            $this->status =  Str::upper(Str::snake($this->type.'CreateFail'));;
+            $this->status =  Str::upper(Str::snake($this->type.'CreateFail'));
+            $this->response = null;
         }
         return $model;
     }
@@ -92,11 +94,12 @@ class BaseService
     {
         $update = $this->update($data);
         if ($update) {
-
             $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
+            $this->response = $this->find($data['id']);
         }
         else {
             $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
+            $this->response = null;
         }
         return $update;
     }
@@ -132,7 +135,7 @@ class BaseService
 
     public function store(Collection $input)
     {
-        if (!$input->has('id') || ($input->has('id') && $input->id == '')) {
+        if ($input->get('id') == null || $input->get('id') == '') {
             return $this->add($input->toArray());
         }
         else {
