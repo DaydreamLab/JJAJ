@@ -232,17 +232,23 @@ class McCommand extends Command
 
     public function movePackage($component)
     {
-
         if (!File::exists('packages')) {
             File::makeDirectory('packages');
         }
 
-        //File::moveDirectory('app/Http/Controllers/Daydreamlab/'.$component, 'packages/',true);
-        //File::moveDirectory('app/Http/Requests/Daydreamlab/'.$component, 'packages/', true);
-        //File::moveDirectory('app/Daydreamlab/'.$component, 'packages/', true);
-        //File::moveDirectory('app/Daydreamlab/'.$component, 'packages/', true);
-        //File::moveDirectory('app/Daydreamlab/'.$component, 'packages/', true);
-        //File::moveDirectory('app/constants', 'packages/DaydreamLab/'.$this->option('component'), true);
+        File::copyDirectory('app/Http/Controllers/Daydreamlab/'.$component, 'packages/');
+        File::copyDirectory('app/Http/Requests/Daydreamlab/'.$component, 'packages/');
+        File::copyDirectory('app/Daydreamlab/'.$component, 'packages/');
+        File::copyDirectory('app/Daydreamlab/'.$component, 'packages/');
+        File::copyDirectory('app/Daydreamlab/'.$component, 'packages/');
+        File::copyDirectory('app/constants', 'packages/constants');
+
+        File::deleteDirectory('app/Http/Controllers/Daydreamlab/');
+        File::deleteDirectory('app/Http/Requests/Daydreamlab/');
+        File::deleteDirectory('app/Daydreamlab/');
+        File::deleteDirectory('app/Daydreamlab/');
+        File::deleteDirectory('app/Daydreamlab/');
+        File::deleteDirectory('app/constants');
     }
 
 }
