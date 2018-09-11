@@ -91,7 +91,23 @@ class McCommand extends Command
             $request_admin_namespace = $type.'/Admin/'.$name;
         }
 
-        //$this->call('jjaj:migration', ['name' => 'create_'.$table.'_table', '--create' => $table]);
+        if ($component) {
+            if (!File::exists('database/migrations/'.$component)) {
+                File::makeDirectory('database/migrations/'.$component);
+            }
+            $this->call('jjaj:migration', [
+                'name'          => 'create_'.$table.'_table',
+                '--path'        => 'database/migrations/'.$component,
+                '--create'      => $table
+            ]);
+        }
+        else {
+            $this->call('jjaj:migration', [
+                'name'          => 'create_'.$table.'_table',
+                '--create'      => $table
+            ]);
+        }
+
         $this->call('jjaj:controller', [
             'name'          => $controller_namespace,
             '--component'   => $component
@@ -223,7 +239,6 @@ class McCommand extends Command
             ]);
         }
 
-
         if ($component) {
             $this->movePackage($component);
         }
@@ -242,6 +257,7 @@ class McCommand extends Command
         File::copyDirectory('app/Daydreamlab/'.$component, 'packages/');
         File::copyDirectory('app/Daydreamlab/'.$component, 'packages/');
         File::copyDirectory('app/constants', 'packages/constants');
+        File::copyDirectory('database/migrations/'.$component, 'packages/database/migrations');
 
         File::deleteDirectory('app/Http/Controllers/Daydreamlab/');
         File::deleteDirectory('app/Http/Requests/Daydreamlab/');
@@ -249,6 +265,7 @@ class McCommand extends Command
         File::deleteDirectory('app/Daydreamlab/');
         File::deleteDirectory('app/Daydreamlab/');
         File::deleteDirectory('app/constants');
+        File::deleteDirectory('database/migrations/'.$component);
     }
 
 }
