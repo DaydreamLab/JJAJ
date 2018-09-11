@@ -76,9 +76,18 @@ class RequestCommand extends RequestMakeCommand
         $parent_model   = CommandHelper::getParent($model);
         $type           = CommandHelper::getType($name);
 
+        $component      = $this->option('component');
+        if ($component) {
+            $prefix = 'DaydreamLab\\'.$component;
+        }
+        else {
+            $prefix = 'App\Http';
+        }
+
         $stub  = str_replace('DummyPostRequest', $model . 'Repository' , $stub);
         $stub  = str_replace('DummyType', $type , $stub);
         $stub  = str_replace('DummyParentRequest', $parent_model , $stub);
+        $stub  = str_replace('DummyPrefix', $prefix , $stub);
 
         return  $this;
     }
