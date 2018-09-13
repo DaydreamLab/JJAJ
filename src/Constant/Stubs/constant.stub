@@ -28,7 +28,31 @@ return [
         'message'   => 'UcModel front create fail'
     ],
 
-
+    // Create Nested
+    'DummyModel_CREATE_NESTED_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel create nested success'
+    ],
+    'DummyModel_ADMIN_CREATE_NESTED_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel admin create nested success'
+    ],
+    'DummyModel_FRONT_CREATE_NESTED_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel front create nested success'
+    ],
+    'DummyModel_CREATE_NESTED_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel create nested fail'
+    ],
+    'DummyModel_ADMIN_CREATE_NESTED_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel admin create nested fail'
+    ],
+    'DummyModel_FRONT_CREATE_NESTED_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel front create nested fail'
+    ],
 
     // Update
     'DummyModel_UPDATE_SUCCESS' => [
@@ -57,6 +81,32 @@ return [
         'message'   => 'UcModel front update fail'
     ],
 
+    // Update Nested
+    'DummyModel_UPDATE_NESTED_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel update nested success'
+    ],
+    'DummyModel_ADMIN_UPDATE_NESTED_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel admin update nested success'
+    ],
+    'DummyModel_FRONT_UPDATE_NESTED_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel front update nested success'
+    ],
+
+    'DummyModel_UPDATE_NESTED_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel update nested fail'
+    ],
+    'DummyModel_ADMIN_UPDATE_NESTED_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel admin update nested fail'
+    ],
+    'DummyModel_FRONT_UPDATE_NESTED_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel front update nested fail'
+    ],
 
     // Trash
     'DummyModel_TRASH_SUCCESS' => [

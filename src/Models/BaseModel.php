@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Models;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\User\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,7 @@ class BaseModel extends Model
 
         $user = Auth::guard('api')->user();
 
+
         static::creating(function ($item) use($user) {
             if ($user) {
                 $item->created_by = $user->id;
@@ -32,6 +34,13 @@ class BaseModel extends Model
                 $item->updated_by = $user->id;
             }
         });
+
+    }
+
+
+    public function getDepthAttribute()
+    {
+        return $this->ancestors->count();
     }
 
 
@@ -50,6 +59,17 @@ class BaseModel extends Model
     public function getOrderBy()
     {
         return $this->order_by;
+    }
+
+
+    public function getTreeTitleAttribute()
+    {
+        $depth = $this->depth;
+        $str = '';
+        for ($i = 0 ; $i < $depth ; $i++) {
+            $str .= ' | ';
+        }
+        return $str . ' - ' . $this->title;
     }
 
 

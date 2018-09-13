@@ -86,6 +86,7 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
+
         if(Schema::hasColumn( $this->model->getTable(), '_lft')) {
             if (Schema::hasColumn( $this->model->getTable(), 'title')) {
                 $collection = $collection->where('title', '!=', 'ROOT');
@@ -93,7 +94,18 @@ class BaseRepository implements BaseRepositoryInterface
             else {
                 $collection = $collection->where('name', '!=', 'ROOT');
             }
+
+            $paginate = $collection->orderBy($order_by, $ordering)->paginate($limit);
+            $flatTree = $paginate->toFlatTree();
+
+
+            $temp = $paginate->toArray();
+            unset($temp['data']);
+            $flatTree->put('pagination', $temp);
+
+            return $flatTree;
         }
+
 
         return $collection->orderBy($order_by, $ordering)->paginate($limit);
     }

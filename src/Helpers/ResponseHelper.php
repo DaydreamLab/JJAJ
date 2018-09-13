@@ -21,7 +21,7 @@ class ResponseHelper
     }
 
     public static function format($data)
-    {
+    {//Helper::show(get_class($data));exit();
         if($data === null) {
             return null;
         }
@@ -36,8 +36,8 @@ class ResponseHelper
             $response['message']    = $data;
             $response['records']    = count([$data]);
         }
-        elseif (get_class($data) == 'Illuminate\Database\Eloquent\Collection' ||
-            get_class($data) == 'Illuminate\Support\Collection') {
+        elseif (get_class($data) == 'Illuminate\Database\Eloquent\Collection'
+            || get_class($data) == 'Illuminate\Support\Collection') {
 
             if ($data->has('statistics')) {
                 $response['statistics'] = $data->get('statistics');
@@ -56,6 +56,15 @@ class ResponseHelper
             unset($temp['data']);
             $response['pagination'] = $temp;
             $response['records']    = count($data);
+        }
+        elseif (get_class($data) == 'Kalnoy\Nestedset\Collection') {
+            $temp = $data->toArray();
+            $pagination = $temp['pagination'];
+            unset($temp['pagination']);
+            $items = $temp;
+            $response['pagination'] = $pagination;
+            $response['items']      = $items;
+            $response['records']    = count($items);
         }
         else {
             $response['items']      = $data;

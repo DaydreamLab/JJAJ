@@ -28,18 +28,59 @@ class BaseService
     }
 
 
-    public function add($data)
+    public function add(Collection $input)
     {
-        $model = $this->create($data);
+        $model = $this->create($input->toArray());
         if ($model) {
-            $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));
+            $this->status =  Str::upper(Str::snake($this->type.'CreateNestedSuccess'));
             $this->response = $model;
         }
         else {
-            $this->status =  Str::upper(Str::snake($this->type.'CreateFail'));
+            $this->status =  Str::upper(Str::snake($this->type.'CreateNestedFail'));
             $this->response = null;
         }
         return $model;
+    }
+
+
+    public function addNested(Collection $input)
+    {
+        // 有指定 parent node
+        if ($input->has('parent_id') && $input->parent_id != '') {
+            $parent = $this->find($input->parent_id);
+
+            // 處理是否有給 order
+            if ($input->get('order') != null && $input->get('order') != '') {
+                $sibling = $this->find($input->order);
+                $node    = $this->add($input);
+                $node->beforeNode($sibling)->save();
+            }
+            else {
+                $input->put('order', $this->getSiblingOrder($parent));
+                $node   = $this->add($input);
+            }
+        }
+        else {
+            if ($input->get('extension') != '') {
+                $parent = $this->findByChain(['title', 'extension'],['=', '='],['ROOT', $input->get('extension')])->first();
+            }
+            else {
+                $parent = $this->find(1);
+            }
+            $input->put('order', $this->getSiblingOrder($parent));
+            $node = $this->add($input);
+        }
+
+        $result = $parent->prependNode($node);
+        if ($node && $result) {
+            $this->status =  Str::upper(Str::snake($this->type.'CreateNestedSuccess'));
+            $this->response = $node;
+        }
+        else {
+            $this->status =  Str::upper(Str::snake($this->type.'CreateNestedFail'));
+            $this->response = null;
+        }
+        return $node;
     }
 
 
@@ -79,7 +120,7 @@ class BaseService
     }
 
 
-    public function getOrder($parent) {
+    public function getSiblingOrder($parent) {
         $descendants = $parent->descendants;
         if ($descendants->count() > 0) {
             $last = $descendants->sortBy('order')->last();
@@ -102,6 +143,39 @@ class BaseService
             $this->response = null;
         }
         return $update;
+    }
+
+
+    public function modifyNested(Collection $input)
+    {
+        $node = $this->find($input->id);
+
+        if ($node->parent_id != $input->parent_id) {
+            if ($input->get('order') != null && $input->get('order') != '') {
+                $sibling = $this->find($input->order);
+                $node->order = $sibling->order;
+                $node->beforeNode($sibling)->save();
+            }
+            else {
+                $parent = $this->find($input->parent_id);
+                $order_num = $this->getSiblingOrder($parent);
+                $node->prependToNode($parent);
+                $node->order =  $order_num;
+            }
+        }
+
+        $modify = $this->modify($input->except(['parent_id', 'order']));
+        if ($modify) {
+            $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
+            $this->response = null;
+            return true;
+        }
+        else {
+            $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
+            $this->response = null;
+            return false;
+        }
+
     }
 
 
@@ -136,10 +210,10 @@ class BaseService
     public function store(Collection $input)
     {
         if ($input->get('id') == null || $input->get('id') == '') {
-            return $this->add($input->toArray());
+            return $this->add($input);
         }
         else {
-            return $this->modify($input->toArray());
+            return $this->modify($input);
         }
     }
 
@@ -169,10 +243,10 @@ class BaseService
 
         if (count($input->{$mapKey}) > 0) {
             foreach ($input->{$mapKey} as $id) {
-                $asset = $this->add([
+                $asset = $this->add(Helper::collect([
                     $mainKey    => $input->{$mainKey},
                     Str::substr($mapKey, 0, -1) => $id
-                ]);
+                ]));
                 if (!$asset) {
                     return false;
                 }
@@ -187,63 +261,74 @@ class BaseService
     {
         // 新增
         if ($input->get('id') == null || $input->get('id') == '') {
-            if ($input->has('parent_id') && $input->parent_id != '') {
-                $parent = $this->find($input->parent_id);
-                $input->put('order', $this->getOrder($parent));
-                $node   = $this->add($input->toArray());
-                $parent->prependNode($node);
-                $this->status = Str::upper(Str::snake($this->type.'CreateSuccess'));
-                $this->response = $node;
-                return $node;
-            }
-            else {
-
-                if ($input->get('extension') != '') {
-                    $root = $this->findByChain(['title', 'extension'],['=', '='],['ROOT', $input->get('extension')])->first();
-                }
-                else {
-                    $root = $this->find(1);
-                }
-                $input->put('order', $this->getOrder($root));
-                $node = $this->add($input->toArray());
-                $root->prependNode($node);
-                $this->status = Str::upper(Str::snake($this->type.'CreateSuccess'));
-                $this->response = $node;
-                return $node;
-            }
+            return $this->storeNested($input);
         }//編輯
         else {
-            $node = $this->find($input->id);
-            if ($node->parent_id == $input->parent_id) {
-                return $this->modify($input->toArray());
-            }
-            else {
-                // 處理搬移的 order 問題
-                $items = $this->findByChain(['parent_id', 'order'], ['=', '>'], [$node->parent_id, $node->order]);
-                $items->each(function ($item, $key) {
-                   $item->order = $item->order - 1;
-                   $item->save();
-                });
-
-                $new_parent = $this->find($input->parent_id);
-
-                $input->forget('order');
-                $input->put('order', $this->getOrder($new_parent));
-                $this->modify($input->toArray());
-
-                if ($new_parent->prependNode($node)) {
-                    $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
-                    $this->response = null;
-                    return true;
-                }
-                else {
-                    $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
-                    $this->response = null;
-                    return false;
-                }
-            }
+            return $this->storeNested($input);
         }
     }
+
+//    public function storeNested(Collection $input)
+//    {
+//        // 新增
+//        if ($input->get('id') == null || $input->get('id') == '') {
+//            if ($input->has('parent_id') && $input->parent_id != '') {
+//                $parent = $this->find($input->parent_id);
+//                $input->put('order', $this->getSiblingOrder($parent));
+//                $node   = $this->add($input);
+//                $parent->prependNode($node);
+//                $this->status = Str::upper(Str::snake($this->type.'CreateSuccess'));
+//                $this->response = $node;
+//                return $node;
+//            }
+//            else {
+//
+//                if ($input->get('extension') != '') {
+//                    $root = $this->findByChain(['title', 'extension'],['=', '='],['ROOT', $input->get('extension')])->first();
+//                }
+//                else {
+//                    $root = $this->find(1);
+//                }
+//                $input->put('order', $this->getSiblingOrder($root));
+//                $node = $this->add($input);
+//                $root->prependNode($node);
+//                $this->status = Str::upper(Str::snake($this->type.'CreateSuccess'));
+//                $this->response = $node;
+//                return $node;
+//            }
+//        }//編輯
+//        else {
+//            $node = $this->find($input->id);
+//            if ($node->parent_id == $input->parent_id) {
+//                return $this->modify($input);
+//            }
+//            else {
+//                // 處理搬移的 order 問題
+//                $items = $this->findByChain(['parent_id', 'order'], ['=', '>'], [$node->parent_id, $node->order]);
+//                $items->each(function ($item, $key) {
+//                   $item->order = $item->order - 1;
+//                   $item->save();
+//                });
+//
+//                $new_parent = $this->find($input->parent_id);
+//
+//                $input->forget('order');
+//                $input->put('order', $this->getSiblingOrder($new_parent));
+//                $this->modify($input);
+//
+//                if ($new_parent->prependNode($node)) {
+//                    $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
+//                    $this->response = null;
+//                    return true;
+//                }
+//                else {
+//                    $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
+//                    $this->response = null;
+//                    return false;
+//                }
+//            }
+//        }
+//    }
 
 
     public function state(Collection $input)
