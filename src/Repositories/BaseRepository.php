@@ -6,6 +6,7 @@ use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class BaseRepository implements BaseRepositoryInterface
@@ -58,15 +59,33 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    public function findOrderingInterval($parent_id, $origin, $modified)
+    {
+        $query = $this->model->where('parent_id', $parent_id);
+        if($origin > $modified) {   // 排序向上移動
+            $query = $query->where('ordering', '>=', $modified)->where('ordering', '<', $origin);
+        }
+        else { // 排序向下移動
+            $query = $query->where('ordering', '>', $origin)->where('ordering', '<=', $modified);
+        }
+        return $query->get();
+    }
+
+
+    public function fixTree()
+    {
+        $this->model->fixTree();
+    }
+
     public function search(Collection $input)
     {
         $order_by   = $input->has('order_by') ? $input->order_by : $this->model->getOrderBy();
         $limit      = $input->has('limit')    ? $input->limit    : $this->model->getLimit();
-        $ordering   = $input->has('ordering') ? $input->ordering : $this->model->getOrdering();
+        $order      = $input->has('order')    ? $input->order    : $this->model->getOrder();
 
         $collection = $this->model;
         foreach ($input->toArray() as $key => $item) {
-            if ($key != 'limit' && $key !='ordering' && $key !='order_by') {
+            if ($key != 'limit' && $key !='order' && $key !='order_by') {
                 if ($key == 'search') {
                     $collection->where(function ($query) use ($item){
                         $query->where('title', 'LIKE', '%%'.$item.'%%');
@@ -86,7 +105,6 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-
         if(Schema::hasColumn( $this->model->getTable(), '_lft')) {
             if (Schema::hasColumn( $this->model->getTable(), 'title')) {
                 $collection = $collection->where('title', '!=', 'ROOT');
@@ -95,9 +113,15 @@ class BaseRepository implements BaseRepositoryInterface
                 $collection = $collection->where('name', '!=', 'ROOT');
             }
 
-            $paginate = $collection->orderBy($order_by, $ordering)->paginate($limit);
-            $flatTree = $paginate->toFlatTree();
+            if ($input->has('order_by') && $input->has('order')) {
+                $collection = $collection->orderBy($order_by, $order);
+            }
+            else {
+                $collection = $collection->orderBy('ordering', 'asc');
+            }
 
+            $paginate = $collection->paginate($limit);
+            $flatTree = $paginate->toFlatTree();
 
             $temp = $paginate->toArray();
             unset($temp['data']);
@@ -106,8 +130,7 @@ class BaseRepository implements BaseRepositoryInterface
             return $flatTree;
         }
 
-
-        return $collection->orderBy($order_by, $ordering)->paginate($limit);
+        return $collection->orderBy($order_by, $order)->paginate($limit);
     }
 
 

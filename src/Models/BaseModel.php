@@ -2,7 +2,6 @@
 
 namespace DaydreamLab\JJAJ\Models;
 
-use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\User\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -14,14 +13,13 @@ class BaseModel extends Model
 
     protected $limit = 25;
 
-    protected $ordering = 'desc';
+    protected $order = 'desc';
 
     protected static function boot()
     {
         parent::boot();
 
         $user = Auth::guard('api')->user();
-
 
         static::creating(function ($item) use($user) {
             if ($user) {
@@ -50,9 +48,9 @@ class BaseModel extends Model
     }
 
 
-    public function getOrdering()
+    public function getOrder()
     {
-        return $this->ordering;
+        return $this->order;
     }
 
 
@@ -66,10 +64,10 @@ class BaseModel extends Model
     {
         $depth = $this->depth;
         $str = '';
-        for ($i = 0 ; $i < $depth ; $i++) {
+        for ($i = 0 ; $i < $depth - 1 ; $i++) {
             $str .= ' | ';
         }
-        return $str . ' - ' . $this->title;
+        return $depth - 1 == 0 ? $this->title : $str . ' - ' . $this->title;
     }
 
 
@@ -80,10 +78,10 @@ class BaseModel extends Model
         }
     }
 
-    public function setOrdering($ordering)
+    public function setOrder($order)
     {
-        if ($ordering && $ordering != ''){
-            $this->ordering = $ordering;
+        if ($order && $order != ''){
+            $this->order = $order;
         }
     }
 

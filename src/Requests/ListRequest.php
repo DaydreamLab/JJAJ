@@ -11,9 +11,9 @@ class ListRequest extends BaseRequest
     {
         return [
             'limit'         => 'nullable|integer',
-            'ordering'      => [
+            'order_by'      => 'nullable|string',
+            'order'      => [
                 'nullable',
-                'alpha',
                 Rule::in(['asc', 'desc'])
             ]
         ];

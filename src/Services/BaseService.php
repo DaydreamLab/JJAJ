@@ -4,6 +4,7 @@ namespace DaydreamLab\JJAJ\Services;
 
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
+use DaydreamLab\User\Models\Asset\Asset;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -49,15 +50,23 @@ class BaseService
         if ($input->has('parent_id') && $input->parent_id != '') {
             $parent = $this->find($input->parent_id);
 
-            // 處理是否有給 order
-            if ($input->get('order') != null && $input->get('order') != '') {
-                $sibling = $this->find($input->order);
-                $node    = $this->add($input);
-                $node->beforeNode($sibling)->save();
+            // 有 ordering
+            if ($input->get('ordering') != null && $input->get('ordering') != '') {
+                // 新 node 的 ordering 為 $selected 的 ordering
+                $selected = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->ordering])->first();
+
+                $input->put('ordering', $selected->ordering);
+                $node     = $this->add($input);
+                $node->beforeNode($selected)->save();
+                $siblings = $node->getNextSiblings();
+
+                $this->siblingOrderingChange($siblings, 'add');
             }
-            else {
-                $input->put('order', $this->getSiblingOrder($parent));
+            else { // 沒有 ordering
+                $last_child =  $parent->children()->get()->last();
+                $input->put('ordering',$last_child->ordering + 1);
                 $node   = $this->add($input);
+                $node->afterNode($last_child)->save();
             }
         }
         else {
@@ -67,12 +76,14 @@ class BaseService
             else {
                 $parent = $this->find(1);
             }
-            $input->put('order', $this->getSiblingOrder($parent));
+            $last_child =  $parent->children()->get()->last();
+            $input->put('ordering', $last_child->ordering + 1);
+
             $node = $this->add($input);
+            $parent->appendNode($node);
         }
 
-        $result = $parent->prependNode($node);
-        if ($node && $result) {
+        if ($node) {
             $this->status =  Str::upper(Str::snake($this->type.'CreateNestedSuccess'));
             $this->response = $node;
         }
@@ -109,10 +120,12 @@ class BaseService
         return $item;
     }
 
+
     public function findBy($filed, $operator, $value)
     {
         return $this->repo->findBy($filed, $operator, $value);
     }
+
 
     public function findByChain($fields, $operators, $values)
     {
@@ -120,23 +133,18 @@ class BaseService
     }
 
 
-    public function getSiblingOrder($parent) {
-        $descendants = $parent->descendants;
-        if ($descendants->count() > 0) {
-            $last = $descendants->sortBy('order')->last();
-            return $last->order + 1 ;
-        }
-        else {
-            return 1;
-        }
+    public function findOrderingInterval($parent_id, $origin, $modified)
+    {
+        return $this->repo->findOrderingInterval($parent_id, $origin, $modified);
     }
 
-    public function modify($data)
+
+    public function modify(Collection $input)
     {
-        $update = $this->update($data);
+        $update = $this->update($input->toArray());
         if ($update) {
             $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
-            $this->response = $this->find($data['id']);
+            $this->response = null;
         }
         else {
             $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
@@ -148,34 +156,59 @@ class BaseService
 
     public function modifyNested(Collection $input)
     {
-        $node = $this->find($input->id);
+        $node   = $this->find($input->id);
+        $parent = $this->find($input->parent_id);
 
+        // 有更改 parent
         if ($node->parent_id != $input->parent_id) {
-            if ($input->get('order') != null && $input->get('order') != '') {
-                $sibling = $this->find($input->order);
-                $node->order = $sibling->order;
-                $node->beforeNode($sibling)->save();
+            if ($input->get('ordering') != null && $input->get('ordering') != '') {
+                $selected = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->ordering])->first();
+                $node->beforeNode($selected);
+                $node->ordering = $input->ordering;
+                $node->save();
+                $update = $this->find($input->id);
+                $this->siblingOrderingChange($update->getNextSiblings(), 'add');
             }
             else {
-                $parent = $this->find($input->parent_id);
-                $order_num = $this->getSiblingOrder($parent);
-                $node->prependToNode($parent);
-                $node->order =  $order_num;
+                $last =  $parent->children()->get()->last();
+                $node->afterNode($last);
+                $node->ordering =  $last->ordering + 1;
+                $node->save();
             }
+            // 前面已經修改過了，避免再一次在 update 時更改
+            $input->forget('ordering');
+        }
+        else {
+            // 有改 ordering
+            if ($input->ordering != $node->ordering) {
+                $selected = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->ordering])->first();
+                $interval_items = $this->findOrderingInterval($input->parent_id, $node->ordering, $input->ordering);
+
+                // node 向上移動
+                if ($input->ordering < $node->ordering) {
+                    $node->beforeNode($selected)->save();
+                    $this->siblingOrderingChange($interval_items, 'add');
+                }
+                else {
+                    $node->afterNode($selected)->save();
+                    $this->siblingOrderingChange($interval_items, 'minus');
+                }
+            }
+            // 防止錯誤修改到樹狀結構
+            $input->forget('parent_id');
         }
 
-        $modify = $this->modify($input->except(['parent_id', 'order']));
+        $modify = $this->modify($input->except(['parent_id']));
         if ($modify) {
-            $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
+            $this->status = Str::upper(Str::snake($this->type.'UpdateNestedSuccess'));
             $this->response = null;
             return true;
         }
         else {
-            $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
+            $this->status = Str::upper(Str::snake($this->type.'UpdateNestedFail'));
             $this->response = null;
             return false;
         }
-
     }
 
 
@@ -204,6 +237,20 @@ class BaseService
         $this->response = $result;
 
         return $result;
+    }
+
+
+    public function siblingOrderingChange($siblings, $action = 'add')
+    {
+        foreach ($siblings as $sibling) {
+            if ($action == 'add') {
+                $sibling->ordering = $sibling->ordering + 1;
+            }
+            else {
+                $sibling->ordering = $sibling->ordering - 1;
+            }
+            $sibling->save();
+        }
     }
 
 
@@ -261,74 +308,12 @@ class BaseService
     {
         // 新增
         if ($input->get('id') == null || $input->get('id') == '') {
-            return $this->storeNested($input);
+            return $this->addNested($input);
         }//編輯
         else {
-            return $this->storeNested($input);
+            return $this->modifyNested($input);
         }
     }
-
-//    public function storeNested(Collection $input)
-//    {
-//        // 新增
-//        if ($input->get('id') == null || $input->get('id') == '') {
-//            if ($input->has('parent_id') && $input->parent_id != '') {
-//                $parent = $this->find($input->parent_id);
-//                $input->put('order', $this->getSiblingOrder($parent));
-//                $node   = $this->add($input);
-//                $parent->prependNode($node);
-//                $this->status = Str::upper(Str::snake($this->type.'CreateSuccess'));
-//                $this->response = $node;
-//                return $node;
-//            }
-//            else {
-//
-//                if ($input->get('extension') != '') {
-//                    $root = $this->findByChain(['title', 'extension'],['=', '='],['ROOT', $input->get('extension')])->first();
-//                }
-//                else {
-//                    $root = $this->find(1);
-//                }
-//                $input->put('order', $this->getSiblingOrder($root));
-//                $node = $this->add($input);
-//                $root->prependNode($node);
-//                $this->status = Str::upper(Str::snake($this->type.'CreateSuccess'));
-//                $this->response = $node;
-//                return $node;
-//            }
-//        }//編輯
-//        else {
-//            $node = $this->find($input->id);
-//            if ($node->parent_id == $input->parent_id) {
-//                return $this->modify($input);
-//            }
-//            else {
-//                // 處理搬移的 order 問題
-//                $items = $this->findByChain(['parent_id', 'order'], ['=', '>'], [$node->parent_id, $node->order]);
-//                $items->each(function ($item, $key) {
-//                   $item->order = $item->order - 1;
-//                   $item->save();
-//                });
-//
-//                $new_parent = $this->find($input->parent_id);
-//
-//                $input->forget('order');
-//                $input->put('order', $this->getSiblingOrder($new_parent));
-//                $this->modify($input);
-//
-//                if ($new_parent->prependNode($node)) {
-//                    $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
-//                    $this->response = null;
-//                    return true;
-//                }
-//                else {
-//                    $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
-//                    $this->response = null;
-//                    return false;
-//                }
-//            }
-//        }
-//    }
 
 
     public function state(Collection $input)
