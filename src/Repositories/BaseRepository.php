@@ -87,7 +87,7 @@ class BaseRepository implements BaseRepositoryInterface
         foreach ($input->toArray() as $key => $item) {
             if ($key != 'limit' && $key !='order' && $key !='order_by') {
                 if ($key == 'search') {
-                    $collection->where(function ($query) use ($item){
+                        $collection = $collection->where(function ($query) use ($item){
                         $query->where('title', 'LIKE', '%%'.$item.'%%');
                         if (Schema::hasColumn($this->model->getTable(), 'introtext')) {
                             $query->orWhere('introtext', 'LIKE', '%%'.$item.'%%');
