@@ -57,10 +57,17 @@ class BaseService
     }
 
 
-    public function find($id)
+    public function find($id, $hit = false)
     {
+
         $item = $this->repo->find($id);
         if($item) {
+
+            if ($hit) {
+                $item->hits = $item->hits + 1;
+                $item->save();
+            }
+
             $this->status   = Str::upper(Str::snake($this->type.'FindSuccess'));
             $this->response = $item;
         }

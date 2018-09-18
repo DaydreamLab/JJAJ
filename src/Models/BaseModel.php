@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Models;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\User\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -33,6 +34,12 @@ class BaseModel extends Model
             }
         });
 
+    }
+
+
+    public function getCreatorAttribute()
+    {
+        return $this->creator();
     }
 
 
@@ -71,6 +78,11 @@ class BaseModel extends Model
     }
 
 
+    public function getUpdaterAttribute()
+    {
+        return $this->updater();
+    }
+
     public function setLimit($limit)
     {
         if ($limit && $limit != ''){
@@ -96,14 +108,15 @@ class BaseModel extends Model
 
     public function creator()
     {
-        $creator = $this->belongsTo(User::class, 'id', 'created_by')->first();
+        $creator = $this->hasOne(User::class, 'id', 'created_by')->first();
+
         return $creator ? $creator->nickname : null;
     }
 
 
     public function updater()
     {
-        $updater =  $this->belongsTo(User::class, 'id', 'updated_by')->first();
+        $updater =  $this->hasOne(User::class, 'id', 'updated_by')->first();
         return $updater ? $updater->nickname : null;
     }
 }
