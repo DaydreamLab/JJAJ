@@ -3,8 +3,11 @@
 namespace DaydreamLab\JJAJ\Repositories;
 
 use DaydreamLab\JJAJ\Helpers\Helper;
+use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -77,17 +80,33 @@ class BaseRepository implements BaseRepositoryInterface
         $this->model->fixTree();
     }
 
+
+    public function paginate($items, $perPage = 15, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+
+        $paginate = new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+        $paginate = $paginate->setPath(url()->current());
+
+        return $paginate;
+    }
+
+
+
     public function search(Collection $input)
     {
-        $order_by   = $input->has('order_by') ? $input->order_by : $this->model->getOrderBy();
-        $limit      = $input->has('limit')    ? $input->limit    : $this->model->getLimit();
-        $order      = $input->has('order')    ? $input->order    : $this->model->getOrder();
+        $order_by   = !InputHelper::null($input, 'order_by') ? $input->order_by : $this->model->getOrderBy();
+        $limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
+        $order      = !InputHelper::null($input, 'order')    ? $input->order    : $this->model->getOrder();
+        $state      = !InputHelper::null($input, 'state')    ? $input->state    : 1;
 
-        $collection = $this->model;
+        $query = $this->model;
         foreach ($input->toArray() as $key => $item) {
-            if ($key != 'limit' && $key !='order' && $key !='order_by') {
+            if ($key != 'limit' && $key !='order' && $key !='order_by' && $key !='state') {
                 if ($key == 'search') {
-                        $collection = $collection->where(function ($query) use ($item){
+                    $query = $query->where(function ($query) use ($item){
                         $query->where('title', 'LIKE', '%%'.$item.'%%');
                         if (Schema::hasColumn($this->model->getTable(), 'introtext')) {
                             $query->orWhere('introtext', 'LIKE', '%%'.$item.'%%');
@@ -99,38 +118,25 @@ class BaseRepository implements BaseRepositoryInterface
                 }
                 else {
                     if ($item != null) {
-                        $collection = $collection->where("$key", '=', $item);
+                        $query = $query->where("$key", '=', $item);
                     }
                 }
             }
         }
 
-        if(Schema::hasColumn( $this->model->getTable(), '_lft')) {
-            if (Schema::hasColumn( $this->model->getTable(), 'title')) {
-                $collection = $collection->where('title', '!=', 'ROOT');
-            }
-            else {
-                $collection = $collection->where('name', '!=', 'ROOT');
-            }
-
-            if ($input->has('order_by') && $input->has('order')) {
-                $collection = $collection->orderBy($order_by, $order);
-            }
-            else {
-                $collection = $collection->orderBy('ordering', 'asc');
-            }
-
-            $paginate = $collection->paginate($limit);
-            $flatTree = $paginate->toFlatTree();
-
-            $temp = $paginate->toArray();
-            unset($temp['data']);
-            $flatTree->put('pagination', $temp);
-
-            return $flatTree;
+        if (Schema::hasColumn($this->model->getTable(), '_lft'))
+        {
+            $query = $query->where('title', '!=', 'ROOT');
         }
 
-        return $collection->orderBy($order_by, $order)->paginate($limit);
+        if (Schema::hasColumn($this->model->getTable(), 'state'))
+        {
+            $query = $query->where('state', '=', $state);
+        }
+
+
+
+        return $query->orderBy($order_by, $order)->paginate($limit);
     }
 
 

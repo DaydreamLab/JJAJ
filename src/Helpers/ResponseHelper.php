@@ -52,7 +52,7 @@ class ResponseHelper
                 $data->forget('statistics');
             }
             $temp = $data->toArray();
-            $response['items']      = $temp['data'];
+            $response['items']      = array_values($temp['data']);
             unset($temp['data']);
             $response['pagination'] = $temp;
             $response['records']    = count($data);
