@@ -147,14 +147,13 @@ trait NestedRepositoryTrait
 
         $target_item    = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$item->parent_id, ($item->ordering + $input->index_diff)])->first();
         $item->ordering = $origin + $input->index_diff;
-        if(!$item->beforeNode($target_item)->save()) {
-            return false;
-        }
-
-        $siblings   = $item->getNextSiblings();
 
         if ($input->index_diff >= 0)
         {
+            if(!$item->afterNode($target_item)->save()) {
+                return false;
+            }
+            $siblings   = $item->getPrevSiblings();
             foreach ($siblings as $sibling)
             {
                 if ($sibling->ordering > $origin && $sibling->ordering <= $item->ordering)
@@ -166,8 +165,12 @@ trait NestedRepositoryTrait
         }
         else
         {
+            if(!$item->beforeNode($target_item)->save()) {
+                return false;
+            }
+            $siblings   = $item->getNextSiblings();
             foreach ($siblings as $sibling)
-            {
+            { Helper::show($sibling->title);
                 if ($sibling->ordering >= $item->ordering && $sibling->ordering < $origin)
                 {
                     $sibling->ordering ++;
