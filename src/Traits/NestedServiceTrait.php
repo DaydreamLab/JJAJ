@@ -43,6 +43,25 @@ trait NestedServiceTrait
     }
 
 
+    public function orderingNested(Collection $input)
+    {
+        $modify = $this->repo->orderingNested($input);
+        if ($modify)
+        {
+            $this->status   = Str::upper(Str::snake($this->type.'UpdateOrderingNestedSuccess'));
+            $this->response = null;
+        }
+        else
+        {
+            $this->status   = Str::upper(Str::snake($this->type.'UpdateOrderingNestedFail'));
+            $this->response = null;
+        }
+
+        return $modify;
+
+    }
+
+
     public function storeNested(Collection $input)
     {
         if (InputHelper::null($input, 'id')) {
@@ -52,4 +71,7 @@ trait NestedServiceTrait
             return $this->modifyNested($input);
         }
     }
+
+
+
 }

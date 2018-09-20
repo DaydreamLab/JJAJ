@@ -68,7 +68,7 @@ trait NestedRepositoryTrait
     public function modifyNested(Collection $input)
     {
         $modified = $this->find($input->id);
-        $parent        = $this->find($input->parent_id);
+        $parent   = $this->find($input->parent_id);
 
         // 有更改parent
         if ($modified->parent_id != $input->parent_id)
@@ -102,51 +102,41 @@ trait NestedRepositoryTrait
         }
         else
         {
+            //有改 ordering
+            if ($input->ordering != $modified->ordering) {
+                $selected       = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->ordering])->first();
+                $interval_items = $this->findOrderingInterval($input->parent_id, $modified->ordering, $input->ordering);
 
+                // node 向上移動
+                if ($input->ordering < $modified->ordering) {
+                    if (!$modified->beforeNode($selected)->save())
+                    {
+                        return false;
+                    }
+                    if (!$this->siblingOrderingChange($interval_items, 'add'))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!$modified->afterNode($selected)->save())
+                    {
+                        return false;
+                    }
+
+                    if (!$this->siblingOrderingChange($interval_items, 'add'))
+                    {
+                        return false;
+                    }
+                }
+            }
         }
+        // 防止錯誤修改到樹狀結構
+        $input->forget('parent_id');
+        $input->forget('ordering');
 
-
-
-//        // 有更改 parent
-//        if ($node->parent_id != $input->parent_id) {
-//            if ($input->get('ordering') != null && $input->get('ordering') != '') {
-//                $selected = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->ordering])->first();
-//                $node->beforeNode($selected);
-//                $node->ordering = $input->ordering;
-//                $node->save();
-//                $update = $this->find($input->id);
-//                $this->siblingOrderingChange($update->getNextSiblings(), 'add');
-//            }
-//            else {
-//                $last =  $parent->children()->get()->last();
-//                $node->afterNode($last);
-//                $node->ordering =  $last->ordering + 1;
-//                $node->save();
-//            }
-//
-//        }
-//        else {
-//            // 有改 ordering
-//            if ($input->ordering != $node->ordering) {
-//                $selected = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->ordering])->first();
-//                $interval_items = $this->findOrderingInterval($input->parent_id, $node->ordering, $input->ordering);
-//
-//                // node 向上移動
-//                if ($input->ordering < $node->ordering) {
-//                    $node->beforeNode($selected)->save();
-//                    $this->siblingOrderingChange($interval_items, 'add');
-//                }
-//                else {
-//                    $node->afterNode($selected)->save();
-//                    $this->siblingOrderingChange($interval_items, 'minus');
-//                }
-//            }
-//            // 防止錯誤修改到樹狀結構
-//            $input->forget('parent_id');
-//        }
-//
-//        $modify = $this->modify($input->except(['parent_id']));
-
+        return $modify = $this->update($input->toArray());
     }
 
 
@@ -185,6 +175,8 @@ trait NestedRepositoryTrait
                 }
             }
         }
+
+        return true;
     }
 
 
@@ -202,6 +194,5 @@ trait NestedRepositoryTrait
 
         return true;
     }
-
 
 }

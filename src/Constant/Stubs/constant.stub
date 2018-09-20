@@ -325,6 +325,32 @@ return [
         'message'   => 'UcModel front update ordering fail'
     ],
 
+    // Ordering Nested
+    'DummyModel_UPDATE_ORDERING_NESTED_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel update ordering nested success'
+    ],
+    'DummyModel_ADMIN_UPDATE_ORDERING_NESTED_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel admin update ordering nested success'
+    ],
+    'DummyModel_FRONT_UPDATE_ORDERING_NESTED_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel front update ordering nested success'
+    ],
+    'DummyModel_UPDATE_ORDERING_NESTED_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel update ordering nested fail'
+    ],
+    'DummyModel_ADMIN_UPDATE_ORDERING_NESTED_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel admin update ordering nested fail'
+    ],
+    'DummyModel_FRONT_UPDATE_ORDERING_NESTED_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel front update ordering nested fail'
+    ],
+
 
     //Get tree
     'DummyModel_GET_TREE_SUCCESS' => [
