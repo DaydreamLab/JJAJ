@@ -5,6 +5,8 @@ namespace DaydreamLab\JJAJ\Repositories;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
+use DaydreamLab\User\Models\Asset\Admin\AssetAdmin;
+use DaydreamLab\User\Models\Asset\Asset;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -81,6 +83,44 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    public function isNested()
+    {
+        $trait = 'Kalnoy\Nestedset\NodeTrait';
+        $this_trait     = class_uses($this->model);
+        $parent_trait   = class_uses(get_parent_class($this->model));
+
+        return (in_array($trait, $this_trait) || in_array($trait, $parent_trait)) ? true : false;
+    }
+
+
+
+    public function ordering(Collection $input)
+    {
+        $item   = $this->find($input->id);
+        $origin = $item->ordering;
+        $item->ordering = $origin + $input->index_diff;
+
+        if ($input->index_diff >= 0)
+        {
+            $update_items = $this->findByChain(['ordering', 'ordering'], ['>=', '<'], [$origin, $origin + $input->index_diff]);
+            $result = $update_items->each(function ($item) {
+                $item->ordering--;
+                return $item->save();
+            });
+        }
+        else
+        {
+            $update_items = $this->findByChain(['ordering', 'ordering'], ['>=', '<'], [$origin + $input->index_diff, $origin]);
+            $result = $update_items->each(function ($item) {
+                $item->ordering++;
+                return $item->save();
+            });
+        }
+
+        return $result ? $item->save() : $result;
+    }
+
+
     public function paginate($items, $perPage = 15, $page = null, $options = [])
     {
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
@@ -101,6 +141,7 @@ class BaseRepository implements BaseRepositoryInterface
         $limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
         $order      = !InputHelper::null($input, 'order')    ? $input->order    : $this->model->getOrder();
         $state      = !InputHelper::null($input, 'state')    ? $input->state    : 1;
+        $language   = !InputHelper::null($input, 'language') ? $input->language : 'tw';
 
         $query = $this->model;
         foreach ($input->toArray() as $key => $item) {
@@ -134,7 +175,10 @@ class BaseRepository implements BaseRepositoryInterface
             $query = $query->where('state', '=', $state);
         }
 
-
+        if (Schema::hasColumn($this->model->getTable(), 'language'))
+        {
+            $query = $query->where('language', '=', $language);
+        }
 
         return $query->orderBy($order_by, $order)->paginate($limit);
     }

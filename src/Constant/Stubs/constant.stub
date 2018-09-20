@@ -292,11 +292,37 @@ return [
     ],
     'DummyModel_ADMIN_FIND_FAIL' => [
         'code'      => 500,
-        'message'   => 'UcModel find search fail'
+        'message'   => 'UcModel admin search fail'
     ],
     'DummyModel_FRONT_FIND_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel front find fail'
+    ],
+
+    // Ordering
+    'DummyModel_UPDATE_ORDERING_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel update ordering success'
+    ],
+    'DummyModel_ADMIN_UPDATE_ORDERING_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel admin update ordering success'
+    ],
+    'DummyModel_FRONT_UPDATE_ORDERING_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel front update ordering success'
+    ],
+    'DummyModel_UPDATE_ORDERING_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel update ordering fail'
+    ],
+    'DummyModel_ADMIN_UPDATE_ORDERING_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel admin update ordering fail'
+    ],
+    'DummyModel_FRONT_UPDATE_ORDERING_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel front update ordering fail'
     ],
 
 

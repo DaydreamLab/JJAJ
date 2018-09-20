@@ -6,6 +6,7 @@ use DaydreamLab\JJAJ\Controllers\BaseController;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use Illuminate\Support\Collection;
 use DummyPathService\Services\DummyType\DummyService;
+use DummyPathRequest\Requests\DummyType\DummyOrderingPostRequest;
 use DummyPathRequest\Requests\DummyType\DummyRemovePostRequest;
 use DummyPathRequest\Requests\DummyType\DummyStorePostRequest;
 use DummyPathRequest\Requests\DummyType\DummyStatePostRequest;
@@ -30,6 +31,14 @@ class DummyClass extends BaseController
     public function getItems()
     {
         $this->service->search(new Collection());
+
+        return ResponseHelper::response($this->service->status, $this->service->response);
+    }
+
+
+    public function ordering(DummyOrderingPostRequest $request)
+    {
+        $this->service->ordering($request->rulesInput());
 
         return ResponseHelper::response($this->service->status, $this->service->response);
     }

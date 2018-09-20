@@ -10,6 +10,7 @@ use DummyPathRequest\Requests\DummyType\Front\DummyRemovePostRequest;
 use DummyPathRequest\Requests\DummyType\Front\DummyStorePostRequest;
 use DummyPathRequest\Requests\DummyType\Front\DummyStatePostRequest;
 use DummyPathRequest\Requests\DummyType\Front\DummySearchPostRequest;
+use DummyPathRequest\Requests\DummyType\Front\DummyOrderingPostRequest;
 
 
 class DummyClass extends BaseController
@@ -31,6 +32,14 @@ class DummyClass extends BaseController
     public function getItems()
     {
         $this->service->search(new Collection());
+
+        return ResponseHelper::response($this->service->status, $this->service->response);
+    }
+
+
+    public function ordering(DummyOrderingPostRequest $request)
+    {
+        $this->service->ordering($request->rulesInput());
 
         return ResponseHelper::response($this->service->status, $this->service->response);
     }

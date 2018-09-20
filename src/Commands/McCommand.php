@@ -146,6 +146,11 @@ class McCommand extends Command
             '--component'   => $component,
             '--search'    => true,
         ]);
+        $this->call('jjaj:request', [
+            'name'      => $request_namespace.'OrderingPost',
+            '--component'   => $component,
+            '--ordering'    => true,
+        ]);
 
         $this->call('jjaj:constant', ['name' => 'constants/'.Str::lower($type), '--model' => $name]);
 
@@ -175,21 +180,31 @@ class McCommand extends Command
             $this->call('jjaj:request', [
                 'name'          => $request_front_namespace.'FrontStorePost',
                 '--component'   => $component,
+                '--store'       => true,
                 '--front'       => true
             ]);
             $this->call('jjaj:request', [
                 'name'          => $request_front_namespace.'FrontRemovePost',
                 '--component'   => $component,
+                '--remove'      => true,
                 '--front'       => true
             ]);
             $this->call('jjaj:request', [
                 'name'          => $request_front_namespace.'FrontStatePost',
                 '--component'   => $component,
+                '--state'       => true,
                 '--front'       => true
             ]);
             $this->call('jjaj:request', [
                 'name'          => $request_front_namespace.'FrontSearchPost',
                 '--component'   => $component,
+                '--search'       => true,
+                '--front'       => true,
+            ]);
+            $this->call('jjaj:request', [
+                'name'          => $request_front_namespace.'FrontOrderingPost',
+                '--component'   => $component,
+                '--ordering'    => true,
                 '--front'       => true,
             ]);
         }
@@ -219,21 +234,31 @@ class McCommand extends Command
 
             $this->call('jjaj:request', [
                 'name'          => $request_admin_namespace.'AdminStorePost',
+                '--store'       => true,
                 '--component'   => $component,
                 '--admin'       => true
             ]);
             $this->call('jjaj:request', [
                 'name'          => $request_admin_namespace.'AdminRemovePost',
+                '--remove'      => true,
                 '--component'   => $component,
                 '--admin'       => true
             ]);
             $this->call('jjaj:request', [
                 'name'          => $request_admin_namespace.'AdminStatePost',
+                '--state'       => true,
                 '--component'   => $component,
                 '--admin'       => true
             ]);
             $this->call('jjaj:request', [
                 'name'          => $request_admin_namespace.'AdminSearchPost',
+                '--search'       => true,
+                '--component'   => $component,
+                '--admin'       => true,
+            ]);
+            $this->call('jjaj:request', [
+                'name'          => $request_admin_namespace.'AdminOrderingPost',
+                '--ordering'       => true,
                 '--component'   => $component,
                 '--admin'       => true,
             ]);

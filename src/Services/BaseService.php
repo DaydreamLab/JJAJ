@@ -113,6 +113,32 @@ class BaseService
     }
 
 
+    public function ordering(Collection $input)
+    {
+        if ($this->repo->isNested())
+        {
+            $result = $this->repo->orderingNested($input);
+            if($result) {
+                $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingNestedSuccess'));
+            }
+            else {
+                $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingNestedFail'));
+            }
+        }
+        else {
+            $result = $this->repo->ordering($input);
+            if($result) {
+                $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingSuccess'));
+            }
+            else {
+                $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingFail'));
+            }
+        }
+
+        return $result;
+    }
+
+
     public function remove(Collection $input)
     {
         foreach ($input->ids as $id) {
