@@ -150,7 +150,7 @@ class BaseRepository implements BaseRepositoryInterface
         if ($this->isNested() && $input->count() == 1 && !InputHelper::null($input, 'limit'))
         {
             $query = $query->where('title', '!=', 'ROOT');
-            $copy  = new Collection($query->get()->toFlatTree());
+            $copy  = new Collection($query->orderBy('ordering', 'asc')->get()->toFlatTree());
             $paginate = $this->paginate($copy, $limit);
 
             return $paginate;

@@ -34,11 +34,11 @@ class BaseService
     {
         $model = $this->create($input->toArray());
         if ($model) {
-            $this->status =  Str::upper(Str::snake($this->type.'CreateNestedSuccess'));
+            $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));
             $this->response = $model;
         }
         else {
-            $this->status =  Str::upper(Str::snake($this->type.'CreateNestedFail'));
+            $this->status =  Str::upper(Str::snake($this->type.'CreateFail'));
             $this->response = null;
         }
         return $model;
