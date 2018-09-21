@@ -140,7 +140,7 @@ class BaseRepository implements BaseRepositoryInterface
         $order_by   = !InputHelper::null($input, 'order_by') ? $input->order_by : $this->model->getOrderBy();
         $limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
         $order      = !InputHelper::null($input, 'order')    ? $input->order    : $this->model->getOrder();
-        $state      = !InputHelper::null($input, 'state')    ? $input->state    : 1;
+        $state      = !InputHelper::null($input, 'state')    ? $input->state    : [0,1];
         $language   = !InputHelper::null($input, 'language') ? $input->language : 'tw';
         $access     = !InputHelper::null($input, 'access')   ? $input->access   : '8';
 
@@ -187,14 +187,20 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
 
-        if (Schema::hasColumn($this->model->getTable(), '_lft'))
+        if ($this->isNested())
         {
             $query = $query->where('title', '!=', 'ROOT');
         }
 
         if (Schema::hasColumn($this->model->getTable(), 'state'))
         {
-            $query = $query->where('state', '=', $state);
+            if (is_array($state))
+            {
+                $query = $query->whereIn('state', $state);
+            }
+            else{
+                $query = $query->where('state', '=', $state);
+            }
         }
 
         if (Schema::hasColumn($this->model->getTable(), 'language'))
@@ -202,7 +208,15 @@ class BaseRepository implements BaseRepositoryInterface
             $query = $query->where('language', '=', $language);
         }
 
-        return $query->orderBy($order_by, $order)->paginate($limit);
+        $items = $query->orderBy($order_by, $order)->paginate($limit);
+
+
+
+
+
+
+
+        return $items;
     }
 
 
