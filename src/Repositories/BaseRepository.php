@@ -186,7 +186,6 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        $query = $this->model;
 
         if (Schema::hasColumn($this->model->getTable(), '_lft'))
         {
