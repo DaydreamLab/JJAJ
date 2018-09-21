@@ -142,28 +142,51 @@ class BaseRepository implements BaseRepositoryInterface
         $order      = !InputHelper::null($input, 'order')    ? $input->order    : $this->model->getOrder();
         $state      = !InputHelper::null($input, 'state')    ? $input->state    : 1;
         $language   = !InputHelper::null($input, 'language') ? $input->language : 'tw';
+        $access     = !InputHelper::null($input, 'access')   ? $input->access   : '8';
+
 
         $query = $this->model;
-        foreach ($input->toArray() as $key => $item) {
-            if ($key != 'limit' && $key !='order' && $key !='order_by' && $key !='state') {
-                if ($key == 'search') {
-                    $query = $query->where(function ($query) use ($item){
+
+        if ($this->isNested() && $input->count() == 1 && !InputHelper::null($input, 'limit'))
+        {
+            $query = $query->where('title', '!=', 'ROOT');
+            $copy  = new Collection($query->get()->toFlatTree());
+            $paginate = $this->paginate($copy, $limit);
+
+            return $paginate;
+        }
+
+
+        foreach ($input->toArray() as $key => $item)
+        {
+            if ($key != 'limit' && $key !='order' && $key !='order_by' && $key !='state')
+            {
+                if ($key == 'search')
+                {
+                    $query = $query->where(function ($query) use ($item) {
+
                         $query->where('title', 'LIKE', '%%'.$item.'%%');
-                        if (Schema::hasColumn($this->model->getTable(), 'introtext')) {
+                        if (Schema::hasColumn($this->model->getTable(), 'introtext'))
+                        {
                             $query->orWhere('introtext', 'LIKE', '%%'.$item.'%%');
                         }
-                        if (Schema::hasColumn($this->model->getTable(), 'description')) {
+                        if (Schema::hasColumn($this->model->getTable(), 'description'))
+                        {
                             $query->orWhere('description', 'LIKE', '%%'.$item.'%%');
                         }
                     });
                 }
-                else {
-                    if ($item != null) {
+                else
+                {
+                    if ($item != null)
+                    {
                         $query = $query->where("$key", '=', $item);
                     }
                 }
             }
         }
+
+        $query = $this->model;
 
         if (Schema::hasColumn($this->model->getTable(), '_lft'))
         {
