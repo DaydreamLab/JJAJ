@@ -65,6 +65,23 @@ trait NestedRepositoryTrait
     }
 
 
+    public function findTargetNode($node, $difference)
+    {
+        $origin_count   = ($node->descendants)->count() + 1;
+        $target         = $difference < 0 ? $node->getPrevSibling() : $node->getNextSibling();
+        $new_diff       = $difference < 0 ?  $difference + $origin_count : $difference - $origin_count;
+
+        if ($new_diff!= 0)
+        {
+            return $this->findTargetNode($target, $new_diff);
+        }
+        else {
+            return $target;
+        }
+    }
+
+
+
     public function modifyNested(Collection $input)
     {
         $modified = $this->find($input->id);
@@ -145,8 +162,8 @@ trait NestedRepositoryTrait
         $item   = $this->find($input->id);
         $origin = $item->ordering;
 
-        $target_item    = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$item->parent_id, ($item->ordering + $input->index_diff)])->first();
-        $item->ordering = $origin + $input->index_diff;
+        $target_item    = $this->findTargetNode($item, $input->index_diff);
+        $item->ordering = $target_item->ordering;
 
         if ($input->index_diff >= 0)
         {
