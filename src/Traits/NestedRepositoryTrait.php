@@ -170,7 +170,7 @@ trait NestedRepositoryTrait
             }
             $siblings   = $item->getNextSiblings();
             foreach ($siblings as $sibling)
-            { Helper::show($sibling->title);
+            {
                 if ($sibling->ordering >= $item->ordering && $sibling->ordering < $origin)
                 {
                     $sibling->ordering ++;
