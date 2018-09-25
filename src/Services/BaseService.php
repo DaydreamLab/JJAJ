@@ -81,6 +81,12 @@ class BaseService
     }
 
 
+    public function filterItems(Collection $items, $limit)
+    {
+        return $this->repo->paginate($items, $limit);
+    }
+
+
     public function findBy($filed, $operator, $value)
     {
         return $this->repo->findBy($filed, $operator, $value);
@@ -166,7 +172,7 @@ class BaseService
         }
         else
         {
-            $limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
+            $limit  = !InputHelper::null($input, 'limit')    ? $input->limit : 25; //這邊的25要修掉因為沒辦法 $this->model->getLimit()
             $items  = $this->repo->search($input);
             $items  = $this->filterItems($items, $limit);
         }

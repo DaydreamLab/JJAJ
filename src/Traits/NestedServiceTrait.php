@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Traits;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -71,7 +72,5 @@ trait NestedServiceTrait
             return $this->modifyNested($input);
         }
     }
-
-
 
 }
