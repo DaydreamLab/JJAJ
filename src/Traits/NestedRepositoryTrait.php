@@ -32,14 +32,14 @@ trait NestedRepositoryTrait
                 {
                     $ordering = $last_child->ordering + 1;
                     $input->put('ordering', $ordering);
-                    $new   = $this->add($input);
+                    $new   = $this->create($input->toArray());
                     return $new->afterNode($last_child)->save() ? $new : false;
                 }
                 else
                 {
                     $ordering =  1;
                     $input->put('ordering', $ordering);
-                    $new   = $this->add($input);
+                    $new   = $this->create($input->toArray());
                     return $parent->appendNode($new) ? $new : false;
                 }
             }
@@ -58,7 +58,7 @@ trait NestedRepositoryTrait
             $last_child =  $parent->children()->get()->last();
             $input->put('ordering', $last_child->ordering + 1);
 
-            $new = $this->add($input);
+            $new = $this->create($input->toArray());
 
             return $parent->appendNode($new) ? $new : false;
         }
@@ -213,6 +213,18 @@ trait NestedRepositoryTrait
         }
 
         return true;
+    }
+
+
+    public function searchNested(Collection $input)
+    {
+        $limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
+        $query      = $this->model->where('title', '!=', 'ROOT');
+        $tree       = $query->orderBy('ordering', 'asc')->get()->toFlatTree();
+        $copy       = new Collection($tree);
+        $paginate   = $this->paginate($copy, $limit);
+
+        return $paginate;
     }
 
 }

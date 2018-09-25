@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -83,6 +84,44 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    public function getQuery(Collection $input)
+    {
+        $query = $this->model;
+
+        foreach ($input->toArray() as $key => $item)
+        {
+            if ($key != 'limit' && $key !='order' && $key !='order_by' && $key !='state')
+            {
+                if ($key == 'search')
+                {
+                    $query = $query->where(function ($query) use ($item) {
+
+                        $query->where('title', 'LIKE', '%%'.$item.'%%');
+                        if (Schema::hasColumn($this->model->getTable(), 'introtext'))
+                        {
+                            $query->orWhere('introtext', 'LIKE', '%%'.$item.'%%');
+                        }
+                        if (Schema::hasColumn($this->model->getTable(), 'description'))
+                        {
+                            $query->orWhere('description', 'LIKE', '%%'.$item.'%%');
+                        }
+                    });
+                }
+                else
+                {
+                    if ($item != null)
+                    {
+                        $query = $query->where("$key", '=', $item);
+                    }
+                }
+            }
+        }
+
+
+        return $query;
+    }
+
+
     public function isNested()
     {
         $trait = 'Kalnoy\Nestedset\NodeTrait';
@@ -144,48 +183,7 @@ class BaseRepository implements BaseRepositoryInterface
         $language   = !InputHelper::null($input, 'language') ? $input->language : 'tw';
         $access     = !InputHelper::null($input, 'access')   ? $input->access   : '8';
 
-
-        $query = $this->model;
-
-        if ($this->isNested() && $input->count() == 1 && !InputHelper::null($input, 'limit'))
-        {
-            $query = $query->where('title', '!=', 'ROOT');
-            $copy  = new Collection($query->orderBy('ordering', 'asc')->get()->toFlatTree());
-            $paginate = $this->paginate($copy, $limit);
-
-            return $paginate;
-        }
-
-
-        foreach ($input->toArray() as $key => $item)
-        {
-            if ($key != 'limit' && $key !='order' && $key !='order_by' && $key !='state')
-            {
-                if ($key == 'search')
-                {
-                    $query = $query->where(function ($query) use ($item) {
-
-                        $query->where('title', 'LIKE', '%%'.$item.'%%');
-                        if (Schema::hasColumn($this->model->getTable(), 'introtext'))
-                        {
-                            $query->orWhere('introtext', 'LIKE', '%%'.$item.'%%');
-                        }
-                        if (Schema::hasColumn($this->model->getTable(), 'description'))
-                        {
-                            $query->orWhere('description', 'LIKE', '%%'.$item.'%%');
-                        }
-                    });
-                }
-                else
-                {
-                    if ($item != null)
-                    {
-                        $query = $query->where("$key", '=', $item);
-                    }
-                }
-            }
-        }
-
+        $query = $this->getQuery($input);
 
         if ($this->isNested())
         {
@@ -208,13 +206,7 @@ class BaseRepository implements BaseRepositoryInterface
             $query = $query->where('language', '=', $language);
         }
 
-        $items = $query->orderBy($order_by, $order)->paginate($limit);
-
-
-
-
-
-
+        $items = $query->orderBy($order_by, $order)->get();
 
         return $items;
     }

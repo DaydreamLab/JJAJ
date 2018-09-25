@@ -3,6 +3,7 @@
 namespace DaydreamLab\JJAJ\Services;
 
 use DaydreamLab\JJAJ\Helpers\Helper;
+use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
 use DaydreamLab\User\Models\Asset\Asset;
 use Illuminate\Support\Collection;
@@ -159,11 +160,21 @@ class BaseService
 
     public function search(Collection $input)
     {
-        $result         = $this->repo->search($input);
-        $this->status   = Str::upper(Str::snake($this->type.'SearchSuccess'));
-        $this->response = $result;
+        if ($this->repo->isNested() && $input->count() == 1 && !InputHelper::null($input, 'limit'))
+        {
+            $items = $this->repo->searchNested($input);
+        }
+        else
+        {
+            $limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
+            $items  = $this->repo->search($input);
+            $items  = $this->filterItems($items, $limit);
+        }
 
-        return $result;
+        $this->status   = Str::upper(Str::snake($this->type.'SearchSuccess'));
+        $this->response = $items;
+
+        return $items;
     }
 
 
