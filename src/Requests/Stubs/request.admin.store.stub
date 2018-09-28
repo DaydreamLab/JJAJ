@@ -3,6 +3,7 @@
 namespace DummyNamespace;
 
 use DaydreamLab\JJAJ\Requests\AdminRequest;
+use Illuminate\Validation\Rule;
 
 class DummyClass extends AdminRequest
 {
@@ -26,7 +27,11 @@ class DummyClass extends AdminRequest
         return [
             'id'            => 'nullable|integer',
             'title'         => 'required|string',
-            'state'         => 'required|integer',
+            'state'         => [
+                'nullable',
+                'integer',
+                Rule::in([0,1,-2])
+            ]
             'description'   => 'nullable|string',
         ];
     }

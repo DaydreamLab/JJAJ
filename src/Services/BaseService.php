@@ -6,11 +6,16 @@ use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
 use DaydreamLab\User\Models\Asset\Asset;
+use DaydreamLab\User\Models\User\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class BaseService
 {
+    protected $user;
+
     protected $repo;
 
     protected $type;
@@ -22,6 +27,7 @@ class BaseService
     public function __construct(BaseRepository $repo)
     {
         $this->repo = $repo;
+        $this->user = Auth::guard('api')->user();
     }
 
 
@@ -58,26 +64,9 @@ class BaseService
     }
 
 
-    public function find($id, $hit = false)
+    public function find($id)
     {
-
-        $item = $this->repo->find($id);
-        if($item) {
-
-            if ($hit) {
-                $item->hits = $item->hits + 1;
-                $item->save();
-            }
-
-            $this->status   = Str::upper(Str::snake($this->type.'FindSuccess'));
-            $this->response = $item;
-        }
-        else {
-            $this->status   = Str::upper(Str::snake($this->type.'FindFail'));
-            $this->response = $item;
-        }
-
-        return $item;
+        return $this->repo->find($id);
     }
 
 
@@ -102,6 +91,35 @@ class BaseService
     public function findOrderingInterval($parent_id, $origin, $modified)
     {
         return $this->repo->findOrderingInterval($parent_id, $origin, $modified);
+    }
+
+
+    public function getItem($id)
+    {
+        $item = $this->find($id);
+
+        if($item) {
+            $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
+            $this->response = $item;
+        }
+        else {
+            $this->status   = Str::upper(Str::snake($this->type.'GetItemFail'));
+            $this->response = $item;
+        }
+
+        return $item;
+    }
+
+
+    public function getModel()
+    {
+        return $this->getRepo()->getModel();
+    }
+
+
+    public function getRepo()
+    {
+        return $this->repo;
     }
 
 
@@ -148,12 +166,25 @@ class BaseService
 
     public function remove(Collection $input)
     {
-        foreach ($input->ids as $id) {
+        foreach ($input->ids as $id)
+        {
+            if ($this->tablePropertyExist('ordering'))
+            {
+                $item   = $this->find($id);
+                $next_siblings = $this->repo->findDeleteSiblings($item->ordering);
+                $next_siblings->each(function ($item, $key) {
+                    $item->ordering--;
+                    $item->save();
+                });
+            }
+
             $result = $this->repo->delete($id);
-            if (!$result) {
-              break;
+            if (!$result)
+            {
+                break;
             }
         }
+
         if($result) {
             $this->status =  Str::upper(Str::snake($this->type.'DeleteSuccess'));
         }
@@ -161,6 +192,24 @@ class BaseService
             $this->status =  Str::upper(Str::snake($this->type.'DeleteFail'));
         }
         return $result;
+    }
+
+
+    public function checkout($id)
+    {
+        $checkout = $this->repo->checkout($id);
+        if ($checkout)
+        {
+            $this->status = Str::upper(Str::snake($this->type.'CheckoutSuccess'));
+            $this->response = null;
+            return true;
+        }
+        else
+        {
+            $this->status = Str::upper(Str::snake($this->type.'CheckoutFail'));
+            $this->response = null;
+            return false;
+        }
     }
 
 
@@ -186,10 +235,12 @@ class BaseService
 
     public function store(Collection $input)
     {
-        if ($input->get('id') == null || $input->get('id') == '') {
+        if (InputHelper::null($input, 'id')) {
             return $this->add($input);
         }
         else {
+            $input->put('lock_by', 0);
+            $input->put('lock_at', null);
             return $this->modify($input);
         }
     }
@@ -283,6 +334,12 @@ class BaseService
         $this->response = $tree;
 
         return $tree;
+    }
+
+
+    public function tablePropertyExist($property)
+    {
+        return Schema::hasColumn($this->getModel()->getTable(), $property);
     }
 
 

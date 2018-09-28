@@ -150,8 +150,6 @@ return [
         'code'      => 200,
         'message'   => 'UcModel front delete success'
     ],
-
-
     'DummyModel_DELETE_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel delete fail'
@@ -163,6 +161,32 @@ return [
     'DummyModel_FRONT_DELETE_FAIL' => [
         'code'      => 500,
         'message'   => 'UcModel front delete fail'
+    ],
+
+    // Delete Nested
+    'DummyModel_DELETE_NESTED_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel delete nested success'
+    ],
+    'DummyModel_ADMIN_DELETE_NESTED_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel admin delete nested success'
+    ],
+    'DummyModel_FRONT_DELETE_NESTED_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel front delete nested success'
+    ],
+    'DummyModel_DELETE_NESTED_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel delete nested fail'
+    ],
+    'DummyModel_ADMIN_DELETE_NESTED_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel admin delete nested fail'
+    ],
+    'DummyModel_FRONT_DELETE_NESTED_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel front delete nested fail'
     ],
 
 
@@ -273,30 +297,30 @@ return [
         'message'   => 'UcModel front search fail'
     ],
 
-    // Find
-    'DummyModel_FIND_SUCCESS' => [
+    // Get Item
+    'DummyModel_GET_ITEM_SUCCESS' => [
             'code'      => 200,
-            'message'   => 'UcModel find success'
+            'message'   => 'UcModel get item success'
     ],
-    'DummyModel_ADMIN_FIND_SUCCESS' => [
+    'DummyModel_ADMIN_GET_ITEM_SUCCESS' => [
         'code'      => 200,
-        'message'   => 'UcModel admin find success'
+        'message'   => 'UcModel admin get item success'
     ],
-    'DummyModel_FRONT_FIND_SUCCESS' => [
+    'DummyModel_FRONT_GET_ITEM_SUCCESS' => [
         'code'      => 200,
-        'message'   => 'UcModel front find success'
+        'message'   => 'UcModel front get item success'
     ],
-    'DummyModel_FIND_FAIL' => [
+    'DummyModel_GET_ITEM_FAIL' => [
         'code'      => 500,
-        'message'   => 'UcModel find fail'
+        'message'   => 'UcModel get item fail'
     ],
-    'DummyModel_ADMIN_FIND_FAIL' => [
+    'DummyModel_ADMIN_GET_ITEM_FAIL' => [
         'code'      => 500,
-        'message'   => 'UcModel admin search fail'
+        'message'   => 'UcModel admin get item fail'
     ],
-    'DummyModel_FRONT_FIND_FAIL' => [
+    'DummyModel_FRONT_GET_ITEM_FAIL' => [
         'code'      => 500,
-        'message'   => 'UcModel front find fail'
+        'message'   => 'UcModel front get item fail'
     ],
 
     // Ordering

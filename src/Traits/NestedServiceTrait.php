@@ -5,6 +5,7 @@ namespace DaydreamLab\JJAJ\Traits;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 trait NestedServiceTrait
@@ -28,7 +29,7 @@ trait NestedServiceTrait
 
     public function modifyNested(Collection $input)
     {
-       $modify = $this->repo->modifyNested($input);
+        $modify = $this->repo->modifyNested($input);
         if ($modify)
         {
             $this->status   = Str::upper(Str::snake($this->type.'UpdateNestedSuccess'));
@@ -63,12 +64,29 @@ trait NestedServiceTrait
     }
 
 
+    public function removeNested(Collection $input)
+    {
+
+        $result = $this->repo->removeNested($input);
+        if($result) {
+            $this->status =  Str::upper(Str::snake($this->type.'DeleteNestedSuccess'));
+        }
+        else {
+            $this->status =  Str::upper(Str::snake($this->type.'DeleteNestedFail'));
+        }
+
+        return $result;
+    }
+
+
     public function storeNested(Collection $input)
     {
         if (InputHelper::null($input, 'id')) {
             return $this->addNested($input);
         }
         else {
+            $input->put('lock_by', 0);
+            $input->put('lock_at', null);
             return $this->modifyNested($input);
         }
     }

@@ -5,14 +5,11 @@ namespace DaydreamLab\JJAJ\Repositories;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
-use DaydreamLab\User\Models\Asset\Admin\AssetAdmin;
-use DaydreamLab\User\Models\Asset\Asset;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class BaseRepository implements BaseRepositoryInterface
@@ -39,7 +36,7 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function delete($id)
     {
-      return $this->model->find($id)->delete();
+        return $this->model->find($id)->delete();
     }
 
 
@@ -65,6 +62,13 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    // 取出  ordering 大於刪除之item 後所有 items
+    public function findDeleteSiblings($ordering)
+    {
+        return $this->findBy('ordering', '>', $ordering);
+    }
+
+
     public function findOrderingInterval($parent_id, $origin, $modified)
     {
         $query = $this->model->where('parent_id', $parent_id);
@@ -74,6 +78,7 @@ class BaseRepository implements BaseRepositoryInterface
         else { // 排序向下移動
             $query = $query->where('ordering', '>', $origin)->where('ordering', '<=', $modified);
         }
+
         return $query->get();
     }
 
@@ -81,6 +86,12 @@ class BaseRepository implements BaseRepositoryInterface
     public function fixTree()
     {
         $this->model->fixTree();
+    }
+
+
+    public function getModel()
+    {
+        return $this->model;
     }
 
 
@@ -131,6 +142,22 @@ class BaseRepository implements BaseRepositoryInterface
         return (in_array($trait, $this_trait) || in_array($trait, $parent_trait)) ? true : false;
     }
 
+
+    public function lock($id)
+    {
+        $user = Auth::guard('api')->user();
+
+        $item = $this->find($id);
+        if (!$item)
+        {
+            return false;
+        }
+
+        $item->lock_by = $user->id;
+        $item->lock_at = now();
+
+        return $item->save();
+    }
 
 
     public function ordering(Collection $input)
@@ -223,6 +250,22 @@ class BaseRepository implements BaseRepositoryInterface
             return false;
         }
     }
+
+
+    public function unlock($id)
+    {
+        $item = $this->find($id);
+        if (!$item)
+        {
+            return false;
+        }
+
+        $item->lock_by = 0;
+        $item->lock_at = null;
+
+        return $item->save();
+    }
+
 
     public function update($item)
     {

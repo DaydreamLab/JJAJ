@@ -5,6 +5,7 @@ namespace DaydreamLab\JJAJ\Traits;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 trait NestedRepositoryTrait
 {
@@ -56,7 +57,15 @@ trait NestedRepositoryTrait
             }
 
             $last_child =  $parent->children()->get()->last();
-            $input->put('ordering', $last_child->ordering + 1);
+            if ($last_child)
+            {
+                $input->put('ordering', $last_child->ordering + 1);
+            }
+            else
+            {
+                $input->put('ordering', 1);
+            }
+
 
             $new = $this->create($input->toArray());
 
@@ -121,16 +130,18 @@ trait NestedRepositoryTrait
         {
             //有改 ordering
             if ($input->ordering != $modified->ordering) {
-                $selected       = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->ordering])->first();
-                $interval_items = $this->findOrderingInterval($input->parent_id, $modified->ordering, $input->ordering);
+                $selected            = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->ordering])->first();
+                $origin_ordering     = $modified->ordering;
+                $modified->ordering  = $selected->ordering;
+                $interval_items = $this->findOrderingInterval($input->parent_id, $origin_ordering, $input->ordering);
 
                 // node 向上移動
-                if ($input->ordering < $modified->ordering) {
+                if ($input->ordering < $origin_ordering) {
                     if (!$modified->beforeNode($selected)->save())
                     {
                         return false;
                     }
-                    if (!$this->siblingOrderingChange($interval_items, 'add'))
+                    if (!$this->siblingsOrderingChange($interval_items, 'add'))
                     {
                         return false;
                     }
@@ -142,7 +153,7 @@ trait NestedRepositoryTrait
                         return false;
                     }
 
-                    if (!$this->siblingOrderingChange($interval_items, 'add'))
+                    if (!$this->siblingsOrderingChange($interval_items, 'minus'))
                     {
                         return false;
                     }
@@ -197,6 +208,27 @@ trait NestedRepositoryTrait
         }
 
         return true;
+    }
+
+
+    public function removeNested(Collection $input)
+    {
+        foreach ($input->ids as $id)
+        {
+            $item     = $this->find($id);
+            $siblings = $item->getNextSiblings();
+            $siblings->each(function ($item, $key) {
+                $item->ordering--;
+                $item->save();
+            });
+
+            $result = $this->delete($id);
+            if (!$result)
+            {
+                break;
+            }
+        }
+        return $result;
     }
 
 
