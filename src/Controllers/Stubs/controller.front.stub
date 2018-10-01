@@ -37,6 +37,14 @@ class DummyClass extends BaseController
     }
 
 
+    public function checkout($id)
+    {
+        $this->service->checkout($id);
+
+        return ResponseHelper::response($this->service->status, $this->service->response);
+    }
+
+
     public function ordering(DummyOrderingPostRequest $request)
     {
         $this->service->ordering($request->rulesInput());

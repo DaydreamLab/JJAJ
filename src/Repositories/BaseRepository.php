@@ -10,6 +10,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class BaseRepository implements BaseRepositoryInterface
@@ -27,6 +28,30 @@ class BaseRepository implements BaseRepositoryInterface
         return $this->model->all();
     }
 
+
+    public function checkout($input)
+    {
+        $user = Auth::guard('api')->user();
+        foreach ($input->ids as $id)
+        {
+            $item = $this->model->find($id);
+            if ($item->lock_by == 0 || $item->lock_by == $user->id || $user->groups->contains('title', 'Super User'))
+            {
+                $item->lock_by = 0;
+                $item->lock_at = null;
+                if(!$item->save())
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     public function create($data)
     {
@@ -204,11 +229,11 @@ class BaseRepository implements BaseRepositoryInterface
     public function search(Collection $input)
     {
         $order_by   = !InputHelper::null($input, 'order_by') ? $input->order_by : $this->model->getOrderBy();
-        $limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
+        //$limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
         $order      = !InputHelper::null($input, 'order')    ? $input->order    : $this->model->getOrder();
         $state      = !InputHelper::null($input, 'state')    ? $input->state    : [0,1];
         $language   = !InputHelper::null($input, 'language') ? $input->language : 'tw';
-        $access     = !InputHelper::null($input, 'access')   ? $input->access   : '8';
+        //$access     = !InputHelper::null($input, 'access')   ? $input->access   : '8';
 
         $query = $this->getQuery($input);
 
@@ -217,7 +242,7 @@ class BaseRepository implements BaseRepositoryInterface
             $query = $query->where('title', '!=', 'ROOT');
         }
 
-        if (Schema::hasColumn($this->model->getTable(), 'state'))
+        if (Schema::hasColumn($this->model->getTable(), 'state') && $this->model->getTable() != 'users')
         {
             if (is_array($state))
             {
@@ -228,7 +253,7 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        if (Schema::hasColumn($this->model->getTable(), 'language'))
+        if (Schema::hasColumn($this->model->getTable(), 'language')&& $this->model->getTable() != 'users')
         {
             $query = $query->where('language', '=', $language);
         }

@@ -2,6 +2,7 @@
 namespace DaydreamLab\JJAJ\Helpers;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class Helper {
 
@@ -37,5 +38,8 @@ class Helper {
         return $collect;
     }
 
-
+    public static function tablePropertyExist($model, $property)
+    {
+        return Schema::hasColumn($model->getTable(), $property);
+    }
 }

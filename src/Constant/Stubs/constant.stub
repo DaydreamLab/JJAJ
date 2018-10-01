@@ -389,4 +389,46 @@ return [
         'code'      => 200,
         'message'   => 'UcModel front get tree success'
     ],
+    
+    
+    // Checkout
+    'DummyModel_CHECKOUT_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel checkout success'
+    ],
+    'DummyModel_ADMIN_CHECKOUT_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel admin checkout success'
+    ],
+    'DummyModel_FRONT_CHECKOUT_SUCCESS' => [
+        'code'      => 200,
+        'message'   => 'UcModel front checkout success'
+    ],
+    'DummyModel_CHECKOUT_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel checkout fail'
+    ],
+    'DummyModel_ADMIN_CHECKOUT_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel admin checkout fail'
+    ],
+    'DummyModel_FRONT_CHECKOUT_FAIL' => [
+        'code'      => 500,
+        'message'   => 'UcModel front checkout fail'
+    ],
+
+    
+    // Is Locked
+    'DummyModel_IS_LOCKED' => [
+        'code'      => 403,
+        'message'   => 'UcModel is locked'
+    ],
+    'DummyModel_ADMIN_IS_LOCKED' => [
+        'code'      => 403,
+        'message'   => 'UcModel admin is locked'
+    ],
+    'DummyModel_FRONT_IS_LOCKED' => [
+        'code'      => 403,
+        'message'   => 'UcModel front is locked'
+    ],
 ];

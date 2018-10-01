@@ -5,8 +5,6 @@ namespace DaydreamLab\JJAJ\Services;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
-use DaydreamLab\User\Models\Asset\Asset;
-use DaydreamLab\User\Models\User\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -49,6 +47,21 @@ class BaseService
             $this->response = null;
         }
         return $model;
+    }
+
+
+    public function checkout(Collection $input)
+    {
+        $checkout = $this->repo->checkout($input);
+        if ($checkout) {
+            $this->status =  Str::upper(Str::snake($this->type.'CheckoutSuccess'));
+            $this->response = null;
+        }
+        else {
+            $this->status =  Str::upper(Str::snake($this->type.'CheckoutFail'));
+            $this->response = null;
+        }
+        return $checkout;
     }
 
 
@@ -168,7 +181,7 @@ class BaseService
     {
         foreach ($input->ids as $id)
         {
-            if ($this->tablePropertyExist('ordering'))
+            if (Helper::tablePropertyExist($this->getModel(), 'ordering'))
             {
                 $item   = $this->find($id);
                 $next_siblings = $this->repo->findDeleteSiblings($item->ordering);
@@ -192,24 +205,6 @@ class BaseService
             $this->status =  Str::upper(Str::snake($this->type.'DeleteFail'));
         }
         return $result;
-    }
-
-
-    public function checkout($id)
-    {
-        $checkout = $this->repo->checkout($id);
-        if ($checkout)
-        {
-            $this->status = Str::upper(Str::snake($this->type.'CheckoutSuccess'));
-            $this->response = null;
-            return true;
-        }
-        else
-        {
-            $this->status = Str::upper(Str::snake($this->type.'CheckoutFail'));
-            $this->response = null;
-            return false;
-        }
     }
 
 
