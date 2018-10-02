@@ -23,6 +23,29 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    public function add(Collection $input)
+    {
+        if (Helper::tablePropertyExist($this->model, 'ordering'))
+        {
+            if (InputHelper::null($input, 'ordering'))
+            {
+                $last = $this->model->orderBy('ordering', 'desc')->get()->first();
+                if ($last)
+                {
+                    $input->forget('ordering');
+                    $input->put('ordering', $last->ordering + 1);
+                }
+                else
+                {
+                    $input->forget('ordering');
+                }
+            }
+        }
+
+        return $this->create($input->toArray());
+    }
+
+
     public function all()
     {
         return $this->model->all();
@@ -185,25 +208,25 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function ordering(Collection $input)
+    public function ordering(Collection $input, $orderingKey)
     {
         $item   = $this->find($input->id);
-        $origin = $item->ordering;
-        $item->ordering = $origin + $input->index_diff;
+        $origin = $item->{$orderingKey};
+        $item->{$orderingKey} = $origin + $input->index_diff;
 
         if ($input->index_diff >= 0)
         {
-            $update_items = $this->findByChain(['ordering', 'ordering'], ['>=', '<'], [$origin, $origin + $input->index_diff]);
-            $result = $update_items->each(function ($item) {
-                $item->ordering--;
+            $update_items = $this->findByChain([$orderingKey, $orderingKey], ['>', '<='], [$origin, $origin + $input->index_diff]);
+            $result = $update_items->each(function ($item) use ($orderingKey) {
+                $item->{$orderingKey}--;
                 return $item->save();
             });
         }
         else
         {
-            $update_items = $this->findByChain(['ordering', 'ordering'], ['>=', '<'], [$origin + $input->index_diff, $origin]);
-            $result = $update_items->each(function ($item) {
-                $item->ordering++;
+            $update_items = $this->findByChain([$orderingKey, $orderingKey], ['>=', '<'], [$origin + $input->index_diff, $origin]);
+            $result = $update_items->each(function ($item) use ($orderingKey){
+                $item->{$orderingKey}++;
                 return $item->save();
             });
         }
@@ -229,10 +252,10 @@ class BaseRepository implements BaseRepositoryInterface
     public function search(Collection $input)
     {
         $order_by   = !InputHelper::null($input, 'order_by') ? $input->order_by : $this->model->getOrderBy();
-        //$limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
+        $limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
         $order      = !InputHelper::null($input, 'order')    ? $input->order    : $this->model->getOrder();
         $state      = !InputHelper::null($input, 'state')    ? $input->state    : [0,1];
-        $language   = !InputHelper::null($input, 'language') ? $input->language : 'tw';
+        $language   = !InputHelper::null($input, 'language') ? $input->language : ['All','tw'];
         //$access     = !InputHelper::null($input, 'access')   ? $input->access   : '8';
 
         $query = $this->getQuery($input);
@@ -255,10 +278,17 @@ class BaseRepository implements BaseRepositoryInterface
 
         if (Schema::hasColumn($this->model->getTable(), 'language')&& $this->model->getTable() != 'users')
         {
-            $query = $query->where('language', '=', $language);
+            if (is_array($state))
+            {
+                $query = $query->whereIn('language', $language);
+            }
+            else
+            {
+                $query = $query->where('language', '=', $language);
+            }
         }
 
-        $items = $query->orderBy($order_by, $order)->get();
+        $items = $query->orderBy($order_by, $order)->paginate($limit);
 
         return $items;
     }

@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Requests;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
@@ -35,6 +36,7 @@ class BaseRequest extends FormRequest
     {
         $need = [];
         $keys = array_keys($this->rules());
+
         foreach ($keys as $key) {
             if (!preg_match('/.+\*+/', $key)){
                 $need[] = $key;

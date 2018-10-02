@@ -168,7 +168,7 @@ trait NestedRepositoryTrait
     }
 
 
-    public function orderingNested(Collection $input)
+    public function orderingNested(Collection $input, $orderingKey)
     {
         $item   = $this->find($input->id);
         $origin = $item->ordering;

@@ -5,6 +5,7 @@ namespace DaydreamLab\JJAJ\Services;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -37,7 +38,7 @@ class BaseService
 
     public function add(Collection $input)
     {
-        $model = $this->create($input->toArray());
+        $model = $this->repo->add($input);
         if ($model) {
             $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));
             $this->response = $model;
@@ -83,7 +84,7 @@ class BaseService
     }
 
 
-    public function filterItems(Collection $items, $limit)
+    public function filterItems($items, $limit)
     {
         return $this->repo->paginate($items, $limit);
     }
@@ -117,7 +118,7 @@ class BaseService
         }
         else {
             $this->status   = Str::upper(Str::snake($this->type.'GetItemFail'));
-            $this->response = $item;
+            $this->response = null;
         }
 
         return $item;
@@ -151,11 +152,11 @@ class BaseService
     }
 
 
-    public function ordering(Collection $input)
+    public function ordering(Collection $input, $orderingKey = 'ordering')
     {
         if ($this->repo->isNested())
         {
-            $result = $this->repo->orderingNested($input);
+            $result = $this->repo->orderingNested($input, $orderingKey);
             if($result) {
                 $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingNestedSuccess'));
             }
@@ -164,7 +165,7 @@ class BaseService
             }
         }
         else {
-            $result = $this->repo->ordering($input);
+            $result = $this->repo->ordering($input, $orderingKey);
             if($result) {
                 $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingSuccess'));
             }
@@ -218,7 +219,10 @@ class BaseService
         {
             $limit  = !InputHelper::null($input, 'limit')    ? $input->limit : 25; //這邊的25要修掉因為沒辦法 $this->model->getLimit()
             $items  = $this->repo->search($input);
-            $items  = $this->filterItems($items, $limit);
+            if (!($items instanceof LengthAwarePaginator))
+            {
+                $items  = $this->filterItems($items, $limit);
+            }
         }
 
         $this->status   = Str::upper(Str::snake($this->type.'SearchSuccess'));
