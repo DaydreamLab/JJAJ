@@ -89,14 +89,14 @@ class BaseModel extends Model
             $str .= '.';
         }
 
-        $str .= '      '; //6個空格
+        $str .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
         if($depth !== 0)
         {
             $str .= '<sup>|_</sup> ';
         }
 
         //return $depth - 1 == 0 ? $this->title : $str . ' '. $this->title;
-        return $depth == 0 ? $this->title : $str . ' '. $this->title;
+        return $depth == 0 || $depth == 1 ? $this->title : $str . ' '. $this->title;
     }
 
 

@@ -176,8 +176,8 @@ class BaseRepository implements BaseRepositoryInterface
                             if (!InputHelper::null($input, 'category_id'))
                             {
                                 $category = $this->find($input->category_id);
-                                $query = $query->where('_lft', '>', $category->_lft)
-                                                ->where('_rgt', '<', $category->_rgt);
+                                $query = $query->where('_lft', '>=', $category->_lft)
+                                                ->where('_rgt', '<=', $category->_rgt);
                             }
 
                             if (!InputHelper::null($input, 'tag_id'))
