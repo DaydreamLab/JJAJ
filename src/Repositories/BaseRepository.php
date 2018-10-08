@@ -170,12 +170,32 @@ class BaseRepository implements BaseRepositoryInterface
                 {
                     if ($item != null)
                     {
-                        $query = $query->where("$key", '=', $item);
+                        // 需要重寫這段
+                        if ($this->isNested())
+                        {
+                            if (!InputHelper::null($input, 'category_id'))
+                            {
+                                $category = $this->find($input->category_id);
+                                $query = $query->where('_lft', '>', $category->_lft)
+                                                ->where('_rgt', '<', $category->_rgt);
+                            }
+
+                            if (!InputHelper::null($input, 'tag_id'))
+                            {
+                                $tag = $this->find($input->tag_id);
+                                $query = $query->where('_lft', '>', $tag->_lft)
+                                    ->where('_rgt', '>', $tag->_rgt);
+                            }
+                        }
+                        else
+                        {
+                            $query = $query->where("$key", '=', $item);
+                        }
+
                     }
                 }
             }
         }
-
 
         return $query;
     }
@@ -260,10 +280,7 @@ class BaseRepository implements BaseRepositoryInterface
 
         $query = $this->getQuery($input);
 
-        if ($this->isNested())
-        {
-            $query = $query->where('title', '!=', 'ROOT');
-        }
+
 
         if (Schema::hasColumn($this->model->getTable(), 'state') && $this->model->getTable() != 'users')
         {
@@ -288,7 +305,17 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        $items = $query->orderBy($order_by, $order)->paginate($limit);
+        if ($this->isNested()) //重組出樹狀
+        {
+            $query = $query->where('title', '!=', 'ROOT');
+            $items = $query->orderBy($order_by, $order)->get()->toFlatTree();
+            $copy       = new Collection($items);
+            $items      = $this->paginate($copy, $limit);
+        }
+        else
+        {
+            $items = $query->orderBy($order_by, $order)->paginate($limit);
+        }
 
         return $items;
     }

@@ -37,6 +37,14 @@ class BaseModel extends Model
     }
 
 
+    public function creator()
+    {
+        $creator = $this->hasOne(User::class, 'id', 'created_by')->first();
+
+        return $creator ? $creator->nickname : null;
+    }
+
+
     public function getCreatorAttribute()
     {
         return $this->creator();
@@ -52,6 +60,12 @@ class BaseModel extends Model
     public function getLimit()
     {
         return $this->limit;
+    }
+
+
+    public function getLockerAttribute()
+    {
+        return $this->locker();
     }
 
 
@@ -71,10 +85,17 @@ class BaseModel extends Model
     {
         $depth = $this->depth;
         $str = '';
-        for ($i = 0 ; $i < $depth - 1 ; $i++) {
-            $str .= ' | ';
+        for ($j = 0 ; $j < $depth -1; $j++) {
+            $str .= '.';
         }
-        return $depth - 1 == 0 ? $this->title : $str . ' - ' . $this->title;
+
+        if($depth !== 0)
+        {
+            $str .= '|_';
+        }
+
+        //return $depth - 1 == 0 ? $this->title : $str . ' '. $this->title;
+        return $depth == 0 ? $this->title : $str . ' '. $this->title;
     }
 
 
@@ -82,6 +103,14 @@ class BaseModel extends Model
     {
         return $this->updater();
     }
+
+
+    public function locker()
+    {
+        $locker =  $this->hasOne(User::class, 'id', 'locked_by')->first();
+        return $locker ? $locker->nickname : null;
+    }
+
 
     public function setLimit($limit)
     {
@@ -103,14 +132,6 @@ class BaseModel extends Model
         if ($order_by && $order_by != ''){
             $this->order_by = $order_by;
         }
-    }
-
-
-    public function creator()
-    {
-        $creator = $this->hasOne(User::class, 'id', 'created_by')->first();
-
-        return $creator ? $creator->nickname : null;
     }
 
 
