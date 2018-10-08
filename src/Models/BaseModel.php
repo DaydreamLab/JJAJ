@@ -89,9 +89,10 @@ class BaseModel extends Model
             $str .= '.';
         }
 
+        $str .= '      '; //6個空格
         if($depth !== 0)
         {
-            $str .= '|_';
+            $str .= '<sup>|_</sup> ';
         }
 
         //return $depth - 1 == 0 ? $this->title : $str . ' '. $this->title;
