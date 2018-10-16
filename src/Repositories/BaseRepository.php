@@ -274,13 +274,11 @@ class BaseRepository implements BaseRepositoryInterface
         $order_by   = !InputHelper::null($input, 'order_by') ? $input->order_by : $this->model->getOrderBy();
         $limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
         $order      = !InputHelper::null($input, 'order')    ? $input->order    : $this->model->getOrder();
+
         $state      = !InputHelper::null($input, 'state')    ? $input->state    : [0,1];
         $language   = !InputHelper::null($input, 'language') ? $input->language : ['All','tw'];
-        //$access     = !InputHelper::null($input, 'access')   ? $input->access   : '8';
 
         $query = $this->getQuery($input);
-
-
 
         if (Schema::hasColumn($this->model->getTable(), 'state') && $this->model->getTable() != 'users')
         {
@@ -295,7 +293,7 @@ class BaseRepository implements BaseRepositoryInterface
 
         if (Schema::hasColumn($this->model->getTable(), 'language')&& $this->model->getTable() != 'users')
         {
-            if (is_array($state))
+            if (is_array($language))
             {
                 $query = $query->whereIn('language', $language);
             }
@@ -303,14 +301,14 @@ class BaseRepository implements BaseRepositoryInterface
             {
                 $query = $query->where('language', '=', $language);
             }
+
         }
+
 
         if ($this->isNested()) //重組出樹狀
         {
             $query = $query->where('title', '!=', 'ROOT');
-            $items = $query->orderBy($order_by, $order)->get()->toFlatTree();
-            $copy       = new Collection($items);
-            $items      = $this->paginate($copy, $limit);
+            $items = $query->orderBy('_lft', $order)->paginate($limit);
         }
         else
         {

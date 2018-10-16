@@ -90,7 +90,6 @@ trait NestedRepositoryTrait
     }
 
 
-
     public function modifyNested(Collection $input)
     {
         $modified = $this->find($input->id);
@@ -251,10 +250,17 @@ trait NestedRepositoryTrait
     public function searchNested(Collection $input)
     {
         $limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
-        $query      = $this->model->where('title', '!=', 'ROOT');
-        $tree       = $query->orderBy('ordering', 'asc')->get()->toFlatTree();
-        $copy       = new Collection($tree);
-        $paginate   = $this->paginate($copy, $limit);
+
+        //add
+        $query      = $this->getQuery($input);
+        $query      = $query->where('title', '!=', 'ROOT');
+        $items      = $query->orderBy('_lft', 'asc')->get();
+        $paginate   = $this->paginate($items, $limit);
+
+//        $query      = $this->model->where('title', '!=', 'ROOT');
+//        $tree       = $query->orderBy('ordering', 'asc')->get()->toFlatTree();
+//        $copy       = new Collection($tree);
+//        $paginate   = $this->paginate($copy, $limit);
 
         return $paginate;
     }
