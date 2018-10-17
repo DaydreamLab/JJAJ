@@ -125,6 +125,25 @@ class BaseService
     }
 
 
+    public function getItemByPath($path)
+    {
+        $item = $this->findBy('path', '=', $path)->first();
+
+        if($item->count() != 0) {
+
+            $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
+            $this->response = $item;
+        }
+        else {
+            $this->status   = Str::upper(Str::snake($this->type.'GetItemFail'));
+            $this->response = null;
+        }
+
+        return $item;
+    }
+
+
+
     public function getModel()
     {
         return $this->getRepo()->getModel();

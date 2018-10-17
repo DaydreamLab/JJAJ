@@ -173,18 +173,21 @@ class BaseRepository implements BaseRepositoryInterface
                         // 需要重寫這段
                         if ($this->isNested())
                         {
-                            if (!InputHelper::null($input, 'category_id'))
+                            if ($key == 'id')
                             {
-                                $category = $this->find($input->category_id);
+                                $category = $this->find($input->id);
                                 $query = $query->where('_lft', '>=', $category->_lft)
                                                 ->where('_rgt', '<=', $category->_rgt);
                             }
-
-                            if (!InputHelper::null($input, 'tag_id'))
+                            else if ($key == 'tag_id')
                             {
                                 $tag = $this->find($input->tag_id);
                                 $query = $query->where('_lft', '>', $tag->_lft)
                                     ->where('_rgt', '>', $tag->_rgt);
+                            }
+                            else
+                            {
+                                $query = $query->where("$key", '=', $item);
                             }
                         }
                         else

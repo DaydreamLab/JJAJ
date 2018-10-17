@@ -56,6 +56,7 @@ trait NestedRepositoryTrait
                 $parent = $this->find(1);
             }
 
+
             $last_child =  $parent->children()->get()->last();
             if ($last_child)
             {
