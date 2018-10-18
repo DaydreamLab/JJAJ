@@ -58,10 +58,10 @@ class BaseRepository implements BaseRepositoryInterface
         foreach ($input->ids as $id)
         {
             $item = $this->model->find($id);
-            if ($item->lock_by == 0 || $item->lock_by == $user->id || $user->groups->contains('title', 'Super User'))
+            if ($item->locked_by == 0 || $item->locked_by == $user->id || $user->groups->contains('title', 'Super User'))
             {
-                $item->lock_by = 0;
-                $item->lock_at = null;
+                $item->locked_by = 0;
+                $item->locked_at = null;
                 if(!$item->save())
                 {
                     return false;

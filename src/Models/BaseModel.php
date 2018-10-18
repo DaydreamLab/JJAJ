@@ -41,13 +41,15 @@ class BaseModel extends Model
     {
         $creator = $this->hasOne(User::class, 'id', 'created_by')->first();
 
-        return $creator ? $creator->nickname : null;
+        return $creator;
     }
 
 
     public function getCreatorAttribute()
     {
-        return $this->creator();
+        $creator = $this->creator() ;
+
+        return $creator ? $creator->nickname : null;
     }
 
 
@@ -102,7 +104,8 @@ class BaseModel extends Model
 
     public function getUpdaterAttribute()
     {
-        return $this->updater();
+        $updater = $this->updater();
+        return $updater ? $updater->nickname : null;
     }
 
 
@@ -139,6 +142,6 @@ class BaseModel extends Model
     public function updater()
     {
         $updater =  $this->hasOne(User::class, 'id', 'updated_by')->first();
-        return $updater ? $updater->nickname : null;
+        return $updater;
     }
 }

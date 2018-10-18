@@ -129,8 +129,7 @@ class BaseService
     {
         $item = $this->findBy('path', '=', $path)->first();
 
-        if($item->count() != 0) {
-
+        if($item) {
             $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
             $this->response = $item;
         }
