@@ -264,8 +264,8 @@ class BaseService
             return $this->add($input);
         }
         else {
-            $input->put('lock_by', 0);
-            $input->put('lock_at', null);
+            $input->put('locked_by', 0);
+            $input->put('locked_at', null);
             return $this->modify($input);
         }
     }
