@@ -405,16 +405,16 @@ return [
         'message'   => 'UcModel front checkout success'
     ],
     'DummyModel_CHECKOUT_FAIL' => [
-        'code'      => 500,
-        'message'   => 'UcModel checkout fail'
+        'code'      => 403,
+        'message'   => 'UcModel checkout insufficient permission'
     ],
     'DummyModel_ADMIN_CHECKOUT_FAIL' => [
-        'code'      => 500,
-        'message'   => 'UcModel admin checkout fail'
+        'code'      => 403,
+        'message'   => 'UcModel admin checkout insufficient permission'
     ],
     'DummyModel_FRONT_CHECKOUT_FAIL' => [
-        'code'      => 500,
-        'message'   => 'UcModel front checkout fail'
+        'code'      => 403,
+        'message'   => 'UcModel front checkout insufficient permission'
     ],
 
     
