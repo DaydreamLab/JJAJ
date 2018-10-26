@@ -5,7 +5,6 @@ namespace DaydreamLab\JJAJ\Services;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -38,6 +37,17 @@ class BaseService
 
     public function add(Collection $input)
     {
+        if ($this->tablePropertyExist('alias'))
+        {
+            $same = $this->findBy('alias', '=', $input->get('alias'))->first();
+            if ($same)
+            {
+                $this->status =  Str::upper(Str::snake($this->type.'CreateWithExistAlias'));
+                $this->response = false;
+                return false;
+            }
+        }
+
         $model = $this->repo->add($input);
         if ($model) {
             $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));

@@ -12,18 +12,29 @@ trait NestedServiceTrait
 {
     public function addNested(Collection $input)
     {
-       $item = $this->repo->addNested($input);
-       if ($item)
-       {
+        if($this->tablePropertyExist('path'))
+        {
+            $same = $this->findBy('path', '=', $input->get('path'))->first();
+            if ($same)
+            {
+                $this->status =  Str::upper(Str::snake($this->type.'CreateNestedWithExistPath'));
+                $this->response = false;
+                return false;
+            }
+        }
+
+        $item = $this->repo->addNested($input);
+        if ($item)
+        {
            $this->status    = Str::upper(Str::snake($this->type.'CreateNestedSuccess'));
            $this->response  = $item;
-       }
-       else
-       {
+        }
+        else
+        {
            $this->status    = Str::upper(Str::snake($this->type.'CreateNestedFail'));
            $this->response  = null;
-       }
-       return $item;
+        }
+        return $item;
     }
 
 

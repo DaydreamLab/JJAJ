@@ -38,6 +38,7 @@ class BaseRepository implements BaseRepositoryInterface
                 else
                 {
                     $input->forget('ordering');
+                    $input->put('ordering', 1);
                 }
             }
         }

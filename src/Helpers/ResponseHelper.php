@@ -2,7 +2,6 @@
 
 namespace DaydreamLab\JJAJ\Helpers;
 
-use Illuminate\Support\Facades\Config;
 
 class ResponseHelper
 {
