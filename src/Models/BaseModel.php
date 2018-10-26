@@ -102,6 +102,18 @@ class BaseModel extends Model
     }
 
 
+    public function getTreeListTitleAttribute()
+    {
+        $depth = $this->depth;
+        $str = '';
+        for ($j = 0 ; $j < $depth ; $j++) {
+            $str .= '-';
+        }
+
+        return $depth == 0  ? $this->title : $str . ' '. $this->title;
+    }
+
+
     public function getUpdaterAttribute()
     {
         $updater = $this->updater();
