@@ -37,7 +37,7 @@ class BaseService
 
     public function add(Collection $input)
     {
-        if ($this->tablePropertyExist('alias'))
+        if ($this->tablePropertyExist('alias') && $this->getModel()->getTable() != 'extrafields')
         {
             $same = $this->findBy('alias', '=', $input->get('alias'))->first();
             if ($same)
