@@ -48,6 +48,14 @@ class BaseService
             }
         }
 
+        $table = $this->repo->getModel()->getTable();
+        if ($table == 'items' || $table == 'categories')
+        {
+            $desc = $input->description;
+            $input->forget('description');
+            $input->put('description', nl2br($desc));
+        }
+
         $model = $this->repo->add($input);
         if ($model) {
             $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));

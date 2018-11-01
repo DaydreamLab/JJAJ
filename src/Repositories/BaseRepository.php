@@ -40,9 +40,15 @@ class BaseRepository implements BaseRepositoryInterface
                     }
                     else
                     {
-                        $query = $query->where('content_type', 'article');
+                        $query  = $query->where('content_type', 'article');
                     }
                 }
+
+                if(Helper::tablePropertyExist($this->model, 'category_id'))
+                {
+                    $query = $query->where('category_id', $input->category_id);
+                }
+
 
                 $last = $query->orderBy('ordering', 'desc')->get()->first();
                 if ($last)
