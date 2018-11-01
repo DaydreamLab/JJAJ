@@ -25,11 +25,26 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function add(Collection $input)
     {
+
         if (Helper::tablePropertyExist($this->model, 'ordering'))
         {
             if (InputHelper::null($input, 'ordering'))
             {
-                $last = $this->model->orderBy('ordering', 'desc')->get()->first();
+                $query = $this->model;
+
+                if ($this->getModel()->getTable() == 'items')
+                {
+                    if (!InputHelper::null($input, 'content_type'))
+                    {
+                        $query = $query->where('content_type', $input->content_type);
+                    }
+                    else
+                    {
+                        $query = $query->where('content_type', 'article');
+                    }
+                }
+
+                $last = $query->orderBy('ordering', 'desc')->get()->first();
                 if ($last)
                 {
                     $input->forget('ordering');
