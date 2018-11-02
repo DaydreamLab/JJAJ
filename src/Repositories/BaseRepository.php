@@ -32,18 +32,6 @@ class BaseRepository implements BaseRepositoryInterface
             {
                 $query = $this->model;
 
-                if ($this->getModel()->getTable() == 'items')
-                {
-                    if (!InputHelper::null($input, 'content_type'))
-                    {
-                        $query = $query->where('content_type', $input->content_type);
-                    }
-                    else
-                    {
-                        $query  = $query->where('content_type', 'article');
-                    }
-                }
-
                 if(Helper::tablePropertyExist($this->model, 'category_id'))
                 {
                     $query = $query->where('category_id', $input->category_id);
