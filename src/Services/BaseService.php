@@ -48,13 +48,7 @@ class BaseService
             }
         }
 
-        $table = $this->repo->getModel()->getTable();
-        if ($table == 'items' || $table == 'categories')
-        {
-            $desc = $input->description;
-            $input->forget('description');
-            $input->put('description', nl2br($desc));
-        }
+
 
         $model = $this->repo->add($input);
         if ($model) {
@@ -367,33 +361,6 @@ class BaseService
             $this->traverseTitle($category->children, $prefix.'-', $str);
         }
         return $str;
-    }
-
-
-    public function tree($extension)
-    {
-        $tree = $this->findBy('extension', '=', $extension)->toTree();
-
-
-        $this->status =  Str::upper(Str::snake($this->type . 'GetTreeSuccess'));
-        $this->response = $tree;
-
-        return $tree;
-    }
-
-
-    public function treeList($extension)
-    {
-        $tree = $this->findBy('extension', '=', $extension)->toFlatTree();
-
-        $tree = $tree->map(function ($item, $key) {
-           return $item->only(['id', 'tree_list_title']);
-        });
-
-        $this->status =  Str::upper(Str::snake($this->type . 'GetTreeListSuccess'));
-        $this->response = $tree;
-
-        return $tree;
     }
 
 
