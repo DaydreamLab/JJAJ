@@ -241,27 +241,7 @@ class BaseService
 
     public function search(Collection $input)
     {
-        //$limit  = !InputHelper::null($input, 'limit')    ? $input->limit : 25; //這邊的25要修掉因為沒辦法 $this->model->getLimit()
-        //if ($this->repo->isNested() && $input->count() == 1 && !InputHelper::null($input, 'limit'))
-
         $items = $this->repo->search($input);
-//        if (!($items instanceof LengthAwarePaginator))
-//        {
-//            $items  = $this->filterItems($items, $limit);
-//        }
-//        if ($this->repo->isNested())
-//        {
-//            $items = $this->repo->searchNested($input);
-//        }
-//        else
-//        {
-//            $limit  = !InputHelper::null($input, 'limit')    ? $input->limit : 25; //這邊的25要修掉因為沒辦法 $this->model->getLimit()
-//            $items  = $this->repo->search($input);
-//            if (!($items instanceof LengthAwarePaginator))
-//            {
-//                $items  = $this->filterItems($items, $limit);
-//            }
-//        }
 
         $this->status   = Str::upper(Str::snake($this->type.'SearchSuccess'));
         $this->response = $items;

@@ -202,7 +202,14 @@ class BaseRepository implements BaseRepositoryInterface
                         }
                         else
                         {
-                            $query = $query->where("$key", '=', $item);
+                            if ($key == 'category_id')
+                            {
+                                $query = $query->whereIn('category_id', $item);
+                            }
+                            else
+                            {
+                                $query = $query->where("$key", '=', $item);
+                            }
                         }
 
                     }
@@ -287,7 +294,6 @@ class BaseRepository implements BaseRepositoryInterface
         $order_by   = !InputHelper::null($input, 'order_by') ? $input->order_by : $this->model->getOrderBy();
         $limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
         $order      = !InputHelper::null($input, 'order')    ? $input->order    : $this->model->getOrder();
-
         $state      = !InputHelper::null($input, 'state')    ? $input->state    : [0,1];
         $language   = !InputHelper::null($input, 'language') ? $input->language : ['All','tw'];
 
