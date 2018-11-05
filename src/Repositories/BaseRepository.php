@@ -176,6 +176,14 @@ class BaseRepository implements BaseRepositoryInterface
                         }
                     });
                 }
+                elseif ($key == 'special_queries')
+                {
+
+                    foreach ($item as $q)
+                    {
+                        $query = $query->{$q['type']}($q['key'], $q['value']);
+                    }
+                }
                 else
                 {
                     if ($item != null)
