@@ -208,6 +208,17 @@ class BaseService
     }
 
 
+    public function paginationFormat($items)
+    {
+        $data = [];
+        $data['data'] = $items['data'];
+        unset($items['data']);
+        $data['pagination'] = $items;
+
+        return $data;
+    }
+
+
     public function remove(Collection $input)
     {
         foreach ($input->ids as $id)
@@ -303,7 +314,10 @@ class BaseService
                 $mapKey = $key;
             }
             else {
-                $mainKey = $key;
+                if ($key!= 'created_by')
+                {
+                    $mainKey = $key;
+                }
             }
         }
 
@@ -322,7 +336,8 @@ class BaseService
             foreach ($input->{$mapKey} as $id) {
                 $asset = $this->add(Helper::collect([
                     $mainKey    => $input->{$mainKey},
-                    Str::substr($mapKey, 0, -1) => $id
+                    Str::substr($mapKey, 0, -1) => $id,
+                    'created_by'   => $input->created_by
                 ]));
                 if (!$asset) {
                     return false;

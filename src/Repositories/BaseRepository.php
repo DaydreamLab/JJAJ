@@ -210,6 +210,7 @@ class BaseRepository implements BaseRepositoryInterface
                         }
                         else
                         {
+
                             if ($key == 'category_id')
                             {
                                 $query = $query->whereIn('category_id', $item);
@@ -299,11 +300,11 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function search(Collection $input)
     {
-        $order_by   = !InputHelper::null($input, 'order_by') ? $input->order_by : $this->model->getOrderBy();
-        $limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
-        $order      = !InputHelper::null($input, 'order')    ? $input->order    : $this->model->getOrder();
-        $state      = !InputHelper::null($input, 'state')    ? $input->state    : [0,1];
-        $language   = !InputHelper::null($input, 'language') ? $input->language : ['All','tw'];
+        $order_by   = !InputHelper::null($input, 'order_by') ? $input->get('order_by') : $this->model->getOrderBy();
+        $limit      = !InputHelper::null($input, 'limit')    ? $input->get('limit')    : $this->model->getLimit();
+        $order      = !InputHelper::null($input, 'order')    ? $input->get('order')    : $this->model->getOrder();
+        $state      = !InputHelper::null($input, 'state')    ? $input->get('state')    : [0,1];
+        $language   = !InputHelper::null($input, 'language') ? $input->get('language') : ['All','tw'];
 
         $query = $this->getQuery($input);
 
