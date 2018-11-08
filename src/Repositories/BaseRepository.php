@@ -179,7 +179,7 @@ class BaseRepository implements BaseRepositoryInterface
                 elseif ($key == 'special_queries')
                 {
                     foreach ($item as $q)
-                    {Helper::show($item);
+                    {
                         $query = $query->{$q['type']}($q['key'], $q['value']);
                     }
                 }
