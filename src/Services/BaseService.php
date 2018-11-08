@@ -34,7 +34,7 @@ class BaseService
         }
         else
         {
-            $this->viewlevels = [1];
+            $this->viewlevels = [2];
         }
     }
 
