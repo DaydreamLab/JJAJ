@@ -48,8 +48,6 @@ class BaseService
             }
         }
 
-
-
         $model = $this->repo->add($input);
         if ($model) {
             $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));
@@ -332,12 +330,13 @@ class BaseService
             }
         }
 
+
         if (count($input->{$mapKey}) > 0) {
             foreach ($input->{$mapKey} as $id) {
                 $asset = $this->add(Helper::collect([
                     $mainKey    => $input->{$mainKey},
                     Str::substr($mapKey, 0, -1) => $id,
-                    'created_by'   => $input->created_by
+                    'created_by'   => $this->user ? $this->user->id : 1
                 ]));
                 if (!$asset) {
                     return false;

@@ -26,7 +26,12 @@ class BaseModel extends Model
             if ($user) {
                 $item->created_by = $user->id;
             }
+            else
+            {
+                $item->created_by = 1;
+            }
         });
+
 
         static::updating(function ($item) use ($user) {
             if ($user) {

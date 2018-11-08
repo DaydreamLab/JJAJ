@@ -57,10 +57,10 @@ trait NestedRepositoryTrait
             }
 
 
-            $last_child =  $parent->children()->get()->last();
-            if ($last_child)
+            $children =  $parent->children()->get();
+            if ($children->get('items'))
             {
-                $input->put('ordering', $last_child->ordering + 1);
+                $input->put('ordering', $children->last()->ordering + 1);
             }
             else
             {
