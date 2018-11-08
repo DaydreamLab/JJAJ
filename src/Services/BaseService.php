@@ -14,6 +14,8 @@ class BaseService
 {
     protected $user;
 
+    protected $viewlevels;
+
     protected $repo;
 
     protected $type;
@@ -26,6 +28,14 @@ class BaseService
     {
         $this->repo = $repo;
         $this->user = Auth::guard('api')->user();
+        if ($this->user)
+        {
+            $this->viewlevels = $this->user->viewlevels;
+        }
+        else
+        {
+            $this->viewlevels = [1];
+        }
     }
 
 
