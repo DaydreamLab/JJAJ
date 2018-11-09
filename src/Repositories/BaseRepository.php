@@ -177,7 +177,7 @@ class BaseRepository implements BaseRepositoryInterface
                     });
                 }
                 elseif ($key == 'special_queries')
-                {
+                {Helper::show($key, $item);
                     foreach ($item as $q)
                     {
                         $query = $query->{$q['type']}($q['key'], $q['value']);
@@ -330,7 +330,6 @@ class BaseRepository implements BaseRepositoryInterface
             }
 
         }
-
 
         if ($this->isNested()) //重組出樹狀
         {

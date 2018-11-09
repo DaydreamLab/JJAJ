@@ -16,6 +16,8 @@ class BaseService
 
     protected $viewlevels;
 
+    protected $access_ids;
+
     protected $repo;
 
     protected $type;
@@ -31,10 +33,12 @@ class BaseService
         if ($this->user)
         {
             $this->viewlevels = $this->user->viewlevels;
+            $this->access_ids = $this->user->access_ids;
         }
         else
         {
             $this->viewlevels = [2];
+            $this->access_ids = [1];
         }
     }
 
@@ -260,6 +264,19 @@ class BaseService
 
     public function search(Collection $input)
     {
+        Helper::show($input);
+        $special_queries = $input->get('special_queries') ?: [];
+        if ($this->tablePropertyExist('access'))
+        {
+            $input->put('special_queries', array_merge($special_queries ,
+                [[
+                    'type' => 'whereIn',
+                    'key'  => 'access',
+                    'value'=> $this->access_ids
+                ]]
+            ));
+        }
+
         $items = $this->repo->search($input);
 
         $this->status   = Str::upper(Str::snake($this->type.'SearchSuccess'));
