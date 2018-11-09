@@ -264,7 +264,6 @@ class BaseService
 
     public function search(Collection $input)
     {
-        Helper::show($input);
         $special_queries = $input->get('special_queries') ?: [];
         if ($this->tablePropertyExist('access'))
         {
