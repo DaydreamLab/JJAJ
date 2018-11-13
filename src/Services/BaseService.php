@@ -37,8 +37,8 @@ class BaseService
         }
         else
         {
-            $this->viewlevels = [2];
-            $this->access_ids = [1];
+            $this->viewlevels = config('cms.item.front.viewlevels');
+            $this->access_ids = config('cms.item.front.access_ids');
         }
     }
 
