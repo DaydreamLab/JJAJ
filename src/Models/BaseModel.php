@@ -23,12 +23,15 @@ class BaseModel extends Model
         $user = Auth::guard('api')->user();
 
         static::creating(function ($item) use($user) {
-            if ($user) {
-                $item->created_by = $user->id;
-            }
-            else
+            if (!$item->created_by)
             {
-                $item->created_by = 1;
+                if ($user) {
+                    $item->created_by = $user->id;
+                }
+                else
+                {
+                    $item->created_by = 1;
+                }
             }
         });
 
