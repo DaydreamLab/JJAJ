@@ -25,7 +25,9 @@ class ResponseHelper
             if ($e->getMessage() == 'Undefined index: code')
             {
                 return response([
+                    'code'    => 500,
                     'message' => 'Undefined status code: '. $status,
+                    'status'  => 'STATUS_CODE_UNDEFINED'
                 ] , 500);
             }
             else
