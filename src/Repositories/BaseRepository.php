@@ -302,7 +302,7 @@ class BaseRepository implements BaseRepositoryInterface
         $limit      = !InputHelper::null($input, 'limit')    ? $input->get('limit')    : $this->model->getLimit();
         $order      = !InputHelper::null($input, 'order')    ? $input->get('order')    : $this->model->getOrder();
         $state      = !InputHelper::null($input, 'state')    ? $input->get('state')    : [0,1];
-        $language   = !InputHelper::null($input, 'language') ? $input->get('language') : ['All','tw'];
+        $language   = !InputHelper::null($input, 'language') ? $input->get('language') : ['*'];
 
         $query = $this->getQuery($input);
 
@@ -319,11 +319,11 @@ class BaseRepository implements BaseRepositoryInterface
 
         if (Schema::hasColumn($this->model->getTable(), 'language')&& $this->model->getTable() != 'users')
         {
-            if (is_array($language))
-            {
-                $query = $query->whereIn('language', $language);
-            }
-            else
+//            if (is_array($language))
+//            {
+//                $query = $query->whereIn('language', $language);
+//            }
+//            else
             {
                 $query = $query->where('language', '=', $language);
             }

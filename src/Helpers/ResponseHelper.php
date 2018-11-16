@@ -16,7 +16,23 @@ class ResponseHelper
             $config['message'] = $data['message'];
             //$config['data'] = null;
         }
-        return response()->json($config, $config['code']);
+
+        try {
+            return response()->json($config, $config['code']);
+        }
+        catch (\Exception $e)
+        {
+            if ($e->getMessage() == 'Undefined index: code')
+            {
+                return response([
+                    'message' => 'Undefined status code: '. $status,
+                ] , 500);
+            }
+            else
+            {
+                abort(500, $e->getMessage());
+            }
+        }
     }
 
     public static function format($data)

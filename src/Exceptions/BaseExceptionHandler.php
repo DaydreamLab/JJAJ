@@ -60,6 +60,10 @@ class BaseExceptionHandler extends ExceptionHandler
         else if($exception instanceof \League\Flysystem\RootViolationException) {
             return ResponseHelper::response('FILE_ROOT_CANT_BE_DELETE', null);
         }
+//        else if($exception instanceof \ErrorException) {
+//
+//            return ResponseHelper::response('', null);
+//        }
 
 
         return parent::render($request, $exception);
