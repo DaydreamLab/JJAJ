@@ -27,7 +27,14 @@ class ResponseHelper
 
         if (gettype($data) == 'array' ) {
             $response['items']      = $data;
-            $response['records']    = count($data);
+
+            if (array_key_exists('pagination', $data)) {
+                $response['records']    = count($data['data']);
+            }
+            else {
+                $response['records']    = count($data);
+            }
+
         }
         elseif(gettype($data) == 'string') {
             $response['items']      = $data;
