@@ -96,10 +96,10 @@ class BaseModel extends Model
         $depth = $this->depth;
         $str = '';
         for ($j = 0 ; $j < $depth -1; $j++) {
-            $str .= '.';
+            $str .= '.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
         }
 
-        $str .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+
         if($depth !== 0)
         {
             $str .= '<sup>|_</sup> ';
