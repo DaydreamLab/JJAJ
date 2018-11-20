@@ -52,13 +52,15 @@ class ResponseHelper
             else {
                 $response['records']    = count($data);
             }
-
         }
         elseif(gettype($data) == 'string') {
             $response['items']      = $data;
             //$response['items']      = null;
             $response['message']    = $data;
             $response['records']    = count([$data]);
+        }
+        elseif(gettype($data) === 'boolean') {
+            return null;
         }
         elseif (get_class($data) == 'Illuminate\Database\Eloquent\Collection'
             || get_class($data) == 'Illuminate\Support\Collection') {
