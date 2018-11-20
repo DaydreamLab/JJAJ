@@ -30,7 +30,7 @@ class BaseService
     {
         $this->repo = $repo;
         $this->user = Auth::guard('api')->user();
-        Helper::show($this->user->viewlevel);
+
         if ($this->user)
         {
             $this->viewlevels = $this->user->viewlevels;
