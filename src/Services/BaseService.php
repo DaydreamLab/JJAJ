@@ -161,9 +161,9 @@ class BaseService
     }
 
 
-    public function getItemByPath($path)
+    public function getItemByPath(Collection $input)
     {
-        $item = $this->findBy('path', '=', $path)->first();
+        $item = $this->search($input)->first();
 
         if($item) {
             $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
@@ -276,7 +276,6 @@ class BaseService
 
     public function search(Collection $input)
     {
-
         $special_queries = $input->get('special_queries') ?: [];
         if ($this->tablePropertyExist('access'))
         {
