@@ -51,6 +51,11 @@ class BaseExceptionHandler extends ExceptionHandler
         if ($exception instanceof \Illuminate\Auth\AuthenticationException) {
             return ResponseHelper::response('USER_UNAUTHORIZED', null);
         }
+        elseif ($exception instanceof  \Symfony\Component\Debug\Exception\FatalErrorException &&
+                $exception->getMessage() == 'Route [login] not defined.')
+        {
+            return ResponseHelper::response('USER_UNAUTHORIZED', null);
+        }
         else if($exception instanceof \League\Flysystem\FileNotFoundException) {
             return ResponseHelper::response('FILE_NOT_FOUND', null);
         }
