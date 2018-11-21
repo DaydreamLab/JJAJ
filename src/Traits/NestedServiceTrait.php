@@ -12,17 +12,6 @@ trait NestedServiceTrait
 {
     public function addNested(Collection $input)
     {
-        if($this->tablePropertyExist('path'))
-        {
-            $same = $this->findBy('path', '=', $input->get('path'))->first();
-            if ($same)
-            {
-                $this->status =  Str::upper(Str::snake($this->type.'CreateNestedWithExistPath'));
-                $this->response = false;
-                return false;
-            }
-        }
-
         $item = $this->repo->addNested($input);
         if ($item)
         {
@@ -35,6 +24,23 @@ trait NestedServiceTrait
            $this->response  = null;
         }
         return $item;
+    }
+
+
+    public function checkPathExist(Collection $input)
+    {
+        if($this->tablePropertyExist('path'))
+        {
+            $same = $this->findBy('path', '=', $input->get('path'))->first();
+            if ($same)
+            {
+                $this->status =  Str::upper(Str::snake($this->type.'StoreNestedWithExistPath'));
+                $this->response = false;
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
@@ -77,7 +83,6 @@ trait NestedServiceTrait
 
     public function removeNested(Collection $input)
     {
-
         $result = $this->repo->removeNested($input);
         if($result) {
             $this->status =  Str::upper(Str::snake($this->type.'DeleteNestedSuccess'));
@@ -92,6 +97,11 @@ trait NestedServiceTrait
 
     public function storeNested(Collection $input)
     {
+        if ($this->checkPathExist($input))
+        {
+            return $this->response;
+        }
+
         if (InputHelper::null($input, 'id')) {
             return $this->addNested($input);
         }

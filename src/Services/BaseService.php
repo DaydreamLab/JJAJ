@@ -52,17 +52,6 @@ class BaseService
 
     public function add(Collection $input)
     {
-        if ($this->tablePropertyExist('alias') && $this->getModel()->getTable() != 'extrafields')
-        {
-            $same = $this->findBy('alias', '=', $input->get('alias'))->first();
-            if ($same)
-            {
-                $this->status =  Str::upper(Str::snake($this->type.'CreateWithExistAlias'));
-                $this->response = false;
-                return false;
-            }
-        }
-
         $model = $this->repo->add($input);
         if ($model) {
             $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));
@@ -89,6 +78,28 @@ class BaseService
         }
         return $checkout;
     }
+
+
+    public function checkAliasExist(Collection $input)
+    {
+        if ($this->tablePropertyExist('alias') && $this->getModel()->getTable() != 'extrafields')
+        {
+            $same = $this->findBy('alias', '=', $input->get('alias'))->first();
+            if ($same)
+            {
+                $this->status =  Str::upper(Str::snake($this->type.'StoreWithExistAlias'));
+                $this->response = false;
+                return true;
+            }
+        }
+        else
+        {
+            return false;
+        }
+
+        return false;
+    }
+
 
 
     public function create($data)
@@ -265,6 +276,7 @@ class BaseService
 
     public function search(Collection $input)
     {
+
         $special_queries = $input->get('special_queries') ?: [];
         if ($this->tablePropertyExist('access'))
         {
@@ -288,6 +300,11 @@ class BaseService
 
     public function store(Collection $input)
     {
+        if ($this->checkAliasExist($input))
+        {
+            return $this->response;
+        }
+
         if (InputHelper::null($input, 'id')) {
             return $this->add($input);
         }
