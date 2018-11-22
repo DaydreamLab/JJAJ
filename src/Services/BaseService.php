@@ -26,6 +26,8 @@ class BaseService
 
     public $response;
 
+    protected $search_keys = [];
+
     public function __construct(BaseRepository $repo)
     {
         $this->repo = $repo;
@@ -85,7 +87,9 @@ class BaseService
         if ($this->tablePropertyExist('alias') && $this->getModel()->getTable() != 'extrafields')
         {
             $same = $this->findBy('alias', '=', $input->get('alias'))->first();
-            if ($same)
+
+
+            if ($same && $same->id != $input->get('id'))
             {
                 $this->status =  Str::upper(Str::snake($this->type.'StoreWithExistAlias'));
                 $this->response = false;
@@ -276,6 +280,8 @@ class BaseService
 
     public function search(Collection $input)
     {
+        $input->put('search_keys', $this->search_keys);
+
         $special_queries = $input->get('special_queries') ?: [];
         if ($this->tablePropertyExist('access'))
         {

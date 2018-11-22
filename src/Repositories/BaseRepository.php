@@ -17,6 +17,8 @@ class BaseRepository implements BaseRepositoryInterface
 {
     protected $model;
 
+    protected $ignore_keys = ['limit', 'order_by', 'order', 'state', 'search_keys'];
+
     public function __construct(Model $model)
     {
         $this->model = $model;
@@ -24,7 +26,6 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function add(Collection $input)
     {
-
         if (Helper::tablePropertyExist($this->model, 'ordering'))
         {
             if (InputHelper::null($input, 'ordering'))
@@ -158,21 +159,28 @@ class BaseRepository implements BaseRepositoryInterface
 
         foreach ($input->toArray() as $key => $item)
         {
-            if ($key != 'limit' && $key !='order' && $key !='order_by' && $key !='state')
+            //if ($key != 'limit' && $key !='order' && $key !='order_by' && $key !='state')
+            if (!in_array($key, $this->ignore_keys))
             {
                 if ($key == 'search')
                 {
-                    $query = $query->where(function ($query) use ($item) {
+                    $query = $query->where(function ($query) use ($item, $input) {
 
-                        $query->where('title', 'LIKE', '%%'.$item.'%%');
-                        if (Schema::hasColumn($this->model->getTable(), 'introtext'))
+                        $search_keys = $input->get('search_keys');
+
+                        foreach ($search_keys as $search_key)
                         {
-                            $query->orWhere('introtext', 'LIKE', '%%'.$item.'%%');
+                            $query->orWhere($search_key, 'LIKE', '%%'.$item.'%%');
                         }
-                        if (Schema::hasColumn($this->model->getTable(), 'description'))
-                        {
-                            $query->orWhere('description', 'LIKE', '%%'.$item.'%%');
-                        }
+
+//                        if (Schema::hasColumn($this->model->getTable(), 'introtext'))
+//                        {
+//                            $query->orWhere('introtext', 'LIKE', '%%'.$item.'%%');
+//                        }
+//                        if (Schema::hasColumn($this->model->getTable(), 'description'))
+//                        {
+//                            $query->orWhere('description', 'LIKE', '%%'.$item.'%%');
+//                        }
                     });
                 }
                 elseif ($key == 'special_queries')
@@ -208,7 +216,6 @@ class BaseRepository implements BaseRepositoryInterface
                         }
                         else
                         {
-
                             if ($key == 'category_id')
                             {
                                 $query = $query->whereIn('category_id', $item);
@@ -298,11 +305,17 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function search(Collection $input)
     {
-        $order_by   = !InputHelper::null($input, 'order_by') ? $input->get('order_by') : $this->model->getOrderBy();
-        $limit      = !InputHelper::null($input, 'limit')    ? $input->get('limit')    : $this->model->getLimit();
-        $order      = !InputHelper::null($input, 'order')    ? $input->get('order')    : $this->model->getOrder();
-        $state      = !InputHelper::null($input, 'state')    ? $input->get('state')    : [0,1];
-        $language   = !InputHelper::null($input, 'language') ? $input->get('language') : ['*'];
+        $order_by   = InputHelper::getCollectionKey($input, 'order_by', $this->model->getOrderBy());
+        //$order_by   = !InputHelper::null($input, 'order_by') ? $input->get('order_by') : $this->model->getOrderBy();
+        $limit      = InputHelper::getCollectionKey($input, 'limit', $this->model->getLimit());
+        //$limit      = !InputHelper::null($input, 'limit')    ? $input->get('limit')    : $this->model->getLimit();
+        $order      = InputHelper::getCollectionKey($input, 'order', $this->model->getOrder());
+       // $order      = !InputHelper::null($input, 'order')    ? $input->get('order')    : $this->model->getOrder();
+        $state      = InputHelper::getCollectionKey($input, 'state', [0,1]);
+        //$state      = !InputHelper::null($input, 'state')    ? $input->get('state')    : [0,1];
+        $language   =  InputHelper::getCollectionKey($input, 'language', '*') ;
+        //$language   = !InputHelper::null($input, 'language') ? $input->get('language') : ['*'];
+
 
         $query = $this->getQuery($input);
 
