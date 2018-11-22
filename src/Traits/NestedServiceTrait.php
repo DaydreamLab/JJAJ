@@ -32,7 +32,7 @@ trait NestedServiceTrait
         if($this->tablePropertyExist('path'))
         {
             $same = $this->findBy('path', '=', $input->get('path'))->first();
-            if ($same)
+            if ($same && $same->id != $input->get('id'))
             {
                 $this->status =  Str::upper(Str::snake($this->type.'StoreNestedWithExistPath'));
                 $this->response = false;
