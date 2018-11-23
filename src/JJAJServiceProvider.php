@@ -2,6 +2,8 @@
 
 namespace DaydreamLab\JJAJ;
 
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use DaydreamLab\JJAJ\Exceptions\BaseExceptionHandler;
 use Illuminate\Support\ServiceProvider;
 
 class JJAJServiceProvider extends ServiceProvider
@@ -36,5 +38,9 @@ class JJAJServiceProvider extends ServiceProvider
     public function register()
     {
         $this->commands($this->commands);
+        $this->app->bind(
+            ExceptionHandler::class,
+            BaseExceptionHandler::class
+        );
     }
 }
