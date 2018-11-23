@@ -162,7 +162,7 @@ class BaseRepository implements BaseRepositoryInterface
             //if ($key != 'limit' && $key !='order' && $key !='order_by' && $key !='state')
             if (!in_array($key, $this->ignore_keys))
             {
-                if ($key == 'search')
+                if ($key == 'search' && !InputHelper::null($input, 'search'))
                 {
                     $query = $query->where(function ($query) use ($item, $input) {
 
@@ -316,7 +316,6 @@ class BaseRepository implements BaseRepositoryInterface
         $language   =  InputHelper::getCollectionKey($input, 'language', '*') ;
         //$language   = !InputHelper::null($input, 'language') ? $input->get('language') : ['*'];
 
-
         $query = $this->getQuery($input);
 
         if (Schema::hasColumn($this->model->getTable(), 'state') && $this->model->getTable() != 'users')
@@ -330,17 +329,9 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        if (Schema::hasColumn($this->model->getTable(), 'language')&& $this->model->getTable() != 'users')
+        if (Schema::hasColumn($this->model->getTable(), 'language'))
         {
-//            if (is_array($language))
-//            {
-//                $query = $query->whereIn('language', $language);
-//            }
-//            else
-            {
-                $query = $query->where('language', '=', $language);
-            }
-
+            $query = $query->where('language', '=', $language);
         }
 
         if ($this->isNested()) //重組出樹狀
