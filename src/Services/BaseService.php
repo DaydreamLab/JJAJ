@@ -7,6 +7,7 @@ use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -28,6 +29,10 @@ class BaseService
 
     protected $search_keys = [];
 
+    protected $eagers = [];
+
+    protected $loads = [];
+
     public function __construct(BaseRepository $repo)
     {
         $this->repo = $repo;
@@ -43,6 +48,7 @@ class BaseService
             $this->viewlevels = config('cms.item.front.viewlevels');
             $this->access_ids = config('cms.item.front.access_ids');
         }
+
     }
 
 
@@ -409,7 +415,8 @@ class BaseService
 
     public function tablePropertyExist($property)
     {
-        return Schema::hasColumn($this->getModel()->getTable(), $property);
+        //return Schema::hasColumn($this->getModel()->getTable(), $property);
+        return $this->getModel()->isFillable($property);
     }
 
 

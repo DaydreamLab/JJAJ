@@ -5,6 +5,7 @@ namespace DaydreamLab\JJAJ\Repositories;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
+use DaydreamLab\User\Models\User\UserGroup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -190,6 +191,27 @@ class BaseRepository implements BaseRepositoryInterface
                         $query = $query->{$q['type']}($q['key'], $q['value']);
                     }
                 }
+                elseif ($key == 'eagers')
+                {
+                    if (!InputHelper::null($input,'eagers'))
+                    {
+                        foreach ($input->get('eagers') as $eager)
+                        {
+                            $query = $query->with($eager);
+                        }
+
+                    }
+                }
+                elseif ($key == 'loads')
+                {
+                    if (!InputHelper::null($input,'loads'))
+                    {
+                        foreach ($input->get('loads') as $load)
+                        {
+                            $query = $query->load($load);
+                        }
+                    }
+                }
                 else
                 {
                     if ($item != null)
@@ -318,7 +340,8 @@ class BaseRepository implements BaseRepositoryInterface
 
         $query = $this->getQuery($input);
 
-        if (Schema::hasColumn($this->model->getTable(), 'state') && $this->model->getTable() != 'users')
+        //if (Schema::hasColumn($this->model->getTable(), 'state') && $this->model->getTable() != 'users')
+        if ($this->model->isFillable('state') && $this->model->getTable() != 'users')
         {
             if (is_array($state))
             {
@@ -329,7 +352,9 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        if (Schema::hasColumn($this->model->getTable(), 'language'))
+
+        //if (Schema::hasColumn($this->model->getTable(), 'language'))
+        if ($this->model->isFillable('language'))
         {
             $query = $query->where('language', '=', $language);
         }

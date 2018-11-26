@@ -2,6 +2,7 @@
 namespace DaydreamLab\JJAJ\Helpers;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class Helper {
@@ -46,6 +47,18 @@ class Helper {
     public static function hasPermission($item_viewlevel, $user_viewlevel)
     {
         return count(array_intersect($item_viewlevel, $user_viewlevel)) === count($item_viewlevel) ? 1 : 0;
+    }
+
+
+    public static function startLog()
+    {
+        DB::connection()->enableQueryLog();
+    }
+
+
+    public static function showLog()
+    {
+        self::show(DB::getQueryLog());
     }
 
 }
