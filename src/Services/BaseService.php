@@ -415,8 +415,8 @@ class BaseService
 
     public function tablePropertyExist($property)
     {
-        //return Schema::hasColumn($this->getModel()->getTable(), $property);
-        return $this->getModel()->isFillable($property);
+        //Helper::show( $property, $this->getModel(), $this->getModel()->isFillable($property));
+        return Schema::hasColumn($this->getModel()->getTable(), $property);
     }
 
 

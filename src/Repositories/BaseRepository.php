@@ -340,8 +340,8 @@ class BaseRepository implements BaseRepositoryInterface
 
         $query = $this->getQuery($input);
 
-        //if (Schema::hasColumn($this->model->getTable(), 'state') && $this->model->getTable() != 'users')
-        if ($this->model->isFillable('state') && $this->model->getTable() != 'users')
+        if (Schema::hasColumn($this->model->getTable(), 'state') && $this->model->getTable() != 'users')
+        //if ($this->model->isFillable('state') && $this->model->getTable() != 'users')
         {
             if (is_array($state))
             {
@@ -353,8 +353,8 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
 
-        //if (Schema::hasColumn($this->model->getTable(), 'language'))
-        if ($this->model->isFillable('language'))
+        if (Schema::hasColumn($this->model->getTable(), 'language'))
+        //if ($this->model->isFillable('language'))
         {
             $query = $query->where('language', '=', $language);
         }
