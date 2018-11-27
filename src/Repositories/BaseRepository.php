@@ -174,15 +174,14 @@ class BaseRepository implements BaseRepositoryInterface
                             $query->orWhere($search_key, 'LIKE', '%%'.$item.'%%');
                         }
 
-//                        if (Schema::hasColumn($this->model->getTable(), 'introtext'))
-//                        {
-//                            $query->orWhere('introtext', 'LIKE', '%%'.$item.'%%');
-//                        }
-//                        if (Schema::hasColumn($this->model->getTable(), 'description'))
-//                        {
-//                            $query->orWhere('description', 'LIKE', '%%'.$item.'%%');
-//                        }
                     });
+                }
+                elseif ($key == 'where')
+                {
+                    foreach ($item as $q)
+                    {
+                        $query = $query->where($q['key'], $q['operator'], $q['value']);
+                    }
                 }
                 elseif ($key == 'special_queries')
                 {
