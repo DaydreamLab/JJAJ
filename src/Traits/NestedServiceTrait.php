@@ -99,7 +99,10 @@ trait NestedServiceTrait
     {
         if ($this->checkPathExist($input))
         {
-            return $this->response;
+            $this->status = Str::upper(Str::snake($this->type)) . '_STORE_NESTED_WITH_EXIST_PATH';
+            $this->response = null;
+
+            return false;
         }
 
         if (InputHelper::null($input, 'id')) {

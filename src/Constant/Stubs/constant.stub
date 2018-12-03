@@ -434,4 +434,20 @@ return [
 
 
 
+    // Get List
+   'DummyModel_GET_LIST_SUCCESS' => [
+       'code'      => 200,
+       'message'   => 'UcModel get list success'
+   ],
+   'DummyModel_ADMIN_GET_LIST_SUCCESS' => [
+       'code'      => 200,
+       'message'   => 'UcModel admin get list success'
+   ],
+   'DummyModel_FRONT_GET_LIST_SUCCESS' => [
+       'code'      => 200,
+       'message'   => 'UcModel front get list success'
+   ],
+
+
+
 ];

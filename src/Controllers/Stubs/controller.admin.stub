@@ -19,6 +19,7 @@ class DummyClass extends BaseController
         parent::__construct($service);
     }
 
+
     public function getItem($id)
     {
         $this->service->getItem($id);
@@ -30,6 +31,14 @@ class DummyClass extends BaseController
     public function getItems()
     {
         $this->service->search(new Collection());
+
+        return ResponseHelper::response($this->service->status, $this->service->response);
+    }
+
+
+    public function getList()
+    {
+        $this->service->getList(new Collection());
 
         return ResponseHelper::response($this->service->status, $this->service->response);
     }

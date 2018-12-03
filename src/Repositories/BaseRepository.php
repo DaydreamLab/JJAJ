@@ -35,7 +35,7 @@ class BaseRepository implements BaseRepositoryInterface
 
                 if(Helper::tablePropertyExist($this->model, 'category_id'))
                 {
-                    $query = $query->where('category_id', $input->category_id);
+                    $query = $query->where('category_id', $input->get('category_id'));
                 }
 
 
@@ -108,6 +108,12 @@ class BaseRepository implements BaseRepositoryInterface
     public function findBy($field, $operator, $value)
     {
         return $this->model->where($field, $operator, $value)->get();
+    }
+
+
+    public function findBySpecial($type, $key, $value)
+    {
+        return $this->model->{$type}($key, $value)->get();
     }
 
 

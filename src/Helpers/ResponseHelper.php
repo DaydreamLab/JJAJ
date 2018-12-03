@@ -45,7 +45,6 @@ class ResponseHelper
 
         if (gettype($data) == 'array' ) {
             $response['items']      = $data;
-
             if (array_key_exists('pagination', $data)) {
                 $response['records']    = count($data['data']);
             }

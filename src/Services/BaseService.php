@@ -45,6 +45,7 @@ class BaseService
         }
         else
         {
+            //限制前台選單
             $this->viewlevels = config('cms.item.front.viewlevels');
             $this->access_ids = config('cms.item.front.access_ids');
         }
@@ -148,6 +149,12 @@ class BaseService
     }
 
 
+    public function findBySpecial($type, $key, $value)
+    {
+        return $this->repo->findBySpecial($type, $key, $value);
+    }
+
+
     public function findOrderingInterval($parent_id, $origin, $modified)
     {
         return $this->repo->findOrderingInterval($parent_id, $origin, $modified);
@@ -185,6 +192,17 @@ class BaseService
         }
 
         return $item;
+    }
+
+
+    public function getList()
+    {
+        $items = $this->all();
+
+        $this->status   = Str::upper(Str::snake($this->type.'GetListSuccess'));
+        $this->response = $items;
+
+        return $items;
     }
 
 
