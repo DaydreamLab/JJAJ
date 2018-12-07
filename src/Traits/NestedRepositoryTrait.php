@@ -58,7 +58,8 @@ trait NestedRepositoryTrait
 
 
             $children =  $parent->children()->get();
-            if ($children->get('items'))
+
+            if ($children->count())
             {
                 $input->put('ordering', $children->last()->ordering + 1);
             }
@@ -129,11 +130,11 @@ trait NestedRepositoryTrait
         else
         {
             //有改 ordering
-            if ($input->ordering != $modified->ordering) {
-                $selected            = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->ordering])->first();
+            if ($input->get('ordering') != $modified->ordering) {
+                $selected            = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->get('ordering')])->first();
                 $origin_ordering     = $modified->ordering;
                 $modified->ordering  = $selected->ordering;
-                $interval_items = $this->findOrderingInterval($input->parent_id, $origin_ordering, $input->ordering);
+                $interval_items = $this->findOrderingInterval($input->parent_id, $origin_ordering, $input->get('ordering'));
 
                 // node 向上移動
                 if ($input->ordering < $origin_ordering) {

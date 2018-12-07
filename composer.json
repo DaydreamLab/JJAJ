@@ -14,6 +14,7 @@
     },
     "minimum-stability": "dev",
     "require": {
+        "daydreamlab/observer": "dev-master"
     },
     "extra": {
         "laravel": {

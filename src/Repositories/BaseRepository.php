@@ -5,14 +5,13 @@ namespace DaydreamLab\JJAJ\Repositories;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
-use DaydreamLab\User\Models\User\UserGroup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+
 
 class BaseRepository implements BaseRepositoryInterface
 {
@@ -53,7 +52,9 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        return $this->create($input->toArray());
+        $item = $this->create($input->toArray());
+
+        return $item;
     }
 
 
@@ -293,6 +294,7 @@ class BaseRepository implements BaseRepositoryInterface
     {
         $item   = $this->find($input->id);
         $origin = $item->{$orderingKey};
+
         $item->{$orderingKey} = $origin + $input->index_diff;
 
         if ($input->index_diff >= 0)
@@ -304,7 +306,7 @@ class BaseRepository implements BaseRepositoryInterface
             });
         }
         else
-        {
+        {Helper::show($origin, $origin + $input->index_diff);
             $update_items = $this->findByChain([$orderingKey, $orderingKey], ['>=', '<'], [$origin + $input->index_diff, $origin]);
             $result = $update_items->each(function ($item) use ($orderingKey){
                 $item->{$orderingKey}++;

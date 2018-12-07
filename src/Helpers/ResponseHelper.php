@@ -7,6 +7,7 @@ class ResponseHelper
 {
     public static function genResponse($status, $data = null)
     {
+
         $type = strtolower(explode('_', $status)[0]);
         $config = config('constants.'.$type.'.'.$status);
         $config['data'] = $data;
@@ -16,7 +17,6 @@ class ResponseHelper
             $config['message'] = $data['message'];
             //$config['data'] = null;
         }
-
         try {
             return response()->json($config, $config['code']);
         }

@@ -7,9 +7,9 @@ use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+
 
 class BaseService
 {
@@ -70,6 +70,7 @@ class BaseService
             $this->status =  Str::upper(Str::snake($this->type.'CreateFail'));
             $this->response = null;
         }
+
         return $model;
     }
 
@@ -230,12 +231,18 @@ class BaseService
             $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
             $this->response = null;
         }
+
         return $update;
     }
 
 
     public function ordering(Collection $input, $orderingKey = 'ordering')
     {
+        if ($input->has('orderingKey'))
+        {
+            $orderingKey = $input->orderingKey;
+        }
+
         if ($this->repo->isNested())
         {
             $result = $this->repo->orderingNested($input, $orderingKey);
@@ -340,6 +347,7 @@ class BaseService
         else {
             $input->put('locked_by', 0);
             $input->put('locked_at', null);
+
             return $this->modify($input);
         }
     }
@@ -347,6 +355,7 @@ class BaseService
 
     public function state(Collection $input)
     {
+        $result = false;
         foreach ($input->ids as $key => $id) {
             $result = $this->repo->state($id, $input->state);
             if (!$result) {
@@ -360,7 +369,7 @@ class BaseService
         elseif ($input->state == '0') {
             $action = 'Unpublish';
         }
-        elseif ($input->state == '0') {
+        elseif ($input->state == '-1') {
             $action = 'Archive';
         }
         elseif ($input->state == '-2') {

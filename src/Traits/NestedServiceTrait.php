@@ -62,9 +62,9 @@ trait NestedServiceTrait
     }
 
 
-    public function orderingNested(Collection $input)
+    public function orderingNested(Collection $input , $orderingKey = 'ordering')
     {
-        $modify = $this->repo->orderingNested($input);
+        $modify = $this->repo->orderingNested($input, $orderingKey);
         if ($modify)
         {
             $this->status   = Str::upper(Str::snake($this->type.'UpdateOrderingNestedSuccess'));
