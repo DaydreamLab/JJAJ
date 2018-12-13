@@ -2,7 +2,7 @@
 
 namespace DummyNamespace;
 
-use Daydreamlab\JJAJ\Tests\BaseTest;
+use DaydreamLab\JJAJ\Tests\BaseTest;
 
 class DummyClass extends BaseTest
 {
