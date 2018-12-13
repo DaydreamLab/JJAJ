@@ -54,7 +54,7 @@ class TestCommand extends GeneratorCommand
     {
         $this->getSettings();
 
-        $name = $this->qualifyClass($this->getNameInput());
+        $name = $this->namespace;
 
         $path = $this->getPath($name);
 
@@ -117,8 +117,13 @@ class TestCommand extends GeneratorCommand
 
     protected function replaceScaffold(&$stub, $name)
     {
-//        $name = str_replace($this->getNamespace($name).'\\', '', $name);
+        $stub  = str_replace('DummyNamespace', $this->namespace, $stub);
 
         return  $this;
+    }
+
+    protected function replaceClass($stub, $name)
+    {
+        return str_replace('DummyClass', $this->getNameInput(), $stub);
     }
 }
