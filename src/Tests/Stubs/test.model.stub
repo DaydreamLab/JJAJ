@@ -3,6 +3,7 @@
 namespace DummyNamespace;
 
 use DaydreamLab\JJAJ\Tests\BaseTest;
+use Mockery;
 
 class DummyClass extends BaseTest
 {
