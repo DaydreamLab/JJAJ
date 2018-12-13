@@ -29,6 +29,8 @@ class TestCommand extends GeneratorCommand
 
     protected $unit = 'Unit';
 
+    protected $model ;
+
     protected $front_or_admin = null;
 
     protected $namespace;
@@ -62,7 +64,7 @@ class TestCommand extends GeneratorCommand
         if ((! $this->hasOption('force') ||
                 ! $this->option('force')) &&
             $this->alreadyExists($this->getNameInput())) {
-            $this->error($this->type.' already exists!');
+            $this->error('Test already exists!');
 
             return false;
         }
@@ -74,7 +76,7 @@ class TestCommand extends GeneratorCommand
 
         $this->files->put($path, $this->buildClass($name));
 
-        $this->info($this->type.' created successfully.');
+        $this->info('Test created successfully.');
     }
 
 
@@ -94,16 +96,18 @@ class TestCommand extends GeneratorCommand
 
     protected function getSettings()
     {
+        $this->model = explode('_', Str::snake($this->getNameInput()))[0];
+
         $this->type = Str::lower($this->option('type'));
 
-        $this->unit = $this->option('unit') ? 'Unit' : 'Feature';
+        $this->unit = $this->option('feature') ? 'Feature' : 'Unit';
 
         if ($this->option('front') || $this->option('admin'))
         {
             $this->front_or_admin = $this->option('front') ? 'front': 'admin';
         }
 
-        $this->namespace = 'Tests\\' . ucfirst($this->unit). '\\' . ucfirst($this->type) . 's\\';
+        $this->namespace = 'Tests\\' . ucfirst($this->unit). '\\' . ucfirst($this->type) . 's\\' . ucfirst($this->model) . '\\';
         if ($this->front_or_admin != null)
         {
             $this->namespace .= ucfirst($this->front_or_admin) . '\\';
