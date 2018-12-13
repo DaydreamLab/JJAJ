@@ -7,6 +7,10 @@ use Mockery;
 
 class DummyClass extends BaseTest
 {
+    protected $service;
+
+    protected $repo;
+
     protected function setUp()
     {
         parent::setUp();

@@ -8,6 +8,7 @@ use Mockery;
 
 class BaseTest extends TestCase
 {
+
     protected function setUp()
     {
         parent::setUp();
