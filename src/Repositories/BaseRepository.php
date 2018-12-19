@@ -407,9 +407,20 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function update($item)
+    public function update($item, $model = null)
     {
-        return $this->model->find($item['id'])->update($item);
+        if ($model !== null)
+        {
+            foreach ($item as $key => $value)
+            {
+                $model->{$key} = $value;
+            }
+            return $model->save();
+        }
+        else
+        {
+            return $this->model->find($item['id'])->update($item);
+        }
     }
 
 }
