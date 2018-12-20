@@ -411,10 +411,14 @@ class BaseRepository implements BaseRepositoryInterface
     {
         if ($model !== null)
         {
-            foreach ($item as $key => $value)
+            if ($item != $model)
             {
-                $model->{$key} = $value;
+                foreach ($item as $key => $value)
+                {
+                    $model->{$key} = $value;
+                }
             }
+
             return $model->save();
         }
         else
