@@ -127,6 +127,11 @@ class BaseRepository implements BaseRepositoryInterface
         return $model->get();
     }
 
+    // Get model's relation
+    public function getRelation($model, $relation)
+    {
+        return $model->getRelationValue($relation);
+    }
 
     // 取出  ordering 大於刪除之item 後所有 items
     public function findDeleteSiblings($ordering)
@@ -426,5 +431,4 @@ class BaseRepository implements BaseRepositoryInterface
             return $this->model->find($item['id'])->update($item);
         }
     }
-
 }

@@ -446,9 +446,9 @@ class BaseService
     }
 
 
-    public function update($data)
+    public function update($data, $model = null)
     {
-        return $this->repo->update($data);
+        return $this->repo->update($data, $model);
     }
 
 }
