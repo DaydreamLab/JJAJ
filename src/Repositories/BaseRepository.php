@@ -306,7 +306,7 @@ class BaseRepository implements BaseRepositoryInterface
             });
         }
         else
-        {Helper::show($origin, $origin + $input->index_diff);
+        {
             $update_items = $this->findByChain([$orderingKey, $orderingKey], ['>=', '<'], [$origin + $input->index_diff, $origin]);
             $result = $update_items->each(function ($item) use ($orderingKey){
                 $item->{$orderingKey}++;
