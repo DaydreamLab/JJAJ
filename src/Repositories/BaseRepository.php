@@ -94,9 +94,16 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function delete($id)
+    public function delete($id, $model = null)
     {
-        return $this->model->find($id)->delete();
+        if ($model === null)
+        {
+            return $this->model->find($id)->delete();
+        }
+        else
+        {
+            return $model->delete();
+        }
     }
 
 
@@ -430,5 +437,13 @@ class BaseRepository implements BaseRepositoryInterface
         {
             return $this->model->find($item['id'])->update($item);
         }
+    }
+
+
+    public function with($relations)
+    {
+        $this->model = $this->model->with($relations);
+
+        return $this;
     }
 }

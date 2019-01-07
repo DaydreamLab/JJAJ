@@ -12,5 +12,6 @@ class DummyClass extends BaseService
     public function __construct(DummyRepository $repo)
     {
         parent::__construct($repo);
+        $this->repo = $repo;
     }
 }

@@ -10,5 +10,6 @@ class DummyClass extends BaseRepository
     public function __construct(DummyModel $model)
     {
         parent::__construct($model);
+        $this->model = $model;
     }
 }
