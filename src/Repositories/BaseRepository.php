@@ -391,11 +391,11 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function state($id, $state)
+    public function state($id, $state, $key = 'state')
     {
         $item = $this->find($id);
         if ($item) {
-            $item->state = $state;
+            $item->{$key} = $state;
             return $item->save();
         }
         else {
