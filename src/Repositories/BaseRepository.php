@@ -98,7 +98,9 @@ class BaseRepository implements BaseRepositoryInterface
     {
         if ($model === null)
         {
-            return $this->model->find($id)->delete();
+            $item = $this->model->find($id);
+
+            return $item ? $item->delete() : false;
         }
         else
         {
