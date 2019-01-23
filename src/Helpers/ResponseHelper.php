@@ -84,7 +84,6 @@ class ResponseHelper
         }
         elseif (get_class($data) == 'Kalnoy\Nestedset\Collection') {
             $temp = $data->toArray();
-
             if (array_key_exists('pagination', $temp)) {
                 $pagination = $temp['pagination'];
                 unset($temp['pagination']);
@@ -93,6 +92,19 @@ class ResponseHelper
             $items = $temp;
             $response['items']      = $items;
             $response['records']    = count($items);
+        }
+        elseif (get_class($data) == 'Juampi92\CursorPagination\CursorPaginator') {
+            $orgDataArray = $data->toArray();
+            $temp = [];
+            $data_count = 0;
+            foreach( $orgDataArray['data'] as $notice ){
+                $temp[] = $notice;
+                $data_count++;
+            }
+            $response['items'] = $temp;
+            unset($orgDataArray['data']);
+            $response['pagination'] = $orgDataArray;
+            $response['records']    = $data_count;
         }
         else {
             $response['items']      = $data;
