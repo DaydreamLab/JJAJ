@@ -61,14 +61,17 @@ class ResponseHelper
         elseif(gettype($data) === 'boolean') {
             return null;
         }
-        elseif (get_class($data) == 'Illuminate\Database\Eloquent\Collection'
-            || get_class($data) == 'Illuminate\Support\Collection') {
+        elseif (get_class($data) == 'Illuminate\Database\Eloquent\Collection' || get_class($data) == 'Illuminate\Support\Collection') {
 
             if ($data->has('statistics')) {
                 $response['statistics'] = $data->get('statistics');
                 $data->forget('statistics');
             }
             $response['items']      = array_values($data->toArray());
+            //pagination非原裝Collection內容物，CursorPaginator的資料是硬塞的
+            if (property_exists($data, 'pagination')) {
+                $response['pagination'] = $data->pagination;
+            }
             $response['records']    = count($data);
         }
         elseif (get_class($data) == 'Illuminate\Pagination\LengthAwarePaginator') {
