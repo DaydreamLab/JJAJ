@@ -104,7 +104,9 @@ class ResponseHelper
             $response['items'] = $temp;
             unset($orgDataArray['data']);
             $response['pagination'] = $orgDataArray;
-            $response['unread_total'] = $data->unread_total;
+            if( property_exists($data, 'unread_total') ){
+                $response['unread_total'] = $data->unread_total;
+            }
             $response['records']    = $data_count;
         }
         else {
