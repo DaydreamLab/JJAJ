@@ -138,18 +138,34 @@ class BaseService
     }
 
 
+    /**
+     * @param $filed
+     * @param $operator
+     * @param $value
+     * @return Collection
+     */
     public function findBy($filed, $operator, $value)
     {
         return $this->repo->findBy($filed, $operator, $value);
     }
 
-
+    /**
+     * @param $filed
+     * @param $operator
+     * @param $value
+     * @return Collection
+     */
     public function findByChain($fields, $operators, $values)
     {
         return $this->repo->findByChain($fields , $operators, $values);
     }
 
-
+    /**
+     * @param $filed
+     * @param $operator
+     * @param $value
+     * @return Collection
+     */
     public function findBySpecial($type, $key, $value)
     {
         return $this->repo->findBySpecial($type, $key, $value);
@@ -195,7 +211,12 @@ class BaseService
         return $item;
     }
 
-
+    /**
+     * @param $filed
+     * @param $operator
+     * @param $value
+     * @return Collection
+     */
     public function getList()
     {
         $items = $this->all();
@@ -416,9 +437,9 @@ class BaseService
         if (count($input->{$mapKey}) > 0) {
             foreach ($input->{$mapKey} as $id) {
                 $asset = $this->add(Helper::collect([
-                    $mainKey    => $input->{$mainKey},
+                    $mainKey        => $input->{$mainKey},
                     Str::substr($mapKey, 0, -1) => $id,
-                    'created_by'   => $this->user ? $this->user->id : 1
+                    'created_by'    => $this->user ? $this->user->id : 1
                 ]));
                 if (!$asset) {
                     return false;
