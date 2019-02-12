@@ -348,21 +348,16 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function search(Collection $input)
     {
+        Helper::startLog();
         $order_by   = InputHelper::getCollectionKey($input, 'order_by', $this->model->getOrderBy());
-        //$order_by   = !InputHelper::null($input, 'order_by') ? $input->get('order_by') : $this->model->getOrderBy();
         $limit      = InputHelper::getCollectionKey($input, 'limit', $this->model->getLimit());
-        //$limit      = !InputHelper::null($input, 'limit')    ? $input->get('limit')    : $this->model->getLimit();
         $order      = InputHelper::getCollectionKey($input, 'order', $this->model->getOrder());
-       // $order      = !InputHelper::null($input, 'order')    ? $input->get('order')    : $this->model->getOrder();
         $state      = InputHelper::getCollectionKey($input, 'state', [0,1]);
-        //$state      = !InputHelper::null($input, 'state')    ? $input->get('state')    : [0,1];
-        $language   =  InputHelper::getCollectionKey($input, 'language', '*') ;
-        //$language   = !InputHelper::null($input, 'language') ? $input->get('language') : ['*'];
+        $language   = InputHelper::getCollectionKey($input, 'language', '*') ;
 
         $query = $this->getQuery($input);
 
         if (Schema::hasColumn($this->model->getTable(), 'state') && $this->model->getTable() != 'users')
-        //if ($this->model->isFillable('state') && $this->model->getTable() != 'users')
         {
             if (is_array($state))
             {
@@ -389,6 +384,7 @@ class BaseRepository implements BaseRepositoryInterface
         {
             $items = $query->orderBy($order_by, $order)->paginate($limit);
         }
+Helper::showLog();
         return $items;
     }
 
