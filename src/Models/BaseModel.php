@@ -2,19 +2,27 @@
 
 namespace DaydreamLab\JJAJ\Models;
 
-use DaydreamLab\JJAJ\Helpers\Helper;
+
 use DaydreamLab\User\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class BaseModel extends Model
 {
+    protected $limit = 25;
+
+    /*
+     * true: should search language
+     * false: shouldn't search language
+     */
+    protected $language = false;
 
     protected $order_by = 'id';
 
-    protected $limit = 25;
-
     protected $order = 'desc';
+
+    protected $state = true;
+
 
     protected static function boot()
     {
@@ -126,6 +134,12 @@ class BaseModel extends Model
     {
         $updater = $this->updater();
         return $updater ? $updater->nickname : null;
+    }
+
+
+    public function hasAttribute($attribute)
+    {
+        return in_array($attribute, $this->fillable);
     }
 
 

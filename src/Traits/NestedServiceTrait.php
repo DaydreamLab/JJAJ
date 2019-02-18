@@ -29,9 +29,9 @@ trait NestedServiceTrait
 
     public function checkPathExist(Collection $input)
     {
-        if($this->tablePropertyExist('path'))
+        if($this->repo->getModel()->hasAttribute('path') )
         {
-            $same = $this->findBy('path', '=', $input->get('path'))->first();
+            $same = $this->repo->findBy('path', '=', $input->get('path'))->first();
             if ($same && $same->id != $input->get('id'))
             {
                 $this->status =  Str::upper(Str::snake($this->type.'StoreNestedWithExistPath'));
@@ -95,8 +95,25 @@ trait NestedServiceTrait
     }
 
 
+    public function setStoreNestedDefaultInput($input)
+    {
+        $input = $this->setStoreDefaultInput($input);
+
+        $parent_id  = $input->get('parent_id') ?: 1;
+        $parent     = $this->find($parent_id);
+
+        if ($this->repo->getModel()->hasAttribute('path'))
+        {
+            $input->put('path', $parent->path . '/' .$input->get('alias'));
+        }
+
+        return $input;
+    }
+
     public function storeNested(Collection $input)
     {
+        $input = $this->setStoreNestedDefaultInput($input);
+
         if ($this->checkPathExist($input))
         {
             $this->status = Str::upper(Str::snake($this->type)) . '_STORE_NESTED_WITH_EXIST_PATH';

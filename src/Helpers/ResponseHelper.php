@@ -7,9 +7,9 @@ class ResponseHelper
 {
     public static function genResponse($status, $data = null)
     {
-
         $type = strtolower(explode('_', $status)[0]);
         $config = config('constants.'.$type.'.'.$status);
+
         $config['data'] = $data;
         $config['status'] = $status;
 
@@ -116,6 +116,7 @@ class ResponseHelper
             $response['items']      = $data;
             $response['records']    = 1;
         }
+
 
         return $response;
     }

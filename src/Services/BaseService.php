@@ -4,7 +4,9 @@ namespace DaydreamLab\JJAJ\Services;
 
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
+use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
+use Faker\Provider\Base;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -13,25 +15,26 @@ use Illuminate\Support\Str;
 
 class BaseService
 {
-    protected $user;
-
-    protected $viewlevels;
-
-    protected $access_ids;
-
-    protected $repo;
-
-    protected $type;
+    public $response = null;
 
     public $status;
 
-    public $response;
-
-    protected $search_keys = [];
+    protected $access_ids;
 
     protected $eagers = [];
 
     protected $loads = [];
+
+    protected $repo;
+
+    protected $search_keys = [];
+
+    protected $type;
+
+    protected $user;
+
+    protected $viewlevels;
+
 
     public function __construct(BaseRepository $repo)
     {
@@ -58,7 +61,10 @@ class BaseService
         return $this->repo->all();
     }
 
-
+    /**
+     * @param Collection $input
+     * @return BaseModel | bool
+     */
     public function add(Collection $input)
     {
         $model = $this->repo->add($input);
@@ -74,7 +80,10 @@ class BaseService
         return $model;
     }
 
-
+    /**
+     * @param Collection $input
+     * @return bool
+     */
     public function checkout(Collection $input)
     {
         $checkout = $this->repo->checkout($input);
@@ -89,13 +98,15 @@ class BaseService
         return $checkout;
     }
 
-
+    /**
+     * @param Collection $input
+     * @return bool
+     */
     public function checkAliasExist(Collection $input)
     {
-        if ($this->tablePropertyExist('alias') && $this->getModel()->getTable() != 'extrafields')
+        if ($this->repo->getModel()->hasAttribute('alias') && $this->repo->getModel()->getTable() != 'extrafields')
         {
             $same = $this->findBy('alias', '=', $input->get('alias'))->first();
-
 
             if ($same && $same->id != $input->get('id'))
             {
@@ -112,26 +123,38 @@ class BaseService
         return false;
     }
 
-
-
+    /**
+     * @param array $data
+     * @return BaseModel | bool
+     */
     public function create($data)
     {
         return $this->repo->create($data);
     }
 
-
+    /**
+     * @param $id
+     * @return bool
+     */
     public function delete($id)
     {
         return $this->repo->delete($id);
     }
 
-
+    /**
+     * @param $id
+     * @return BaseModel | bool
+     */
     public function find($id)
     {
         return $this->repo->find($id);
     }
 
-
+    /**
+     * @param $items
+     * @param $limit
+     * @return $this|\Illuminate\Pagination\LengthAwarePaginator
+     */
     public function filterItems($items, $limit)
     {
         return $this->repo->paginate($items, $limit);
@@ -171,13 +194,21 @@ class BaseService
         return $this->repo->findBySpecial($type, $key, $value);
     }
 
-
+    /**
+     * @param $parent_id
+     * @param $origin
+     * @param $modified
+     * @return Collection
+     */
     public function findOrderingInterval($parent_id, $origin, $modified)
     {
         return $this->repo->findOrderingInterval($parent_id, $origin, $modified);
     }
 
-
+    /**
+     * @param $id
+     * @return bool|BaseModel
+     */
     public function getItem($id)
     {
         $item = $this->find($id);
@@ -194,7 +225,10 @@ class BaseService
         return $item;
     }
 
-
+    /**
+     * @param Collection $input
+     * @return BaseModel | bool
+     */
     public function getItemByPath(Collection $input)
     {
         $item = $this->search($input)->first();
@@ -227,20 +261,18 @@ class BaseService
         return $items;
     }
 
-
-
+    /**
+     * @return BaseModel|\Illuminate\Database\Eloquent\Model
+     */
     public function getModel()
     {
-        return $this->getRepo()->getModel();
+        return $this->repo->getModel();
     }
 
-
-    public function getRepo()
-    {
-        return $this->repo;
-    }
-
-
+    /**
+     * @param Collection $input
+     * @return bool
+     */
     public function modify(Collection $input)
     {
         $update = $this->update($input->toArray());
@@ -303,7 +335,7 @@ class BaseService
     {
         foreach ($input->ids as $id)
         {
-            if (Helper::tablePropertyExist($this->getModel(), 'ordering'))
+            if ($this->repo->getModel()->hasAttribute('ordering'))
             {
                 $item   = $this->find($id);
                 $next_siblings = $this->repo->findDeleteSiblings($item->ordering);
@@ -332,10 +364,8 @@ class BaseService
 
     public function search(Collection $input)
     {
-        $input->put('search_keys', $this->search_keys);
-
         $special_queries = $input->get('special_queries') ?: [];
-        if ($this->tablePropertyExist('access'))
+        if ($this->repo->getModel()->hasAttribute('access'))
         {
             $input->put('special_queries', array_merge($special_queries ,
                 [[
@@ -346,6 +376,11 @@ class BaseService
             ));
         }
 
+        $input->put('search_keys', $this->search_keys);
+        $input->put('eagers', $this->eagers);
+        $input->put('loads', $this->loads);
+
+
         $items = $this->repo->search($input);
 
         $this->status   = Str::upper(Str::snake($this->type.'SearchSuccess'));
@@ -355,22 +390,40 @@ class BaseService
     }
 
 
-    public function store(Collection $input)
+    public function setStoreDefaultInput(Collection $input)
     {
-        if ($this->checkAliasExist($input))
+        if ($this->repo->getModel()->hasAttribute('alias') && InputHelper::null($input, 'alias'))
         {
-            return $this->response;
+//            $input->put('alias', Str::lower(
+//                now()->format('Y-m-d-H-i-s') . '-' . Str::random(4))
+//            );
+            $encode = urlencode($input->title);
+            $alias = Str::length($encode) < 191 ? $encode : Str::substr($encode, 0, 191);
+
+            $input->put('alias', $alias);
         }
 
-        if (InputHelper::null($input, 'id')) {
-            return $this->add($input);
+        if ($this->repo->getModel()->hasAttribute('access') && InputHelper::null($input, 'access'))
+        {
+            $input->put('access', 1);
         }
-        else {
-            $input->put('locked_by', 0);
-            $input->put('locked_at', null);
 
-            return $this->modify($input);
+        if ($this->repo->getModel()->hasAttribute('description') && !InputHelper::null($input, 'description'))
+        {
+            $input->put('description', nl2br($input->description));
         }
+
+        if ($this->repo->getModel()->hasAttribute('params') && InputHelper::null($input, 'params'))
+        {
+            $input->put('params', []);
+        }
+
+        if ($this->repo->getModel()->hasAttribute('extrafields') && InputHelper::null($input, 'extrafields'))
+        {
+            $input->put('extrafields', []);
+        }
+
+        return $input;
     }
 
 
@@ -404,6 +457,27 @@ class BaseService
             $this->status =  Str::upper(Str::snake($this->type. $action . 'Fail'));
         }
         return $result;
+    }
+
+
+    public function store(Collection $input)
+    {
+        $input = $this->setStoreDefaultInput($input);
+
+        if ($this->checkAliasExist($input))
+        {
+            return false;
+        }
+
+        if (InputHelper::null($input, 'id')) {
+            return $this->add($input);
+        }
+        else {
+            $input->put('locked_by', 0);
+            $input->put('locked_at', null);
+
+            return $this->modify($input);
+        }
     }
 
 
@@ -458,12 +532,6 @@ class BaseService
             $this->traverseTitle($category->children, $prefix.'-', $str);
         }
         return $str;
-    }
-
-
-    public function tablePropertyExist($property)
-    {
-        return Schema::hasColumn($this->getModel()->getTable(), $property);
     }
 
 

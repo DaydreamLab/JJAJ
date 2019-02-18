@@ -9,6 +9,7 @@ use Illuminate\Support\ServiceProvider;
 class JJAJServiceProvider extends ServiceProvider
 {
     protected $commands = [
+        'DaydreamLab\JJAJ\Commands\ClearCommand',
         'DaydreamLab\JJAJ\Commands\ControllerCommand',
         'DaydreamLab\JJAJ\Commands\ConstantCommand',
         'DaydreamLab\JJAJ\Commands\DeleteCommand',
