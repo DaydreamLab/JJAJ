@@ -24,7 +24,7 @@ class BaseModel extends Model
     protected $state = true;
 
 
-    protected static function boot()
+    public static function boot()
     {
         parent::boot();
 
