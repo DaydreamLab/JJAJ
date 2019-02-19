@@ -55,7 +55,9 @@ class BaseService
 
     }
 
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     */
     public function all()
     {
         return $this->repo->all();
@@ -513,7 +515,6 @@ class BaseService
                 $asset = $this->add(Helper::collect([
                     $mainKey        => $input->{$mainKey},
                     Str::substr($mapKey, 0, -1) => $id,
-                    'created_by'    => $this->user ? $this->user->id : 1
                 ]));
                 if (!$asset) {
                     return false;
