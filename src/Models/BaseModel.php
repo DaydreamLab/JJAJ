@@ -23,35 +23,10 @@ class BaseModel extends Model
 
     protected $state = true;
 
-    protected static $record_changer = true;
-
 
     public static function boot()
     {
         parent::boot();
-
-        $user = Auth::guard('api')->user();
-
-        static::creating(function ($item) use($user) {
-            if (self::$record_changer && !$item->created_by)
-            {
-                if ($user) {
-                    $item->created_by = $user->id;
-                }
-                else
-                {
-                    $item->created_by = 1;
-                }
-            }
-        });
-
-
-        static::updating(function ($item) use ($user) {
-            if (self::$record_changer && $user) {
-                $item->updated_by = $user->id;
-            }
-        });
-
     }
 
 

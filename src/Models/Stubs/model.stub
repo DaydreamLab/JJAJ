@@ -2,9 +2,13 @@
 namespace DummyNamespace;
 
 use DaydreamLab\JJAJ\Models\BaseModel;
+use DaydreamLab\JJAJ\Traits\RecordChanger;
 
 class DummyClass extends BaseModel
 {
+    use RecordChanger {
+        RecordChanger::boot as traitBoot;
+    }
     /**
      * The table associated with the model.
      *
@@ -49,5 +53,9 @@ class DummyClass extends BaseModel
     ];
 
 
+    public static function boot()
+    {
+        self::traitBoot();
+    }
 
 }
