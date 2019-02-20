@@ -227,6 +227,23 @@ class BaseService
         return $item;
     }
 
+
+    public function getItemByAlias(Collection $input)
+    {
+        $item = $this->search($input)->first();
+
+        if($item) {
+            $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
+            $this->response = $item;
+        }
+        else {
+            $this->status   = Str::upper(Str::snake($this->type.'GetItemFail'));
+            $this->response = null;
+        }
+
+        return $item;
+    }
+
     /**
      * @param Collection $input
      * @return BaseModel | bool

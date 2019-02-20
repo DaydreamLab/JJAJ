@@ -102,7 +102,7 @@ trait NestedServiceTrait
         $parent_id  = $input->get('parent_id') ?: 1;
         $parent     = $this->find($parent_id);
 
-        if ($this->repo->getModel()->hasAttribute('path'))
+        if ($this->repo->getModel()->hasAttribute('path') && InputHelper::null($input, 'path'))
         {
             $input->put('path', $parent->path . '/' .$input->get('alias'));
         }
