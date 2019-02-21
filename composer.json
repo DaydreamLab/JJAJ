@@ -19,8 +19,7 @@
     "repositories" : [
         {
             "type": "vcs",
-            "url":  "https://github.com/DaydreamLab/observer",
-            "no-api": true
+            "url":  "https://github.com/DaydreamLab/observer.git",
         }
     ],
     "extra": {
