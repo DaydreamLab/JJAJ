@@ -16,6 +16,13 @@
     "require": {
         "daydreamlab/observer": "dev-master"
     },
+    "repositories" : [
+        {
+            "type": "vcs",
+            "url":  "git@github.com:DaydreamLab/observer.git",
+            "no-api": true
+        }
+    ],
     "extra": {
         "laravel": {
             "providers": [
