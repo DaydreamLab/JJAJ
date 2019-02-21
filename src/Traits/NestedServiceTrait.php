@@ -31,7 +31,10 @@ trait NestedServiceTrait
     {
         if($this->repo->getModel()->hasAttribute('path') )
         {
-            $same = $this->repo->findBy('path', '=', $input->get('path'))->first();
+            $same = $this->repo->getModel()->hasAttribute('host')
+                ? $this->repo->findByChain(['path', 'host'], ['=', '='], [$input->get('path'), $input->get('host')])->first()
+                : $this->repo->findBy('path', '=', $input->get('path'))->first();
+
             if ($same && $same->id != $input->get('id'))
             {
                 $this->status =  Str::upper(Str::snake($this->type.'StoreNestedWithExistPath'));
