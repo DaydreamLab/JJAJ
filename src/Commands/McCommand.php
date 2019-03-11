@@ -151,6 +151,11 @@ class McCommand extends Command
             '--component'   => $component,
             '--ordering'    => true,
         ]);
+        $this->call('jjaj:request', [
+            'name'      => $request_namespace.'FeaturedPost',
+            '--component'   => $component,
+            '--featured'    => true,
+        ]);
 
         $this->call('jjaj:constant', ['name' => 'constants/'.Str::lower($type), '--model' => $name]);
 
@@ -198,13 +203,19 @@ class McCommand extends Command
             $this->call('jjaj:request', [
                 'name'          => $request_front_namespace.'FrontSearchPost',
                 '--component'   => $component,
-                '--search'       => true,
+                '--search'      => true,
                 '--front'       => true,
             ]);
             $this->call('jjaj:request', [
                 'name'          => $request_front_namespace.'FrontOrderingPost',
                 '--component'   => $component,
                 '--ordering'    => true,
+                '--front'       => true,
+            ]);
+            $this->call('jjaj:request', [
+                'name'          => $request_front_namespace.'FrontFeaturedPost',
+                '--component'   => $component,
+                '--featured'    => true,
                 '--front'       => true,
             ]);
         }
@@ -258,7 +269,14 @@ class McCommand extends Command
             ]);
             $this->call('jjaj:request', [
                 'name'          => $request_admin_namespace.'AdminOrderingPost',
-                '--ordering'       => true,
+                '--ordering'    => true,
+                '--component'   => $component,
+                '--admin'       => true,
+            ]);
+
+            $this->call('jjaj:request', [
+                'name'          => $request_admin_namespace.'AdminFeaturedPost',
+                '--featured'    => true,
                 '--component'   => $component,
                 '--admin'       => true,
             ]);

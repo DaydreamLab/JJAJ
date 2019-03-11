@@ -17,6 +17,7 @@ class ResponseHelper
             $config['message'] = $data['message'];
             //$config['data'] = null;
         }
+
         try {
             return response()->json($config, $config['code']);
         }
@@ -116,7 +117,6 @@ class ResponseHelper
             $response['items']      = $data;
             $response['records']    = 1;
         }
-
 
         return $response;
     }

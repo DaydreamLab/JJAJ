@@ -28,6 +28,37 @@ return [
         'message'   => 'UcModel front create fail'
     ],
 
+
+    // Store With Exist Alias
+    'DummyModel_STORE_WITH_EXIST_ALIAS' => [
+        'code'      => 403,
+        'message'   => 'UcModel create with exist alias'
+    ],
+    'DummyModel_ADMIN_STORE_WITH_EXIST_ALIAS' => [
+        'code'      => 403,
+        'message'   => 'UcModel admin create with exist alias'
+    ],
+    'DummyModel_FRONT_STORE_WITH_EXIST_ALIAS' => [
+        'code'      => 403,
+        'message'   => 'UcModel front create with exist alias'
+    ],
+
+
+    // Store Nested With Exist Path
+    'DummyModel_STORE_NESTED_WITH_EXIST_PATH' => [
+        'code'      => 403,
+        'message'   => 'UcModel create nested with exist alias'
+    ],
+    'DummyModel_ADMIN_STORE_NESTED_WITH_EXIST_PATH' => [
+        'code'      => 403,
+        'message'   => 'UcModel admin create nested with exist alias'
+    ],
+    'DummyModel_FRONT_STORE_NESTED_WITH_EXIST_PATH' => [
+        'code'      => 403,
+        'message'   => 'UcModel front create nested with exist alias'
+    ],
+
+
     // Create Nested
     'DummyModel_CREATE_NESTED_SUCCESS' => [
         'code'      => 200,

@@ -411,15 +411,20 @@ class BaseService
 
     public function setStoreDefaultInput(Collection $input)
     {
-        if ($this->repo->getModel()->hasAttribute('alias') && InputHelper::null($input, 'alias'))
+        if ($this->repo->getModel()->hasAttribute('alias'))
         {
-//            $input->put('alias', Str::lower(
-//                now()->format('Y-m-d-H-i-s') . '-' . Str::random(4))
-//            );
-            $encode = urlencode($input->title);
-            $alias = Str::length($encode) < 191 ? $encode : Str::substr($encode, 0, 191);
+            if (InputHelper::null($input, 'alias'))
+            {
+                $encode = urlencode($input->title);
+                $alias = Str::length($encode) < 191 ? $encode : Str::substr($encode, 0, 191);
 
-            $input->put('alias', $alias);
+            }
+            else
+            {
+                $alias = $input->get('alias');
+            }
+
+            $input->put('alias', Str::lower($alias));
         }
 
         if ($this->repo->getModel()->hasAttribute('access') && InputHelper::null($input, 'access'))
@@ -482,7 +487,6 @@ class BaseService
     public function store(Collection $input)
     {
         $input = $this->setStoreDefaultInput($input);
-
         if ($this->checkAliasExist($input))
         {
             return false;

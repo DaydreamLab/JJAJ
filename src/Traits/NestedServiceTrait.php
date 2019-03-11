@@ -110,6 +110,21 @@ trait NestedServiceTrait
             $input->put('path', $parent->path . '/' .$input->get('alias'));
         }
 
+        if ($this->repo->getModel()->hasAttribute('extrafields') && !InputHelper::null($input, 'extrafields'))
+        {
+            $search = '';
+            foreach ($input->extrafields as $extrafield)
+            {
+                $search .= $extrafield['value'] . ' ';
+            }
+            $input->put('extrafields_search', $search);
+        }
+
+        if ($this->repo->getModel()->hasAttribute('params') && InputHelper::null($input, 'params'))
+        {
+            $input->put('params', []);
+        }
+
         return $input;
     }
 
