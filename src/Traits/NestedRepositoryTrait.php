@@ -129,8 +129,8 @@ trait NestedRepositoryTrait
         }
         else
         {
-            //有改 ordering
-            if ($input->get('ordering') != $modified->ordering) {
+            // 有改 ordering
+            if (!InputHelper::null($input, 'ordering') && $input->get('ordering') != $modified->ordering) {
                 $selected            = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->get('ordering')])->first();
                 $origin_ordering     = $modified->ordering;
                 $modified->ordering  = $selected->ordering;
