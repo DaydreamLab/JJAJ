@@ -21,7 +21,7 @@ trait RecordChanger
                 }
                 else
                 {
-                    $item->created_by = 1;
+                    $item->created_by = 0;
                 }
             }
         });
