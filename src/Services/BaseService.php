@@ -6,10 +6,8 @@ use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
-use Faker\Provider\Base;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 
@@ -149,7 +147,7 @@ class BaseService
      */
     public function find($id)
     {
-        return $this->repo->find($id);
+        return count($this->eagers) ? $this->repo->with($this->eagers)->find($id) : $this->repo->find($id);
     }
 
     /**
@@ -171,7 +169,8 @@ class BaseService
      */
     public function findBy($filed, $operator, $value)
     {
-        return $this->repo->findBy($filed, $operator, $value);
+        return count($this->eagers) ? $this->repo->with($this->eagers)->findBy($filed, $operator, $value)
+                                    : $this->repo->findBy($filed, $operator, $value);
     }
 
     /**
@@ -182,7 +181,8 @@ class BaseService
      */
     public function findByChain($fields, $operators, $values)
     {
-        return $this->repo->findByChain($fields , $operators, $values);
+        return count($this->eagers) ? $this->repo->with($this->eagers)->findByChain($fields , $operators, $values)
+                                    : $this->repo->findByChain($fields , $operators, $values);
     }
 
     /**
@@ -193,7 +193,8 @@ class BaseService
      */
     public function findBySpecial($type, $key, $value)
     {
-        return $this->repo->findBySpecial($type, $key, $value);
+        return count($this->eagers) ? $this->repo->with($this->eagers)->findBySpecial($type, $key, $value)
+                                    : $this->repo->findBySpecial($type, $key, $value);
     }
 
     /**
@@ -206,6 +207,7 @@ class BaseService
     {
         return $this->repo->findOrderingInterval($parent_id, $origin, $modified);
     }
+
 
     /**
      * @param $id
@@ -233,6 +235,8 @@ class BaseService
         $item = $this->search($input)->first();
 
         if($item) {
+            $item->hits++;
+            $this->update($item, $item);
             $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
             $this->response = $item;
         }
@@ -342,9 +346,18 @@ class BaseService
     public function paginationFormat($items)
     {
         $data = [];
-        $data['data'] = $items['data'];
-        unset($items['data']);
-        $data['pagination'] = $items;
+
+        if (array_key_exists('data', $items))
+        {
+            $data['data'] = $items['data'];
+            unset($items['data']);
+            $data['pagination'] = $items;
+        }
+        else
+        {
+            $data['data'] = $items;
+            $data['paginate'] = [];
+        }
 
         return $data;
     }
@@ -380,7 +393,10 @@ class BaseService
         return $result;
     }
 
-
+    /**
+     * @param Collection $input
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     */
     public function search(Collection $input)
     {
         $special_queries = $input->get('special_queries') ?: [];
@@ -399,8 +415,11 @@ class BaseService
         $input->put('eagers', $this->eagers);
         $input->put('loads', $this->loads);
 
+        // 處理搜尋結果是否要分頁
+        $paginate = $input->get('paginate') === false ? false : true;
+        $input->forget('paginate');
 
-        $items = $this->repo->search($input);
+        $items = $this->repo->search($input, $paginate);
 
         $this->status   = Str::upper(Str::snake($this->type.'SearchSuccess'));
         $this->response = $items;
@@ -439,7 +458,7 @@ class BaseService
 
         if ($this->repo->getModel()->hasAttribute('params') && InputHelper::null($input, 'params'))
         {
-            $input->put('params', []);
+            $input->put('params', (object)[]);
         }
 
         if ($this->repo->getModel()->hasAttribute('extrafields') && InputHelper::null($input, 'extrafields'))

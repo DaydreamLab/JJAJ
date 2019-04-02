@@ -391,13 +391,17 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-
-    public function search(Collection $input)
+    /**
+     * @param Collection $input
+     * @param bool $paginate
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Collection|static[]
+     */
+    public function search(Collection $input, $paginate = true)
     {
         $order_by   = InputHelper::getCollectionKey($input, 'order_by', $this->model->getOrderBy());
-        $limit      = InputHelper::getCollectionKey($input, 'limit', $this->model->getLimit());
+        $limit      = (int)InputHelper::getCollectionKey($input, 'limit', $this->model->getLimit());
         $order      = InputHelper::getCollectionKey($input, 'order', $this->model->getOrder());
-        $state      = InputHelper::getCollectionKey($input, 'state', [0,1]);
+        $state      = (int)InputHelper::getCollectionKey($input, 'state', [0,1]);
         $language   = InputHelper::getCollectionKey($input, 'language', '*') ;
 
         $query = $this->getQuery($input);
@@ -424,11 +428,14 @@ class BaseRepository implements BaseRepositoryInterface
         if ($this->isNested()) //重組出樹狀
         {
             $query = $query->where('title', '!=', 'ROOT');
-            $items = $query->orderBy('_lft', $order)->paginate($limit);
+            $items = $paginate ? $query->orderBy('_lft', $order)->paginate($limit)
+                                : $query->orderBy('_lft', $order)->get();
+
         }
         else
         {
-            $items = $query->orderBy($order_by, $order)->paginate($limit);
+            $items = $paginate ? $query->orderBy($order_by, $order)->paginate($limit)
+                                : $query->orderBy($order_by, $order)->get();
         }
 
         return $items;
