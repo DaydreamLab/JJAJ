@@ -2,10 +2,9 @@
 
 namespace DaydreamLab\JJAJ\Models;
 
-
 use DaydreamLab\User\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
+
 
 class BaseModel extends Model
 {

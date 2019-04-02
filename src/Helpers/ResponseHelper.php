@@ -6,7 +6,7 @@ namespace DaydreamLab\JJAJ\Helpers;
 class ResponseHelper
 {
     public static function genResponse($status, $data = null)
-    {
+    {   //Helper::show($data);
         $type = strtolower(explode('_', $status)[0]);
         $config = config('constants.'.$type.'.'.$status);
 

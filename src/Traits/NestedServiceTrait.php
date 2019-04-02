@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Traits;
 
+use DaydreamLab\Ec\Models\Product\Admin\ProductAdmin;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use Illuminate\Support\Collection;

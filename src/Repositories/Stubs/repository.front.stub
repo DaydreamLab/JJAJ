@@ -11,4 +11,5 @@ class DummyClass extends DummyFrontRepository
     {
         parent::__construct($model);
         $this->model = $model;
+    }
 }
