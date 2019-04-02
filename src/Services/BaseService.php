@@ -52,7 +52,6 @@ class BaseService
             $this->viewlevels = config('cms.item.front.viewlevels');
             $this->access_ids = config('cms.item.front.access_ids');
         }
-
     }
 
     /**
