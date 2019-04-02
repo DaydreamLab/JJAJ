@@ -19,7 +19,7 @@ trait NestedRepositoryTrait
                 $selected = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->ordering])->first();
 
                 $new      = $this->create($input->toArray());
-                $new->beforeNode($selected)->save();
+                $selected ? $new->beforeNode($selected)->save() : true;
 
                 $siblings = $new->getNextSiblings();
 
