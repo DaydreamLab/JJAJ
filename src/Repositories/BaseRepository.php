@@ -406,7 +406,6 @@ class BaseRepository implements BaseRepositoryInterface
 
         $query = $this->getQuery($input);
 
-
         if ($this->model->hasAttribute('state') && $this->model->getTable() != 'users')
         {
             if (is_array($state))
@@ -419,7 +418,7 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
 
-        if ($this->model->hasAttribute('language'))
+        if ($this->model->hasAttribute('language') && $language != '*')
         {
             $query = $query->where('language', '=', $language);
         }
