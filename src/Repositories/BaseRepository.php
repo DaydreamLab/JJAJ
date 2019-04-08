@@ -417,10 +417,17 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-
-        if ($this->model->hasAttribute('language') && $language != '*')
+    
+        if ($this->model->hasAttribute('language'))
         {
-            $query = $query->where('language', '=', $language);
+            if ($language == '*')
+            {
+                $query = $query->where('language', $language);
+            }
+            else
+            {
+                $query = $query->whereIn('language', ['*', $language]);
+            }
         }
 
 
