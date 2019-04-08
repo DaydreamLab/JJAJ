@@ -402,7 +402,7 @@ class BaseRepository implements BaseRepositoryInterface
         $limit      = (int)InputHelper::getCollectionKey($input, 'limit', $this->model->getLimit());
         $order      = InputHelper::getCollectionKey($input, 'order', $this->model->getOrder());
         $state      = (int)InputHelper::getCollectionKey($input, 'state', [0,1]);
-        $language   = InputHelper::getCollectionKey($input, 'language', '*') ;
+        $language   = InputHelper::getCollectionKey($input, 'language', config('global.locale')) ;
 
         $query = $this->getQuery($input);
 
@@ -417,7 +417,6 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-    
         if ($this->model->hasAttribute('language'))
         {
             if ($language == '*')
