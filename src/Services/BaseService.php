@@ -105,7 +105,22 @@ class BaseService
     {
         if ($this->repo->getModel()->hasAttribute('alias') && $this->repo->getModel()->getTable() != 'extrafields')
         {
-            $same = $this->findBy('alias', '=', $input->get('alias'))->first();
+            $same = null;
+            if ($this->repo->getModel()->hasAttribute('language'))
+            {
+                if (InputHelper::null($input, 'language'))
+                {
+                    $same = $this->findByChain(['alias', 'language'], ['=', '='],[$input->get('alias'), config('global.locale')])->first();
+                }
+                else
+                {
+                    $same = $this->findByChain(['alias', 'language'], ['=', '='],[$input->get('alias'), $input->get('language')])->first();
+                }
+            }
+            else
+            {
+                $same = $this->findBy('alias', '=', $input->get('alias'))->first();
+            }
 
             if ($same && $same->id != $input->get('id'))
             {
@@ -434,8 +449,7 @@ class BaseService
             if (InputHelper::null($input, 'alias'))
             {
                 $encode = urlencode($input->title);
-                $alias = Str::length($encode) < 191 ? $encode : Str::substr($encode, 0, 191);
-
+                $alias = Str::random(36);
             }
             else
             {

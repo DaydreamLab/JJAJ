@@ -30,11 +30,31 @@ trait NestedServiceTrait
 
     public function checkPathExist(Collection $input)
     {
-        if($this->repo->getModel()->hasAttribute('path') )
+        $language = !InputHelper::null($input, 'language') ? $input->get('language') : config('global.locale');
+
+        if($this->repo->getModel()->hasAttribute('path'))
         {
-            $same = $this->repo->getModel()->hasAttribute('host')
-                ? $this->repo->findByChain(['path', 'host'], ['=', '='], [$input->get('path'), $input->get('host')])->first()
-                : $this->repo->findBy('path', '=', $input->get('path'))->first();
+            $same = null;
+            // 代表為選單
+            if ( $this->repo->getModel()->hasAttribute('host'))
+            {
+                $same = $this->repo->findByChain(['path', 'host', 'language'], ['=', '=', '='], [$input->get('path'), $input->get('host'), $language])->first();
+            }
+            else
+            {
+                if ($this->repo->getModel()->hasAttribute('language'))
+                {
+                    $same = $this->repo->findByChain(['path', 'language'], ['=', '='],[$input->get('path'), $input->get('language')])->first();
+                }
+                else
+                {
+                    $same =  $this->repo->findBy('path', '=', $input->get('path'))->first();
+                }
+            }
+
+//            $same = $this->repo->getModel()->hasAttribute('host')
+//                ? $this->repo->findByChain(['path', 'host'], ['=', '='], [$input->get('path'), $input->get('host')])->first()
+//                : $this->repo->findBy('path', '=', $input->get('path'))->first();
 
             if ($same && $same->id != $input->get('id'))
             {
