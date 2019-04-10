@@ -414,6 +414,7 @@ class BaseService
     public function search(Collection $input)
     {
         $special_queries = $input->get('special_queries') ?: [];
+
         if ($this->repo->getModel()->hasAttribute('access'))
         {
             $input->put('special_queries', array_merge($special_queries ,
@@ -434,7 +435,7 @@ class BaseService
         $input->forget('paginate');
 
         $items = $this->repo->search($input, $paginate);
-
+        //Helper::show($items->toArray(), 214);
         $this->status   = Str::upper(Str::snake($this->type.'SearchSuccess'));
         $this->response = $items;
 

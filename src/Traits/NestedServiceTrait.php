@@ -14,6 +14,7 @@ trait NestedServiceTrait
     public function addNested(Collection $input)
     {
         $item = $this->repo->addNested($input);
+
         if ($item)
         {
            $this->status    = Str::upper(Str::snake($this->type.'CreateNestedSuccess'));
@@ -34,27 +35,7 @@ trait NestedServiceTrait
 
         if($this->repo->getModel()->hasAttribute('path'))
         {
-            $same = null;
-            // 代表為選單
-            if ( $this->repo->getModel()->hasAttribute('host'))
-            {
-                $same = $this->repo->findByChain(['path', 'host', 'language'], ['=', '=', '='], [$input->get('path'), $input->get('host'), $language])->first();
-            }
-            else
-            {
-                if ($this->repo->getModel()->hasAttribute('language'))
-                {
-                    $same = $this->repo->findByChain(['path', 'language'], ['=', '='],[$input->get('path'), $input->get('language')])->first();
-                }
-                else
-                {
-                    $same =  $this->repo->findBy('path', '=', $input->get('path'))->first();
-                }
-            }
-
-//            $same = $this->repo->getModel()->hasAttribute('host')
-//                ? $this->repo->findByChain(['path', 'host'], ['=', '='], [$input->get('path'), $input->get('host')])->first()
-//                : $this->repo->findBy('path', '=', $input->get('path'))->first();
+            $same = $this->repo->findMultiLanguageItem($input);
 
             if ($same && $same->id != $input->get('id'))
             {

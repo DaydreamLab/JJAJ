@@ -9,13 +9,13 @@ use Mockery;
 class BaseTest extends TestCase
 {
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
         //Artisan::call('jjaj:refresh');
     }
 
-    protected function tearDown()
+    protected function tearDown() :void
     {
         parent::tearDown();
         Mockery::close();
