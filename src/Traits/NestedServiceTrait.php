@@ -31,8 +31,6 @@ trait NestedServiceTrait
 
     public function checkPathExist(Collection $input)
     {
-        $language = !InputHelper::null($input, 'language') ? $input->get('language') : config('global.locale');
-
         if($this->repo->getModel()->hasAttribute('path'))
         {
             $same = $this->repo->findMultiLanguageItem($input);

@@ -78,6 +78,8 @@ trait NestedRepositoryTrait
 
     public function findMultiLanguageItem($input)
     {
+        $language = !InputHelper::null($input, 'language') ? $input->get('language') : config('global.locale');
+
         $query = $this->model;
 
         if ( $this->getModel()->hasAttribute('host'))
@@ -85,7 +87,7 @@ trait NestedRepositoryTrait
             $query = $query
                 ->where('path', $input->get('path'))
                 ->where('host', $input->get('host'))
-                ->whereIn('language', ['*', $input->get('language')]);
+                ->whereIn('language', ['*', $language]);
         }
         else
         {
@@ -93,7 +95,7 @@ trait NestedRepositoryTrait
             {
                 $query = $query
                     ->where('path', $input->get('path'))
-                    ->whereIn('language', ['*', $input->get('language')]);
+                    ->whereIn('language', ['*', $language]);
             }
             else
             {
