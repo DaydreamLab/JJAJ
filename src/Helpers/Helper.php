@@ -51,6 +51,7 @@ class Helper {
     }
 
 
+
     public static function startLog()
     {
         DB::connection()->enableQueryLog();
