@@ -433,7 +433,7 @@ class BaseService
         // 處理搜尋結果是否要分頁
         $paginate = $input->get('paginate') === false ? false : true;
         $input->forget('paginate');
-        Helper::startLog();
+
         $items = $this->repo->search($input, $paginate);
 
         $this->status   = Str::upper(Str::snake($this->type.'SearchSuccess'));

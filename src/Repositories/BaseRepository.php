@@ -225,13 +225,6 @@ class BaseRepository implements BaseRepositoryInterface
 
                     });
                 }
-                elseif ($key == 'where')
-                {
-                    foreach ($item as $q)
-                    {
-                        $query = $query->where($q['key'], $q['operator'], $q['value']);
-                    }
-                }
                 elseif ($key == 'special_queries')
                 {
                     foreach ($item as $q)
@@ -239,6 +232,18 @@ class BaseRepository implements BaseRepositoryInterface
                         $query = $query->{$q['type']}($q['key'], $q['value']);
                     }
                 }
+                elseif ($key == 'without_root')
+                {
+                    $query = $query->where('title', '!=', 'ROOT');
+                }
+                elseif ($key == 'where')
+                {
+                    foreach ($item as $q)
+                    {
+                        $query = $query->where($q['key'], $q['operator'], $q['value']);
+                    }
+                }
+
                 elseif ($key == 'eagers')
                 {
                     foreach ($input->get('eagers') as $eager)
@@ -402,7 +407,7 @@ class BaseRepository implements BaseRepositoryInterface
         $limit      = (int)InputHelper::getCollectionKey($input, 'limit', $this->model->getLimit());
         $order      = InputHelper::getCollectionKey($input, 'order', $this->model->getOrder());
         $state      = (int)InputHelper::getCollectionKey($input, 'state', [0,1]);
-        $language   = InputHelper::getCollectionKey($input, 'language', config('global.locale')) ;
+        $language   = InputHelper::getCollectionKey($input, 'language', '') ;
 
         $query = $this->getQuery($input);
 
@@ -419,20 +424,16 @@ class BaseRepository implements BaseRepositoryInterface
 
         if ($this->model->hasAttribute('language'))
         {
-            if ($language == '*')
+            if ($language != '')
             {
                 $query = $query->where('language', $language);
-            }
-            else
-            {
-                $query = $query->whereIn('language', ['*', $language]);
             }
         }
 
 
         if ($this->isNested()) //重組出樹狀
         {
-            $query = $query->where('title', '!=', 'ROOT');
+            //$query = $query->where('title', '!=', 'ROOT');
             $items = $paginate ? $query->orderBy('_lft', $order)->paginate($limit)
                                 : $query->orderBy('_lft', $order)->get();
 
