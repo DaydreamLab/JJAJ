@@ -433,7 +433,6 @@ class BaseRepository implements BaseRepositoryInterface
 
         if ($this->isNested()) //重組出樹狀
         {
-            $query = $query->where('title', '!=', 'ROOT');
             $items = $paginate ? $query->orderBy('_lft', $order)->paginate($limit)
                                 : $query->orderBy('_lft', $order)->get();
 
