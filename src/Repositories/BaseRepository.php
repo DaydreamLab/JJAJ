@@ -331,6 +331,18 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    public function getParamsIds($params, $key)
+    {
+        $ids = [];
+        foreach ($params[$key] as $param)
+        {
+            $ids[] = $param->id;
+        }
+
+        return $ids;
+    }
+
+
     // Get model's relation
     public function getRelation($model, $relation)
     {
