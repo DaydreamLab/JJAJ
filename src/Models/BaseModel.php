@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Models;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\User\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -31,7 +32,7 @@ class BaseModel extends Model
 
     public function creator()
     {
-        $creator = $this->hasOne(User::class, 'id', 'created_by')->first();
+        $creator = $this->hasOne(User::class, 'id', 'created_by');
 
         return $creator;
     }
@@ -39,9 +40,9 @@ class BaseModel extends Model
 
     public function getCreatorAttribute()
     {
-        $creator = $this->creator() ;
+        $creator = $this->creator()->first() ;
 
-        return $creator ? $creator->nickname : null;
+        return $creator ? $creator->full_name : 'Unknown';
     }
 
 
