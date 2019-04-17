@@ -38,11 +38,12 @@ class BaseModel extends Model
     }
 
 
+
     public function getCreatorAttribute()
     {
         $creator = $this->creator()->first() ;
 
-        return $creator ? $creator->full_name : 'Unknown';
+        return $creator ? $creator->last_name . ' ' . $creator->first_name : '';
     }
 
 
