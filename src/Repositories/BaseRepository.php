@@ -285,14 +285,14 @@ class BaseRepository implements BaseRepositoryInterface
                         }
                         else
                         {
-                            if ($key == 'category_id')
-                            {
-                                $query = $query->whereIn('category_id', $item);
-                            }
-                            else
-                            {
+//                            if ($key == 'category_id')
+//                            {
+//                                $query = $query->whereIn('category_id', $item);
+//                            }
+//                            else
+//                            {
                                 $query = $query->where("$key", '=', $item);
-                            }
+//                            }
                         }
 
                     }
