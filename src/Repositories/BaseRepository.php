@@ -443,6 +443,8 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
 
+
+
         if ($this->isNested()) //重組出樹狀
         {
             $items = $paginate ? $query->orderBy('_lft', $order)->paginate($limit)
@@ -451,8 +453,14 @@ class BaseRepository implements BaseRepositoryInterface
         }
         else
         {
-            $items = $paginate ? $query->orderBy($order_by, $order)->paginate($limit)
-                                : $query->orderBy($order_by, $order)->get();
+            $query = $query->orderBy($order_by, $order);
+            if ($this->model->hasAttribute('publish_up'))
+            {
+                $query = $query->orderBy('publish_up', 'desc');
+            }
+
+            $items = $paginate ? $query->paginate($limit)
+                                : $query->get();
         }
 
         return $items;
