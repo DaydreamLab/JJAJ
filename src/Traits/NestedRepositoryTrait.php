@@ -11,10 +11,10 @@ trait NestedRepositoryTrait
 {
     public function addNested(Collection $input)
     {
-        if ($input->alias == 'tft-lcd')
-        {
-            Helper::show($input);
-        }
+//        if ($input->alias == 'tft-lcd')
+//        {
+//            Helper::show($input);
+//        }
 
         if (!InputHelper::null($input, 'parent_id'))
         {
@@ -130,33 +130,37 @@ trait NestedRepositoryTrait
 
     public function modifyNested(Collection $input)
     {
-        $origin = $this->find($input->id);
-        $parent = $this->find($input->parent_id);
-
-        if ($origin->parent_id != $input->parent_id)
-        {
-            // 修改同層的 ordering
-            $origin_next_siblings = $origin->getNextSiblings();
-            if (!$this->siblingsOrderingChange($origin_next_siblings, 'sub'))
-            {
-                return false;
-            }
-
-            $selected = $this->findBy('id', '=', $input->parent_id)->first();
-
-            $input->forget('ordering');
-            $input->put('ordering', $selected->children->count()+1);
-
-        }
-        else
-        {
-
-        }
+//        $origin = $this->find($input->id);
+//        $parent = $this->find($input->parent_id);
+//
+//        if ($origin->parent_id != $input->parent_id)
+//        {
+//            // 修改同層的 ordering
+//            $origin_next_siblings = $origin->getNextSiblings();
+//            if (!$this->siblingsOrderingChange($origin_next_siblings, 'sub'))
+//            {
+//                return false;
+//            }
+//
+//            $selected = $this->findBy('id', '=', $input->parent_id)->first();
+//
+//            $input->forget('ordering');
+//            $input->put('ordering', $selected->children->count()+1);
+//
+//        }
+//        else
+//        {
+//
+//        }
 
 
 
         // 有更改parent
-        /* 目前這部分有做在編輯頁面的可以選擇排序
+        // 目前這部分有做在編輯頁面的可以選擇排序
+        $modified = $this->find($input->id);
+        $parent   = $this->find($input->parent_id);
+
+        // 有更改parent
         if ($modified->parent_id != $input->parent_id)
         {
             if (!InputHelper::null($input, 'ordering'))
@@ -219,11 +223,12 @@ trait NestedRepositoryTrait
                     }
                 }
             }
-        }*/
+        }
+        // 防止錯誤修改到樹狀結構
+        $input->forget('parent_id');
+        $input->forget('ordering');
 
-        $modify = $this->update($input->toArray());
-
-        return $modify;
+        return $modify = $this->update($input->toArray());
     }
 
 
