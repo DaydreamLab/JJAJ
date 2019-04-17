@@ -449,7 +449,6 @@ class BaseRepository implements BaseRepositoryInterface
         {
             $items = $paginate ? $query->orderBy('_lft', $order)->paginate($limit)
                                 : $query->orderBy('_lft', $order)->get();
-
         }
         else
         {
