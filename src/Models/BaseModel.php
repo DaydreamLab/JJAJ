@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Models;
 
+use Carbon\Carbon;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\User\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
@@ -37,6 +38,11 @@ class BaseModel extends Model
         return $creator;
     }
 
+
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->timezone(env('TIMEZONE'));
+    }
 
 
     public function getCreatorAttribute()
