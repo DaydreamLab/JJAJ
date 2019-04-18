@@ -108,7 +108,7 @@ class BaseRepository implements BaseRepositoryInterface
         foreach ($input->ids as $id)
         {
             $item = $this->model->find($id);
-            if ($item->locked_by == $user->id || $user->higherPermissionThan($item->locked_by))
+            if ($item->locked_by == 0 || $item->locked_by == $user->id || $user->higherPermissionThan($item->locked_by))
             {
                 $item->locked_by = 0;
                 $item->locked_at = null;

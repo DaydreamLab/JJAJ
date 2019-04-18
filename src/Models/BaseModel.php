@@ -39,17 +39,17 @@ class BaseModel extends Model
     }
 
 
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->timezone(env('TIMEZONE'));
-    }
-
-
     public function getCreatorAttribute()
     {
         $creator = $this->creator()->first() ;
 
         return $creator ? $creator->last_name . ' ' . $creator->first_name : '';
+    }
+
+
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->timezone(env('TIMEZONE'))->toDateTimeString();
     }
 
 
@@ -68,6 +68,12 @@ class BaseModel extends Model
     public function getLockerAttribute()
     {
         return $this->locker();
+    }
+
+
+    public function getLockedAtAttribute($value)
+    {
+        return Carbon::parse($value)->timezone(env('TIMEZONE'))->toDateTimeString();
     }
 
 
@@ -114,10 +120,28 @@ class BaseModel extends Model
     }
 
 
+    public function getPublishUpAttribute($value)
+    {
+        return Carbon::parse($value)->timezone(env('TIMEZONE'))->toDateTimeString();
+    }
+
+
+    public function getPublishDownAttribute($value)
+    {
+        return Carbon::parse($value)->timezone(env('TIMEZONE'))->toDateTimeString();
+    }
+
+
     public function getUpdaterAttribute()
     {
         $updater = $this->updater();
         return $updater ? $updater->nickname : null;
+    }
+
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->timezone(env('TIMEZONE'))->toDateTimeString();
     }
 
 
@@ -154,6 +178,18 @@ class BaseModel extends Model
         if ($order_by && $order_by != ''){
             $this->order_by = $order_by;
         }
+    }
+
+
+    public function setPublishUpAttribute($value)
+    {
+        return Carbon::parse($value)->timezone(config('app.timezone'))->toDateTimeString();
+    }
+
+
+    public function setPublishDownAttribute($value)
+    {
+        return Carbon::parse($value)->timezone(config('app.timezone'))->toDateTimeString();
     }
 
 
