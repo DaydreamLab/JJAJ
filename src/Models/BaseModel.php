@@ -120,18 +120,6 @@ class BaseModel extends Model
     }
 
 
-    public function getPublishUpAttribute($value)
-    {
-        return Carbon::parse($value)->timezone(env('TIMEZONE'))->toDateTimeString();
-    }
-
-
-    public function getPublishDownAttribute($value)
-    {
-        return Carbon::parse($value)->timezone(env('TIMEZONE'))->toDateTimeString();
-    }
-
-
     public function getUpdaterAttribute()
     {
         $updater = $this->updater();
