@@ -181,18 +181,6 @@ class BaseModel extends Model
     }
 
 
-    public function setPublishUpAttribute($value)
-    {
-        return Carbon::parse($value)->timezone(config('app.timezone'))->toDateTimeString();
-    }
-
-
-    public function setPublishDownAttribute($value)
-    {
-        return Carbon::parse($value)->timezone(config('app.timezone'))->toDateTimeString();
-    }
-
-
     public function updater()
     {
         $updater =  $this->hasOne(User::class, 'id', 'updated_by')->first();

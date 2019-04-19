@@ -286,14 +286,15 @@ class BaseRepository implements BaseRepositoryInterface
                         }
                         else
                         {
-//                            if ($key == 'category_id')
-//                            {
-//                                $query = $query->whereIn('category_id', $item);
-//                            }
-//                            else
-//                            {
+
+                            if ($key == 'category_id')
+                            {
+                                $query = $query->whereIn('category_id', $item);
+                            }
+                            else
+                            {
                                 $query = $query->where("$key", '=', $item);
-//                            }
+                            }
                         }
 
                     }
@@ -442,8 +443,6 @@ class BaseRepository implements BaseRepositoryInterface
                 $query = $query->where('language', $language);
             }
         }
-
-
 
 
         if ($this->isNested()) //重組出樹狀

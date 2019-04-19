@@ -11,11 +11,6 @@ trait NestedRepositoryTrait
 {
     public function addNested(Collection $input)
     {
-//        if ($input->alias == 'tft-lcd')
-//        {
-//            Helper::show($input);
-//        }
-
         if (!InputHelper::null($input, 'parent_id'))
         {
             if (!InputHelper::null($input, 'ordering'))
@@ -79,7 +74,7 @@ trait NestedRepositoryTrait
         }
     }
 
-
+    // 用在檢查多語言相同 path 狀況
     public function findMultiLanguageItem($input)
     {
         $language = !InputHelper::null($input, 'language') ? $input->get('language') : config('global.locale');
@@ -130,103 +125,23 @@ trait NestedRepositoryTrait
 
     public function modifyNested(Collection $input)
     {
-//        $origin = $this->find($input->id);
-//        $parent = $this->find($input->parent_id);
-//
-//        if ($origin->parent_id != $input->parent_id)
-//        {
-//            // 修改同層的 ordering
-//            $origin_next_siblings = $origin->getNextSiblings();
-//            if (!$this->siblingsOrderingChange($origin_next_siblings, 'sub'))
-//            {
-//                return false;
-//            }
-//
-//            $selected = $this->findBy('id', '=', $input->parent_id)->first();
-//
-//            $input->forget('ordering');
-//            $input->put('ordering', $selected->children->count()+1);
-//
-//        }
-//        else
-//        {
-//
-//        }
+        $origin = $this->find($input->id);
+        $parent = $this->find($input->parent_id);
 
-
-
-        // 有更改parent
-        // 目前這部分有做在編輯頁面的可以選擇排序
-        $modified = $this->find($input->id);
-        $parent   = $this->find($input->parent_id);
-
-        // 有更改parent
-        if ($modified->parent_id != $input->parent_id)
+        if ($origin->parent_id != $input->parent_id)
         {
-            if (!InputHelper::null($input, 'ordering'))
+            // 修改同層的 ordering
+            $origin_next_siblings = $origin->getNextSiblings();
+            if (!$this->siblingsOrderingChange($origin_next_siblings, 'sub'))
             {
-                $selected = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->ordering])->first();
-                $modified->beforeNode($selected);
-                $modified->ordering = $input->ordering;
-                if (!$modified->save())
-                {
-                    return false;
-                }
+                return false;
+            }
 
-                $siblings = $modified->getNextSiblings();
-                if (!$this->siblingsOrderingChange($siblings, 'add'))
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                $last =  $parent->children()->get()->last();
-                $modified->afterNode($last);
-                $modified->ordering =  $last->ordering + 1;
-                if (!$modified->save())
-                {
-                    return false;
-                }
-            }
+            $parent->appendNode($origin);
+
+            $input->forget('ordering');
+            $input->put('ordering', $parent->children->count() + 1);
         }
-        else
-        {
-            // 有改 ordering
-            if (!InputHelper::null($input, 'ordering') && $input->get('ordering') != $modified->ordering) {
-                $selected            = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->get('ordering')])->first();
-                $origin_ordering     = $modified->ordering;
-                $modified->ordering  = $selected->ordering;
-                $interval_items = $this->findOrderingInterval($input->parent_id, $origin_ordering, $input->get('ordering'));
-
-                // node 向上移動
-                if ($input->ordering < $origin_ordering) {
-                    if (!$modified->beforeNode($selected)->save())
-                    {
-                        return false;
-                    }
-                    if (!$this->siblingsOrderingChange($interval_items, 'add'))
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (!$modified->afterNode($selected)->save())
-                    {
-                        return false;
-                    }
-
-                    if (!$this->siblingsOrderingChange($interval_items, 'minus'))
-                    {
-                        return false;
-                    }
-                }
-            }
-        }
-        // 防止錯誤修改到樹狀結構
-        $input->forget('parent_id');
-        $input->forget('ordering');
 
         return $modify = $this->update($input->toArray());
     }

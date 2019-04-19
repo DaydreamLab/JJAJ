@@ -431,7 +431,8 @@ class BaseService
         $input->put('loads', $this->loads);
 
         // 處理搜尋結果是否要分頁
-        $paginate = $input->get('paginate') === false ? false : true;
+        $paginate = $input->get('paginate') == false ? false : true;
+
         $input->forget('paginate');
 
         $items = $this->repo->search($input, $paginate);
