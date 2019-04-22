@@ -97,6 +97,7 @@ class ControllerCommand extends ControllerMakeCommand
         $stub  = str_replace('DummyStatePostRequest', $model.'StatePost', $stub);
         $stub  = str_replace('DummySearchPostRequest', $model.'SearchPost', $stub);
         $stub  = str_replace('DummyOrderingPostRequest', $model.'OrderingPost', $stub);
+        $stub  = str_replace('DummyCheckoutPostRequest', $model.'CheckoutPost', $stub);
 
         return $this;
     }

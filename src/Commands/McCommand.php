@@ -157,6 +157,12 @@ class McCommand extends Command
             '--featured'    => true,
         ]);
 
+        $this->call('jjaj:request', [
+            'name'      => $request_namespace.'CheckoutPost',
+            '--component'   => $component,
+            '--checkout'    => true,
+        ]);
+
         $this->call('jjaj:constant', ['name' => 'constants/'.Str::lower($type), '--model' => $name]);
 
         if ($this->option('front')) {
@@ -218,7 +224,14 @@ class McCommand extends Command
                 '--featured'    => true,
                 '--front'       => true,
             ]);
+            $this->call('jjaj:request', [
+                'name'          => $request_front_namespace.'FrontCheckoutPost',
+                '--component'   => $component,
+                '--checkout'    => true,
+                '--front'       => true,
+            ]);
         }
+
 
         if ($this->option('admin')) {
             $this->call('jjaj:controller', [
@@ -277,6 +290,13 @@ class McCommand extends Command
             $this->call('jjaj:request', [
                 'name'          => $request_admin_namespace.'AdminFeaturedPost',
                 '--featured'    => true,
+                '--component'   => $component,
+                '--admin'       => true,
+            ]);
+
+            $this->call('jjaj:request', [
+                'name'          => $request_admin_namespace.'AdminCheckoutPost',
+                '--checkout'    => true,
                 '--component'   => $component,
                 '--admin'       => true,
             ]);

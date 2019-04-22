@@ -11,6 +11,7 @@ use DummyPathRequest\Requests\DummyType\Front\DummyStorePostRequest;
 use DummyPathRequest\Requests\DummyType\Front\DummyStatePostRequest;
 use DummyPathRequest\Requests\DummyType\Front\DummySearchPostRequest;
 use DummyPathRequest\Requests\DummyType\Front\DummyOrderingPostRequest;
+use DummyPathRequest\Requests\DummyType\Front\DummyCheckoutPostRequest;
 
 
 class DummyClass extends BaseController
@@ -20,6 +21,15 @@ class DummyClass extends BaseController
         parent::__construct($service);
         $this->service = $service;
     }
+
+
+    public function checkout(DummyCheckoutPostRequest $request)
+    {
+        $this->service->checkout($request->rulesInput());
+
+        return ResponseHelper::response($this->service->status, $this->service->response);
+    }
+
 
 
     public function getItem($id)
@@ -45,13 +55,6 @@ class DummyClass extends BaseController
         return ResponseHelper::response($this->service->status, $this->service->response);
     }
 
-
-    public function checkout($id)
-    {
-        $this->service->checkout($id);
-
-        return ResponseHelper::response($this->service->status, $this->service->response);
-    }
 
 
     public function ordering(DummyOrderingPostRequest $request)

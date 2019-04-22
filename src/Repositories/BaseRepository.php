@@ -24,6 +24,8 @@ class BaseRepository implements BaseRepositoryInterface
 
     protected $ignore_keys = ['limit', 'order_by', 'order', 'state', 'search_keys'];
 
+    protected $infinity = 1000000;
+
     public function __construct(Model $model)
     {
         $this->model = $model;
@@ -287,11 +289,11 @@ class BaseRepository implements BaseRepositoryInterface
                         else
                         {
 
-                            if ($key == 'category_id')
-                            {
-                                $query = $query->whereIn('category_id', $item);
-                            }
-                            else
+//                            if ($key == 'category_id')
+//                            {
+//                                $query = $query->whereIn('category_id', $item);
+//                            }
+//                            else
                             {
                                 $query = $query->where("$key", '=', $item);
                             }
@@ -447,8 +449,8 @@ class BaseRepository implements BaseRepositoryInterface
 
         if ($this->isNested()) //重組出樹狀
         {
-            $items = $paginate ? $query->orderBy('_lft', $order)->paginate($limit)
-                                : $query->orderBy('_lft', $order)->get();
+            $query = $query->orderBy('_lft', $order);
+
         }
         else
         {
@@ -457,9 +459,18 @@ class BaseRepository implements BaseRepositoryInterface
             {
                 $query = $query->orderBy('publish_up', 'desc');
             }
+        }
 
+
+        if ($limit == 0)
+        {
+            $items = $paginate ? $query->paginate($this->infinity)
+                : $query->get();
+        }
+        else
+        {
             $items = $paginate ? $query->paginate($limit)
-                                : $query->get();
+                : $query->get();
         }
 
         return $items;
