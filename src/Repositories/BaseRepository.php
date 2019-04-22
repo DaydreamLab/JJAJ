@@ -4,10 +4,12 @@ namespace DaydreamLab\JJAJ\Repositories;
 
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
+use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
 use DaydreamLab\User\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
@@ -106,10 +108,12 @@ class BaseRepository implements BaseRepositoryInterface
          */
         $user = Auth::guard('api')->user();
 
-
         foreach ($input->ids as $id)
         {
             $item = $this->model->find($id);
+
+            if(!$item)  throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
+
             if ($item->locked_by == 0 || $item->locked_by == $user->id || $user->higherPermissionThan($item->locked_by))
             {
                 $item->locked_by = 0;
@@ -137,12 +141,10 @@ class BaseRepository implements BaseRepositoryInterface
         {
             $item = $this->model->find($id);
 
-            return $item ? $item->delete() : false;
+            if (!$item) throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
         }
-        else
-        {
-            return $model->delete();
-        }
+
+        return $model->delete();
     }
 
 
@@ -480,23 +482,20 @@ class BaseRepository implements BaseRepositoryInterface
     public function state($id, $state, $key = 'state')
     {
         $item = $this->find($id);
-        if ($item) {
-            $item->{$key} = $state;
-            return $item->save();
-        }
-        else {
-            return false;
-        }
+
+        if(!$item)  throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
+
+        $item->{$key} = $state;
+
+        return $item->save();
     }
 
 
     public function unlock($id)
     {
         $item = $this->find($id);
-        if (!$item)
-        {
-            return false;
-        }
+
+        if(!$item)  throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
 
         $item->lock_by = 0;
         $item->lock_at = null;

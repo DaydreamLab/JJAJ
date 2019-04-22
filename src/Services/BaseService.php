@@ -4,8 +4,10 @@ namespace DaydreamLab\JJAJ\Services;
 
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
+use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -86,6 +88,7 @@ class BaseService
     public function checkout(Collection $input)
     {
         $checkout = $this->repo->checkout($input);
+
         if ($checkout) {
             $this->status =  Str::upper(Str::snake($this->type.'CheckoutSuccess'));
             $this->response = null;
@@ -383,7 +386,8 @@ class BaseService
         {
             if ($this->repo->getModel()->hasAttribute('ordering'))
             {
-                $item   = $this->find($id);
+                $item   = $this->find($id);Helper:
+                if(!$item)  throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
                 $next_siblings = $this->repo->findDeleteSiblings($item->ordering);
                 $next_siblings->each(function ($item, $key) {
                     $item->ordering--;

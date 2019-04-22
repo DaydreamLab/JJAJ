@@ -10,8 +10,9 @@ class ResponseHelper
         $type = strtolower(explode('_', $status)[0]);
         $config = config('constants.'.$type.'.'.$status);
 
-        $config['data'] = $data;
+
         $config['status'] = $status;
+        $config['data'] = env('APP_DEBUG') ? $data : null;
 
         if (array_key_exists('message', (array)$data)) {
             $config['message'] = $data['message'];
