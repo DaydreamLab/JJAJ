@@ -47,12 +47,6 @@ class BaseModel extends Model
     }
 
 
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->timezone(env('TIMEZONE'))->toDateTimeString();
-    }
-
-
     public function getDepthAttribute()
     {
         return $this->ancestors->count();
@@ -68,12 +62,6 @@ class BaseModel extends Model
     public function getLockerAttribute()
     {
         return $this->locker();
-    }
-
-
-    public function getLockedAtAttribute($value)
-    {
-        return Carbon::parse($value)->timezone(env('TIMEZONE'))->toDateTimeString();
     }
 
 
@@ -124,12 +112,6 @@ class BaseModel extends Model
     {
         $updater = $this->updater();
         return $updater ? $updater->nickname : null;
-    }
-
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->timezone(env('TIMEZONE'))->toDateTimeString();
     }
 
 
