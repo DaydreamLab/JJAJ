@@ -15,7 +15,11 @@ class ListRequest extends BaseRequest
             'order'      => [
                 'nullable',
                 Rule::in(['asc', 'desc'])
-            ]
+            ],
+            'paginate'      => [
+                'nullable',
+                Rule::in([0,1])
+            ],
         ];
     }
 }
