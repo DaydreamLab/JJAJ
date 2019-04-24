@@ -28,10 +28,12 @@ class BaseRepository implements BaseRepositoryInterface
 
     protected $infinity = 1000000;
 
+
     public function __construct(Model $model)
     {
         $this->model = $model;
     }
+
 
     public function add(Collection $input)
     {
@@ -128,6 +130,7 @@ class BaseRepository implements BaseRepositoryInterface
 
         return true;
     }
+
 
     public function create($data)
     {
