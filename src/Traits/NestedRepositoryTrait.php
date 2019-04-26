@@ -147,10 +147,10 @@ trait NestedRepositoryTrait
     }
 
 
-    public function orderingNested(Collection $input, $orderingKey)
+    public function orderingNested(Collection $input)
     {
         $item   = $this->find($input->id);
-        $origin = $item->ordering;
+        $origin = $item->{$input->get('orderingKey')};
 
         $target_item    = $this->findTargetNode($item, $input->index_diff);
         $item->ordering = $target_item->ordering;
@@ -165,7 +165,7 @@ trait NestedRepositoryTrait
             {
                 if ($sibling->ordering > $origin && $sibling->ordering <= $item->ordering)
                 {
-                    $sibling->ordering --;
+                    $input->get('order') == 'asc' ? $sibling->ordering-- : $sibling->ordering++;
                     if (!$sibling->save()) return false;
                 }
             }

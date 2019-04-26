@@ -359,26 +359,28 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function ordering(Collection $input, $orderingKey)
+    public function ordering(Collection $input)
     {
-        $item   = $this->find($input->id);
-        $origin = $item->{$orderingKey};
+        $item           = $this->find($input->id);
+        $orderingKey    = $input->get('orderingKey');
+        $input_order    = $input->get('order');
+        $origin         = $item->{$orderingKey};
 
         $item->{$orderingKey} = $origin + $input->index_diff;
 
         if ($input->index_diff >= 0)
         {
             $update_items = $this->findByChain([$orderingKey, $orderingKey], ['>', '<='], [$origin, $origin + $input->index_diff]);
-            $result = $update_items->each(function ($item) use ($orderingKey) {
-                $item->{$orderingKey}--;
+            $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
+                $input_order == 'asc' ? $item->{$orderingKey}++ : $item->{$orderingKey}--;
                 return $item->save();
             });
         }
         else
         {
             $update_items = $this->findByChain([$orderingKey, $orderingKey], ['>=', '<'], [$origin + $input->index_diff, $origin]);
-            $result = $update_items->each(function ($item) use ($orderingKey){
-                $item->{$orderingKey}++;
+            $result = $update_items->each(function ($item) use ($orderingKey, $input_order){
+                $input_order == 'asc' ? $item->{$orderingKey}-- : $item->{$orderingKey}++;
                 return $item->save();
             });
         }

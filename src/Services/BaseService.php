@@ -329,16 +329,16 @@ class BaseService
     }
 
 
-    public function ordering(Collection $input, $orderingKey = 'ordering')
+    public function ordering(Collection $input)
     {
-        if ($input->has('orderingKey'))
+        if (!$input->has('orderingKey'))
         {
-            $orderingKey = $input->orderingKey;
+            $input->put('orderingKey', 'ordering');
         }
 
         if ($this->repo->isNested())
         {
-            $result = $this->repo->orderingNested($input, $orderingKey);
+            $result = $this->repo->orderingNested($input);
             if($result) {
                 $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingNestedSuccess'));
             }
@@ -347,7 +347,7 @@ class BaseService
             }
         }
         else {
-            $result = $this->repo->ordering($input, $orderingKey);
+            $result = $this->repo->ordering($input);
             if($result) {
                 $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingSuccess'));
             }
