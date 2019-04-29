@@ -439,7 +439,7 @@ class BaseService
         $paginate = $input->has('paginate') ? $input->get('paginate') : true;
 
         $input->forget('paginate');
-
+        Helper::show($input->toArray());
         $items = $this->repo->search($input, $paginate);
 
         $this->status   = Str::upper(Str::snake($this->type.'SearchSuccess'));
