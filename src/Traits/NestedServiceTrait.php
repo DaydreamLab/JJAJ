@@ -33,10 +33,16 @@ trait NestedServiceTrait
     {
         if($this->repo->getModel()->hasAttribute('path'))
         {
-            $same = $this->repo->findMultiLanguageItem($input);
+            $parent = $this->find($input->has('parent_id') ? $input->get('parent_id') : 1);
+
+            $copy = $input->toArray();
+            $copy['parent_path'] = $parent->path;
+
+            $same = $this->repo->findMultiLanguageItem(Helper::collect($copy));
 
             if ($same && $same->id != $input->get('id'))
             {
+                echo '有蟲戶';
                 $this->status =  Str::upper(Str::snake($this->type.'StoreNestedWithExistPath'));
                 $this->response = false;
                 return true;
@@ -102,7 +108,7 @@ trait NestedServiceTrait
     {
         $input = $this->setStoreDefaultInput($input);
 
-        $parent_id  = $input->get('parent_id') ?: 1;
+        $parent_id  = $input->has('parent_id') ?: 1;
         $parent     = $this->find($parent_id);
 
         if ($this->repo->getModel()->hasAttribute('path') && InputHelper::null($input, 'path'))

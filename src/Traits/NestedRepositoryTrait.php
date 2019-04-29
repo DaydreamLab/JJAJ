@@ -107,6 +107,35 @@ trait NestedRepositoryTrait
     }
 
 
+    public function findMultiLanguageNestedItem($input)
+    {
+        $language   = !InputHelper::null($input, 'language') ? $input->get('language') : config('global.locale');
+        $query      = $this->model;
+        $item_path  = $input->get('parent_path') . '/' . $input->get('alias');
+
+        if ($this->getModel()->hasAttribute('language'))
+        {
+            $query = $query->whereIn('language', ['*', $language]);
+        }
+
+        if ( $this->getModel()->hasAttribute('host'))
+        {
+            $query = $query->where('host', $input->get('host'));
+        }
+
+        if ( $this->getModel()->hasAttribute('path'))
+        {
+            $query = $query->where('path', $input->get('path'));
+        }
+        else
+        {
+            $query = $query->where('path', $item_path);
+        }
+
+        return $query->first();
+    }
+
+
     public function findTargetNode($node, $difference)
     {
         $origin_count   = ($node->descendants)->count() + 1;

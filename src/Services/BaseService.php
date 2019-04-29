@@ -456,7 +456,7 @@ class BaseService
             if (InputHelper::null($input, 'alias'))
             {
                 $encode = urlencode($input->title);
-                $alias = Str::random(36);
+                $alias = Str::random(8);
             }
             else
             {
