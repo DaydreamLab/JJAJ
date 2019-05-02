@@ -206,6 +206,33 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    public function getItemsFromLimitAndPaginate($query, $limit, $paginate)
+    {
+        if ((int)$limit == 0)
+        {
+            if ((int)$paginate)
+            {
+                return $query->paginate($this->infinity);
+            }
+            else
+            {
+                return $query->get();
+            }
+        }
+        else
+        {
+            if ((int)$paginate)
+            {
+                return $query->paginate($limit);
+            }
+            else
+            {
+                return $query->limit($limit)->get();
+            }
+        }
+    }
+
+
     public function getModel()
     {
         return $this->model;
