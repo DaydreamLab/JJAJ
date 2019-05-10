@@ -559,7 +559,7 @@ class BaseService
         }
 
         $delete_items = $this->findBy($mainKey, '=', $input->{$mainKey});
-        Helper::show($delete_items->toArray());
+
         if ($delete_items->count() > 0) {
             $data = [];
             foreach ($delete_items as $item) {
