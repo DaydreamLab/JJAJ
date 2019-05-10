@@ -45,6 +45,7 @@ class BaseService
         {
             //$this->viewlevels = $this->user->viewlevels;
             $this->access_ids = $this->user->access_ids;
+
         }
         else
         {
