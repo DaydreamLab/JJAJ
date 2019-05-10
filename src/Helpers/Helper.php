@@ -39,17 +39,18 @@ class Helper {
         return $collect;
     }
 
-    public static function tablePropertyExist($model, $property)
-    {
-        return Schema::hasColumn($model->getTable(), $property);
-    }
 
-    public static function hasPermission($item_viewlevel, $user_viewlevel)
-    {
-        $user_viewlevel = $user_viewlevel ? $user_viewlevel : [];
-        return count(array_intersect($item_viewlevel, $user_viewlevel)) === count($item_viewlevel) ? 1 : 0;
-    }
+//    public static function hasPermission($item_viewlevel, $user_viewlevel)
+//    {
+//        $user_viewlevel = $user_viewlevel ? $user_viewlevel : [];
+//        return count(array_intersect($item_viewlevel, $user_viewlevel)) === count($item_viewlevel) ? 1 : 0;
+//    }
 
+    public static function hasPermission($item_access, $user_access_ids)
+    {
+        $user_access_ids = $user_access_ids ? $user_access_ids : [];
+        return in_array($item_access, $user_access_ids);
+    }
 
 
     public static function startLog()

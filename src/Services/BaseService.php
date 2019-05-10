@@ -43,7 +43,7 @@ class BaseService
 
         if ($this->user)
         {
-            $this->viewlevels = $this->user->viewlevels;
+            //$this->viewlevels = $this->user->viewlevels;
             $this->access_ids = $this->user->access_ids;
         }
         else
@@ -299,6 +299,42 @@ class BaseService
         $this->response = $items;
 
         return $items;
+    }
+
+
+    public function hasPermission($item_access, $user_access_ids)
+    {
+        $user_access_ids = $user_access_ids ? $user_access_ids : [];
+        if(!in_array($item_access, $user_access_ids))
+        {
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'InsufficientPermission'))
+                )
+            );
+        }
+    }
+
+
+    public function checkLocked($item)
+    {
+        if ($item->locked_by && $item->locked_by != $this->user->id)
+        {
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'IsLocked')),
+                    (object) $this->user->only('email', 'full_name', 'nickname')
+                )
+            );
+        }
+        else
+        {
+            $item->locked_by = $this->user->id;
+            $item->locked_at = now();
+            $this->update($item, $item);
+            $this->response = $item;
+            return $item;
+        }
     }
 
     /**
