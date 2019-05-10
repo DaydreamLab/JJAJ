@@ -142,9 +142,9 @@ class BaseRepository implements BaseRepositoryInterface
     {
         if ($model === null)
         {
-            $item = $this->model->find($id);
+            $model = $this->model->find($id);
 
-            if (!$item) throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
+            if (!$model) throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
         }
 
         return $model->delete();
