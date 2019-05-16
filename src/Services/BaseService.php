@@ -508,10 +508,6 @@ class BaseService
             $input->put('access', 1);
         }
 
-        if ($this->repo->getModel()->hasAttribute('description') && !InputHelper::null($input, 'description'))
-        {
-            $input->put('description', nl2br($input->description));
-        }
 
         if ($this->repo->getModel()->hasAttribute('params') && InputHelper::null($input, 'params'))
         {
