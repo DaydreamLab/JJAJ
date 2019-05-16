@@ -508,6 +508,11 @@ class BaseService
             $input->put('access', 1);
         }
 
+        if ($this->repo->getModel()->hasAttribute('language') && InputHelper::null($input, 'language'))
+        {
+            $input->put('language', config('global.locale'));
+        }
+
 
         if ($this->repo->getModel()->hasAttribute('params') && InputHelper::null($input, 'params'))
         {
