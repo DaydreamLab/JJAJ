@@ -423,7 +423,7 @@ class BaseService
         {
             if ($this->repo->getModel()->hasAttribute('ordering'))
             {
-                $item   = $this->find($id);Helper:
+                $item   = $this->find($id);
                 if(!$item)  throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
                 $next_siblings = $this->repo->findDeleteSiblings($item->ordering);
                 $next_siblings->each(function ($item, $key) {
