@@ -31,13 +31,18 @@ class Ordering
      *
      * @return void
      */
-    public function __construct($type, $result, $input, $orderingKey, $user)
+    public function __construct($type, $result, $input, $user)
     {
         $this->user     = $user;
         $this->result   = $result ? 'success' : 'fail';
         $this->type     = $type;
         $this->item_id  = $input->id;
         $this->payload  = json_encode(['index_diff' => $input->index_diff]);
+
+        if ($input->has('orderingKey'))
+        {
+            $orderingKey = $input->get('orderingKey');
+        }
 
         if ($orderingKey == 'featured_ordering')
         {

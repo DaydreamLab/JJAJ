@@ -40,16 +40,46 @@ class Helper {
     }
 
 
-//    public static function hasPermission($item_viewlevel, $user_viewlevel)
-//    {
-//        $user_viewlevel = $user_viewlevel ? $user_viewlevel : [];
-//        return count(array_intersect($item_viewlevel, $user_viewlevel)) === count($item_viewlevel) ? 1 : 0;
-//    }
-
-    public static function hasPermission($item_access, $user_access_ids)
+    public static function setEnv($data = [])
     {
-        $user_access_ids = $user_access_ids ? $user_access_ids : [];
-        return in_array($item_access, $user_access_ids);
+        if (!count($data)) {
+            return;
+        }
+
+        $pattern = '/([^\=]*)\=[^\n]*/';
+
+        $envFile = base_path() . '/.env';
+        $lines = file($envFile);
+        $newLines = [];
+        $line_counter = 0;
+        foreach ($lines as $line) {
+            preg_match($pattern, $line, $matches);
+
+            if (!count($matches)) {
+                $newLines[] = $line;
+                $line_counter++;
+                continue;
+            }
+
+            if (!key_exists(trim($matches[1]), $data)) {
+                $newLines[] = $line;
+                $line_counter++;
+                continue;
+            }
+
+            $line = trim($matches[1]) . "={$data[trim($matches[1])]}\n";
+            unset($data[trim($matches[1])]);
+            $newLines[] = $line;
+        }
+
+        // 處理新增 key
+        foreach ($data as $key => $value)
+        {
+            $newLines[] = trim($key) . "={$value}\n";
+        }
+
+        $newContent = implode('', $newLines);
+        file_put_contents($envFile, $newContent);
     }
 
 

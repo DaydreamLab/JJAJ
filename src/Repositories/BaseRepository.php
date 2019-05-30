@@ -103,32 +103,23 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function checkout($input)
+    public function checkout($item)
     {
         /**
          * @var User $user
          */
         $user = Auth::guard('api')->user();
 
-        foreach ($input->ids as $id)
+        if ($item->locked_by == 0 || $item->locked_by == $user->id || $user->higherPermissionThan($item->locked_by))
         {
-            $item = $this->model->find($id);
-
-            if(!$item)  throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
-
-            if ($item->locked_by == 0 || $item->locked_by == $user->id || $user->higherPermissionThan($item->locked_by))
-            {
-                $item->locked_by = 0;
-                $item->locked_at = null;
-                return $this->update($item, $item);
-            }
-            else
-            {
-                return false;
-            }
+            $item->locked_by = 0;
+            $item->locked_at = null;
+            return $this->update($item, $item);
         }
-
-        return true;
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -368,23 +359,51 @@ class BaseRepository implements BaseRepositoryInterface
 
         if ($input_order == 'asc')
         {
-            if ($input->index_diff < 0 )
+            if ($this->model->hasAttribute('category_id'))
             {
-                $item->{$orderingKey} = $origin + $input->index_diff;
-                $update_items = $this->findByChain([$orderingKey, $orderingKey, 'category_id'], ['>=', '<', '='], [$item->{$orderingKey}, $origin , $item->category_id]);
-                $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
-                    $item->{$orderingKey}++;
-                    return $item->save();
-                });
+                if ($input->index_diff < 0 )
+                {
+                    $item->{$orderingKey} = $origin + $input->index_diff;
+                    $update_items = $this->findByChain([$orderingKey, $orderingKey, 'category_id'], ['>=', '<', '='], [$item->{$orderingKey}, $origin , $item->category_id]);
+                    if ($update_items->count() == 0) return false;
+                    $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
+                        $item->{$orderingKey}++;
+                        return $item->save();
+                    });
+                }
+                else
+                {
+                    $item->{$orderingKey} = $origin + $input->index_diff;
+                    $update_items = $this->findByChain([$orderingKey, $orderingKey, 'category_id'], ['>', '<=', '='], [$origin, $item->{$orderingKey}, $item->category_id]);
+                    if ($update_items->count() == 0) return false;
+                    $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
+                        $item->{$orderingKey}--;
+                        return $item->save();
+                    });
+                }
             }
             else
             {
-                $item->{$orderingKey} = $origin + $input->index_diff;
-                $update_items = $this->findByChain([$orderingKey, $orderingKey, 'category_id'], ['>', '<=', '='], [$origin, $item->{$orderingKey}, $item->category_id]);
-                $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
-                    $item->{$orderingKey}--;
-                    return $item->save();
-                });
+                if ($input->index_diff < 0 )
+                {
+                    $item->{$orderingKey} = $origin + $input->index_diff;
+                    $update_items = $this->findByChain([$orderingKey, $orderingKey], ['>=', '<'], [$item->{$orderingKey}, $origin]);
+                    if ($update_items->count() == 0) return false;
+                    $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
+                        $item->{$orderingKey}++;
+                        return $item->save();
+                    });
+                }
+                else
+                {
+                    $item->{$orderingKey} = $origin + $input->index_diff;
+                    $update_items = $this->findByChain([$orderingKey, $orderingKey], ['>', '<='], [$origin, $item->{$orderingKey}]);
+                    if ($update_items->count() == 0) return false;
+                    $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
+                        $item->{$orderingKey}--;
+                        return $item->save();
+                    });
+                }
             }
         }
         else
@@ -508,12 +527,8 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function state($id, $state, $key = 'state')
+    public function state($item, $state, $key = 'state')
     {
-        $item = $this->find($id);
-
-        if(!$item)  throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
-
         $item->{$key} = $state;
 
         return $item->save();

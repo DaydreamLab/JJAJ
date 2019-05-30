@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Services;
 
+use Carbon\Carbon;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
@@ -35,6 +36,10 @@ class BaseService
 
     protected $viewlevels;
 
+    protected $asset;
+
+    protected $except_model = ['UniqueVisitor', 'UniqueVisitorCounter', 'Log', 'FormFront'];
+
 
     public function __construct(BaseRepository $repo)
     {
@@ -43,7 +48,6 @@ class BaseService
 
         if ($this->user)
         {
-            //$this->viewlevels = $this->user->viewlevels;
             $this->access_ids = $this->user->access_ids;
 
         }
@@ -54,6 +58,48 @@ class BaseService
             $this->access_ids = config('cms.item.front.access_ids');
         }
     }
+
+
+    public function checkAction($item, $method, $diff = false)
+    {
+        if(env('SEEDING') || $item->title == 'ROOT') return true;
+
+        if (!$diff)
+        {
+            if (!$this->canAction($method))
+            {
+                throw new HttpResponseException(
+                    ResponseHelper::genResponse(
+                        Str::upper(Str::snake('UserInsufficientPermission')),
+                        ['model' => $this->type, 'methods' => $method]
+                    )
+                );
+            }
+        }
+        else
+        {
+            if (($item->created_by == $this->user->id && !$this->canAction($method.'Own')))
+            {
+                throw new HttpResponseException(
+                    ResponseHelper::genResponse(
+                        Str::upper(Str::snake('UserInsufficientPermission')),
+                        ['model' => $this->type, 'methods' => $method.'Own']
+                    )
+                );
+            }
+
+            if (($item->created_by != $this->user->id && !$this->canAction($method.'Other')))
+            {
+                throw new HttpResponseException(
+                    ResponseHelper::genResponse(
+                        Str::upper(Str::snake('UserInsufficientPermission')),
+                        ['model' => $this->type, 'methods' => $method.'Other']
+                    )
+                );
+            }
+        }
+    }
+
 
     /**
      * @return \Illuminate\Database\Eloquent\Collection|static[]
@@ -69,8 +115,15 @@ class BaseService
      */
     public function add(Collection $input)
     {
+        if (!in_array($this->type, $this->except_model))
+        {
+            $this->canAction('add');
+        }
+
         $model = $this->repo->add($input);
+
         if ($model) {
+            $model = $this->find($model->id);
             $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));
             $this->response = $model;
         }
@@ -82,23 +135,70 @@ class BaseService
         return $model;
     }
 
+
+    public function canAction(...$methods)
+    {
+        if ((in_array('add', $methods) || in_array('search', $methods)) && env('SEEDING')) return true;
+
+        foreach ($this->user->groups as $group)
+        {
+            if ($group->canAction($this->type, $methods))
+            {
+                return true;
+            }
+        }
+
+        throw new HttpResponseException(
+            ResponseHelper::genResponse(
+                Str::upper(Str::snake('UserInsufficientPermission')),
+                env('APP_ENV') == 'local' ? ['model' => $this->type, 'methods' => $methods] : null
+            )
+        );
+    }
+
+
+    public function canAccess($item_access, $user_access_ids)
+    {
+        if (env('SEEDING')) return true;
+        $user_access_ids = $user_access_ids ? $user_access_ids : [];
+        if(!in_array($item_access, $user_access_ids))
+        {
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake('UserInsufficientPermission')),
+                    'viewlevel insufficient'
+                )
+            );
+        }
+    }
+
+
     /**
      * @param Collection $input
      * @return bool
      */
-    public function checkout(Collection $input)
+    public function checkout(Collection $input, $diff = false)
     {
-        $checkout = $this->repo->checkout($input);
+        $result = false;
+        foreach ($input->get('ids') as $id)
+        {
+            $item  = $this->checkItem($id, $diff);
+            $this->checkAction($item, 'checkout');
 
-        if ($checkout) {
+            $result = $this->repo->checkout($item);
+
+            if (!$result) break;
+        }
+
+        if ($result) {
             $this->status =  Str::upper(Str::snake($this->type.'CheckoutSuccess'));
             $this->response = null;
         }
         else {
             $this->status =  Str::upper(Str::snake($this->type.'CheckoutFail'));
-            $this->response = null;
+            $this->response = ['id' => $id];
         }
-        return $checkout;
+        return $result;
     }
 
     /**
@@ -128,18 +228,58 @@ class BaseService
 
             if ($same && $same->id != $input->get('id'))
             {
-                $this->status =  Str::upper(Str::snake($this->type.'StoreWithExistAlias'));
-                $this->response = false;
-                return true;
+                throw new HttpResponseException(
+                    ResponseHelper::genResponse(
+                        Str::upper(Str::snake($this->type.'StoreWithExistAlias')),
+                        'Parent item not exist'
+                    )
+                );
             }
-        }
-        else
-        {
-            return false;
         }
 
         return false;
     }
+
+
+    public function checkItem($id, $diff = false)
+    {
+        $item  = $this->find($id);
+
+        if($item)
+        {
+            if ($item->hasAttribute('access'))
+            {
+                $this->canAccess($item->access, $this->access_ids);
+            }
+
+            $this->checkAction($item, 'get', $diff);
+        }
+        else
+        {
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'ItemNotExist')),
+                    ['id'=> $id]
+                )
+            );
+        }
+
+        return $item;
+    }
+
+    public function checkLocked($item)
+    {
+        if ($item->locked_by && $item->locked_by != $this->user->id && !$this->user->higherPermissionThan($item->locked_by))
+        {
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'IsLocked')),
+                    (object) $this->user->only('email', 'full_name', 'nickname')
+                )
+            );
+        }
+    }
+
 
     /**
      * @param array $data
@@ -231,18 +371,21 @@ class BaseService
      * @param $id
      * @return bool|BaseModel
      */
-    public function getItem($id)
+    public function getItem($id, $diff = false)
     {
-        $item = $this->find($id);
+        $item = $this->checkItem($id, $diff);
 
-        if($item) {
-            $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
-            $this->response = $item;
+        $this->checkLocked($item);
+
+        if ($this->getModel()->hasAttribute('locked_by'))
+        {
+            $item->locked_by = $this->user->id;
+            $item->locked_at = Carbon::now()->toDateTimeString();
+            $this->update($item, $item);
         }
-        else {
-            $this->status   = Str::upper(Str::snake($this->type.'GetItemFail'));
-            $this->response = null;
-        }
+
+        $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
+        $this->response = $item;
 
         return $item;
     }
@@ -273,7 +416,6 @@ class BaseService
     public function getItemByPath(Collection $input)
     {
         $item = $this->search($input)->first();
-
         if($item) {
             $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
             $this->response = $item;
@@ -303,41 +445,6 @@ class BaseService
     }
 
 
-    public function hasPermission($item_access, $user_access_ids)
-    {
-        $user_access_ids = $user_access_ids ? $user_access_ids : [];
-        if(!in_array($item_access, $user_access_ids))
-        {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type.'InsufficientPermission'))
-                )
-            );
-        }
-    }
-
-
-    public function checkLocked($item)
-    {
-        if ($item->locked_by && $item->locked_by != $this->user->id)
-        {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type.'IsLocked')),
-                    (object) $this->user->only('email', 'full_name', 'nickname')
-                )
-            );
-        }
-        else
-        {
-            $item->locked_by = $this->user->id;
-            $item->locked_at = now();
-            $this->update($item, $item);
-            $this->response = $item;
-            return $item;
-        }
-    }
-
     /**
      * @return BaseModel|\Illuminate\Database\Eloquent\Model
      */
@@ -350,9 +457,12 @@ class BaseService
      * @param Collection $input
      * @return bool
      */
-    public function modify(Collection $input)
+    public function modify(Collection $input, $diff)
     {
-        $update = $this->update($input->toArray());
+        $item = $this->checkItem($input->get('id'), $diff);
+        $this->checkAction($item, 'edit', $diff);
+
+        $update = $this->update($input->toArray(), $item);
         if ($update) {
             $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
             $this->response = null;
@@ -366,12 +476,15 @@ class BaseService
     }
 
 
-    public function ordering(Collection $input)
+    public function ordering(Collection $input, $diff = false)
     {
         if (!$input->has('orderingKey'))
         {
             $input->put('orderingKey', 'ordering');
         }
+
+        $item = $this->checkItem($input->get('id'), $diff);
+        $this->checkAction($item, 'edit', $diff);
 
         if ($this->repo->isNested())
         {
@@ -383,7 +496,8 @@ class BaseService
                 $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingNestedFail'));
             }
         }
-        else {
+        else
+        {
             $result = $this->repo->ordering($input);
             if($result) {
                 $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingSuccess'));
@@ -417,22 +531,14 @@ class BaseService
     }
 
 
-    public function remove(Collection $input)
+    public function remove(Collection $input, $diff = false)
     {
+        $result = false;
         foreach ($input->ids as $id)
         {
-            if ($this->repo->getModel()->hasAttribute('ordering'))
-            {
-                $item   = $this->find($id);
-                if(!$item)  throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
-                $next_siblings = $this->repo->findDeleteSiblings($item->ordering);
-                $next_siblings->each(function ($item, $key) {
-                    $item->ordering--;
-                    $item->save();
-                });
-            }
-
-            $result = $this->repo->delete($id);
+            $item = $this->checkItem($id, $diff);
+            $this->checkAction($item, 'delete', $diff);
+            $result = $this->repo->delete($item, $item);
             if (!$result)
             {
                 break;
@@ -454,6 +560,8 @@ class BaseService
      */
     public function search(Collection $input)
     {
+        $this->canAction('search');
+
         $special_queries = $input->get('special_queries') ?: [];
 
         if ($this->repo->getModel()->hasAttribute('access'))
@@ -513,7 +621,6 @@ class BaseService
             $input->put('language', config('global.locale'));
         }
 
-
         if ($this->repo->getModel()->hasAttribute('params') && InputHelper::null($input, 'params'))
         {
             $input->put('params', (object)[]);
@@ -528,14 +635,16 @@ class BaseService
     }
 
 
-    public function state(Collection $input)
+    public function state(Collection $input, $diff = false)
     {
         $result = false;
-        foreach ($input->ids as $key => $id) {
-            $result = $this->repo->state($id, $input->state);
-            if (!$result) {
-                break;
-            }
+        foreach ($input->get('ids') as $id)
+        {
+            $item  = $this->checkItem($id, $diff);
+            $this->checkAction($item, 'updateState', $diff);
+
+            $result = $this->repo->state($item, $input->state);
+            if (!$result) break;
         }
 
         if ($input->state == '1') {
@@ -551,23 +660,18 @@ class BaseService
             $action = 'Trash';
         }
 
-        if($result) {
-            $this->status =  Str::upper(Str::snake($this->type. $action . 'Success'));
-        }
-        else {
-            $this->status =  Str::upper(Str::snake($this->type. $action . 'Fail'));
-        }
+        $this->status = $result ? Str::upper(Str::snake($this->type. $action . 'Success'))
+            : Str::upper(Str::snake($this->type. $action . 'Fail'));
+
         return $result;
     }
 
 
-    public function store(Collection $input)
+    public function store(Collection $input, $diff = false)
     {
         $input = $this->setStoreDefaultInput($input);
-        if ($this->checkAliasExist($input))
-        {
-            return false;
-        }
+
+        $this->checkAliasExist($input);
 
         if (InputHelper::null($input, 'id')) {
             return $this->add($input);
@@ -576,7 +680,7 @@ class BaseService
             $input->put('locked_by', 0);
             $input->put('locked_at', null);
 
-            return $this->modify($input);
+            return $this->modify($input, $diff);
         }
     }
 

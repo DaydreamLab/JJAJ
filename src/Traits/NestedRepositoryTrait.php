@@ -5,7 +5,7 @@ namespace DaydreamLab\JJAJ\Traits;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
+
 
 trait NestedRepositoryTrait
 {
@@ -77,24 +77,30 @@ trait NestedRepositoryTrait
     // 用在檢查多語言相同 path 狀況
     public function findMultiLanguageItem($input)
     {
+        $language_options = ['*'];
         $language = !InputHelper::null($input, 'language') ? $input->get('language') : config('global.locale');
+        if ($language != '*')
+        {
+            $language_options[] = $language;
+        }
 
         $query = $this->model;
 
+        // table = menu
         if ( $this->getModel()->hasAttribute('host'))
         {
             $query = $query
-                ->where('path', $input->get('path'))
                 ->where('host', $input->get('host'))
-                ->whereIn('language', ['*', $language]);
+                ->whereIn('language', $language_options);
+            $query = !InputHelper::null($input, 'path') ? $query->where('path', $input->get('path')) : $query;
         }
         else
         {
             if ($this->getModel()->hasAttribute('language'))
             {
                 $query = $query
-                    ->where('path', $input->get('path'))
-                    ->whereIn('language', ['*', $language]);
+                    ->whereIn('language', $language_options);
+                $query = !InputHelper::null($input, 'path') ? $query->where('path', $input->get('path')) : $query;
             }
             else
             {
@@ -107,41 +113,14 @@ trait NestedRepositoryTrait
     }
 
 
-    public function findMultiLanguageNestedItem($input)
-    {
-        $language   = !InputHelper::null($input, 'language') ? $input->get('language') : config('global.locale');
-        $query      = $this->model;
-        $item_path  = $input->get('parent_path') . '/' . $input->get('alias');
-
-        if ($this->getModel()->hasAttribute('language'))
-        {
-            $query = $query->whereIn('language', ['*', $language]);
-        }
-
-        if ( $this->getModel()->hasAttribute('host'))
-        {
-            $query = $query->where('host', $input->get('host'));
-        }
-
-        if ( $this->getModel()->hasAttribute('path'))
-        {
-            $query = $query->where('path', $input->get('path'));
-        }
-        else
-        {
-            $query = $query->where('path', $item_path);
-        }
-
-        return $query->first();
-    }
-
-
     public function findTargetNode($node, $difference)
     {
-        $origin_count   = ($node->descendants)->count() + 1;
         $target         = $difference < 0 ? $node->getPrevSibling() : $node->getNextSibling();
-        $new_diff       = $difference < 0 ?  $difference + $origin_count : $difference - $origin_count;
-
+        $new_diff       = $difference < 0 ?  $difference + 1 : $difference - 1;
+        if (!$target)
+        {
+            return false;
+        }
         if ($new_diff!= 0)
         {
             return $this->findTargetNode($target, $new_diff);
@@ -152,39 +131,57 @@ trait NestedRepositoryTrait
     }
 
 
-    public function modifyNested(Collection $input)
+    public function modifyNested(Collection $input, $parent, $item)
     {
-        $origin = $this->find($input->id);
-        $parent = $this->find($input->parent_id);
-
-        if ($origin->parent_id != $input->parent_id)
+        // 如果更換了 parent
+        if ($item->parent_id != $parent->id)
         {
             // 修改同層的 ordering
-            $origin_next_siblings = $origin->getNextSiblings();
-            if (!$this->siblingsOrderingChange($origin_next_siblings, 'sub'))
+            $item_next_siblings = $item->getNextSiblings();
+            if (!$this->siblingsOrderingChange($item_next_siblings, 'sub'))
             {
                 return false;
             }
 
-            $parent->appendNode($origin);
+            $parent->appendNode($item);
 
             $input->forget('ordering');
-            $input->put('ordering', $parent->children->count() + 1);
+            $input->put('ordering', $parent->children->count());
         }
 
-        return $modify = $this->update($input->toArray());
+        return $modify = $this->update($input->toArray(), $item);
     }
 
 
     public function orderingNested(Collection $input)
     {
-        $item   = $this->find($input->id);
-        $origin = $item->{$input->get('orderingKey')};
+        $item           = $this->find($input->id);
+        $orderingKey    = $input->has('orderingKey') ? $input->get('orderingKey') : 'ordering';
+        $input_order    = $input->get('order');
+        $origin         = $item->{$orderingKey};
 
         $target_item    = $this->findTargetNode($item, $input->index_diff);
+        if (!$target_item) return false;
         $item->ordering = $target_item->ordering;
 
-        if ($input->index_diff >= 0)
+        if ($input->index_diff < 0)
+        {
+            if(!$item->beforeNode($target_item)->save()) {
+                return false;
+            }
+            $item = $this->find($item->id);
+            $siblings   = $item->getNextSiblings();
+
+            foreach ($siblings as $sibling)
+            {
+                if ($sibling->ordering >= $item->ordering && $sibling->ordering <= $origin)
+                {
+                    $input->get('order') == 'asc' ? $sibling->ordering++ : $sibling->ordering--;
+                    if (!$sibling->save()) return false;
+                }
+            }
+        }
+        else
         {
             if(!$item->afterNode($target_item)->save()) {
                 return false;
@@ -199,43 +196,21 @@ trait NestedRepositoryTrait
                 }
             }
         }
-        else
-        {
-            if(!$item->beforeNode($target_item)->save()) {
-                return false;
-            }
-            $siblings   = $item->getNextSiblings();
-            foreach ($siblings as $sibling)
-            {
-                if ($sibling->ordering >= $item->ordering && $sibling->ordering < $origin)
-                {
-                    $sibling->ordering ++;
-                    if (!$sibling->save()) return false;
-                }
-            }
-        }
 
         return true;
     }
 
 
-    public function removeNested(Collection $input)
+    public function removeNested($item)
     {
-        foreach ($input->ids as $id)
-        {
-            $item     = $this->find($id);
-            $siblings = $item->getNextSiblings();
-            $siblings->each(function ($item, $key) {
-                $item->ordering--;
-                $item->save();
-            });
+        $siblings = $item->getNextSiblings();
+        $siblings->each(function ($item, $key) {
+            $item->ordering--;
+            $item->save();
+        });
 
-            $result = $this->delete($id);
-            if (!$result)
-            {
-                break;
-            }
-        }
+        $result = $this->delete($item, $item);
+
         return $result;
     }
 
@@ -253,25 +228,6 @@ trait NestedRepositoryTrait
         }
 
         return true;
-    }
-
-
-    public function searchNested(Collection $input)
-    {
-        $limit      = !InputHelper::null($input, 'limit')    ? $input->limit    : $this->model->getLimit();
-
-        //add
-        $query      = $this->getQuery($input);
-        $query      = $query->where('title', '!=', 'ROOT');
-        $items      = $query->orderBy('_lft', 'asc')->get();
-        $paginate   = $this->paginate($items, $limit);
-
-//        $query      = $this->model->where('title', '!=', 'ROOT');
-//        $tree       = $query->orderBy('ordering', 'asc')->get()->toFlatTree();
-//        $copy       = new Collection($tree);
-//        $paginate   = $this->paginate($copy, $limit);
-
-        return $paginate;
     }
 
 }

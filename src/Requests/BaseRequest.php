@@ -30,7 +30,6 @@ class BaseRequest extends FormRequest
         else {
             throw new HttpResponseException(ResponseHelper::genResponse('INPUT_INVALID', null));
         }
-        throw new HttpResponseException();
     }
 
     public function rulesInput()
