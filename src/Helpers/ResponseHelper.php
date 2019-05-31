@@ -82,10 +82,15 @@ class ResponseHelper
                 $data->forget('statistics');
             }
             $temp = $data->toArray();
-            $response['items']      = array_values($temp['data']);
-            unset($temp['data']);
-            $response['pagination'] = $temp;
-            $response['records']    = count($data);
+
+            //$response['items']      = array_values($temp['data']);
+            $response['items']      = $temp['data']['data'];
+
+            unset($temp['data']['data']);
+
+            $response['pagination'] = $temp['data'];
+            //$response['records']    = count($data);
+            $response['records']    = count($response['items']);
         }
         elseif (get_class($data) == 'Kalnoy\Nestedset\Collection') {
             $temp = $data->toArray();

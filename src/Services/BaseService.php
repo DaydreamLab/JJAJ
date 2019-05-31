@@ -62,7 +62,7 @@ class BaseService
 
     public function checkAction($item, $method, $diff = false)
     {
-        if(env('SEEDING') || $item->title == 'ROOT') return true;
+        if(env('SEEDING')) return true;
 
         if (!$diff)
         {
@@ -139,6 +139,8 @@ class BaseService
     public function canAction(...$methods)
     {
         if ((in_array('add', $methods) || in_array('search', $methods)) && env('SEEDING')) return true;
+
+        if ($this->isSite()) return true;
 
         foreach ($this->user->groups as $group)
         {
@@ -402,7 +404,7 @@ class BaseService
             $this->response = $item;
         }
         else {
-            $this->status   = Str::upper(Str::snake($this->type.'GetItemFail'));
+            $this->status   = Str::upper(Str::snake($this->type.'ItemNotExist'));
             $this->response = null;
         }
 
@@ -452,6 +454,13 @@ class BaseService
     {
         return $this->repo->getModel();
     }
+
+
+    public function isSite()
+    {
+        return !strrpos($this->type, 'Admin');
+    }
+
 
     /**
      * @param Collection $input
