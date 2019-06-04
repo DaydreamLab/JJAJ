@@ -466,7 +466,7 @@ class BaseService
      * @param Collection $input
      * @return bool
      */
-    public function modify(Collection $input, $diff)
+    public function modify(Collection $input, $diff = false)
     {
         $item = $this->checkItem($input->get('id'), $diff);
         $this->checkAction($item, 'edit', $diff);
