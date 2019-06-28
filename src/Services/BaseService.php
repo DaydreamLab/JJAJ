@@ -8,6 +8,7 @@ use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
+use DaydreamLab\User\Models\User\User;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -49,7 +50,6 @@ class BaseService
         if ($this->user)
         {
             $this->access_ids = $this->user->access_ids;
-
         }
         else
         {
@@ -128,8 +128,11 @@ class BaseService
             $this->response = $model;
         }
         else {
-            $this->status =  Str::upper(Str::snake($this->type.'CreateFail'));
-            $this->response = null;
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'CreateFail'))
+                )
+            );
         }
 
         return $model;
@@ -197,8 +200,11 @@ class BaseService
             $this->response = null;
         }
         else {
-            $this->status =  Str::upper(Str::snake($this->type.'CheckoutFail'));
-            $this->response = ['id' => $id];
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'CheckoutFail'))
+                )
+            );
         }
         return $result;
     }
@@ -232,8 +238,7 @@ class BaseService
             {
                 throw new HttpResponseException(
                     ResponseHelper::genResponse(
-                        Str::upper(Str::snake($this->type.'StoreWithExistAlias')),
-                        'Parent item not exist'
+                        Str::upper(Str::snake($this->type.'StoreWithExistAlias'))
                     )
                 );
             }
@@ -379,12 +384,13 @@ class BaseService
 
         $this->checkLocked($item);
 
-        if ($this->getModel()->hasAttribute('locked_by'))
+        if ($item->hasAttribute('locked_by'))
         {
             $item->locked_by = $this->user->id;
             $item->locked_at = Carbon::now()->toDateTimeString();
-            $this->update($item, $item);
         }
+
+        $this->update($item, $item);
 
         $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
         $this->response = $item;
@@ -404,8 +410,11 @@ class BaseService
             $this->response = $item;
         }
         else {
-            $this->status   = Str::upper(Str::snake($this->type.'ItemNotExist'));
-            $this->response = null;
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'ItemNotExist'))
+                )
+            );
         }
 
         return $item;
@@ -423,8 +432,11 @@ class BaseService
             $this->response = $item;
         }
         else {
-            $this->status   = Str::upper(Str::snake($this->type.'GetItemFail'));
-            $this->response = null;
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'GetItemFail'))
+                )
+            );
         }
 
         return $item;
@@ -469,6 +481,7 @@ class BaseService
     public function modify(Collection $input, $diff = false)
     {
         $item = $this->checkItem($input->get('id'), $diff);
+
         $this->checkAction($item, 'edit', $diff);
 
         $update = $this->update($input->toArray(), $item);
@@ -477,8 +490,11 @@ class BaseService
             $this->response = null;
         }
         else {
-            $this->status = Str::upper(Str::snake($this->type.'UpdateFail'));
-            $this->response = null;
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'UpdateFail'))
+                )
+            );
         }
 
         return $update;
@@ -502,7 +518,11 @@ class BaseService
                 $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingNestedSuccess'));
             }
             else {
-                $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingNestedFail'));
+                throw new HttpResponseException(
+                    ResponseHelper::genResponse(
+                        Str::upper(Str::snake($this->type.'UpdateOrderingNestedFail'))
+                    )
+                );
             }
         }
         else
@@ -512,7 +532,11 @@ class BaseService
                 $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingSuccess'));
             }
             else {
-                $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingFail'));
+                throw new HttpResponseException(
+                    ResponseHelper::genResponse(
+                        Str::upper(Str::snake($this->type.'UpdateOrderingFail'))
+                    )
+                );
             }
         }
 
@@ -558,7 +582,11 @@ class BaseService
             $this->status =  Str::upper(Str::snake($this->type.'DeleteSuccess'));
         }
         else {
-            $this->status =  Str::upper(Str::snake($this->type.'DeleteFail'));
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'DeleteFail'))
+                )
+            );
         }
         return $result;
     }
@@ -686,8 +714,6 @@ class BaseService
             return $this->add($input);
         }
         else {
-            $input->put('locked_by', 0);
-            $input->put('locked_at', null);
 
             return $this->modify($input, $diff);
         }

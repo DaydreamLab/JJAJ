@@ -9,7 +9,7 @@ use Mockery;
 class BaseTest extends TestCase
 {
 
-    protected function setUp() : void
+    protected function setUp() :void
     {
         parent::setUp();
         //Artisan::call('jjaj:refresh');
