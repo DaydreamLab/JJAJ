@@ -84,11 +84,19 @@ class ResponseHelper
             $temp = $data->toArray();
 
             //$response['items']      = array_values($temp['data']);
-            $response['items']      = $temp['data']['data'];
+            if(isset($temp['data']['data']))
+            {
+                $response['items']      = $temp['data']['data'];
+                unset($temp['data']['data']);
+                $response['pagination'] = $temp['data'];
+            }
+            elseif (isset($temp['data']))
+            {
+                $response['items']      = $temp['data'];
+                unset($temp['data']);
+                $response['pagination'] = $temp;
+            }
 
-            unset($temp['data']['data']);
-
-            $response['pagination'] = $temp['data'];
             //$response['records']    = count($data);
             $response['records']    = count($response['items']);
         }

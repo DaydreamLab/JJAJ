@@ -3,6 +3,8 @@
 namespace DaydreamLab\JJAJ\Traits;
 
 
+use DaydreamLab\JJAJ\Helpers\Helper;
+
 trait HasCustomRelation
 {
     private static $custom_relations = [];

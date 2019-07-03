@@ -16,18 +16,21 @@ trait NestedServiceTrait
     public function addNested(Collection $input)
     {
         $this->canAction('add');
-
         $item = $this->repo->addNested($input);
         if ($item)
         {
+
             $item = $this->find($item->id);
             $this->status    = Str::upper(Str::snake($this->type.'CreateNestedSuccess'));
             $this->response  = $item;
         }
         else
         {
-            $this->status    = Str::upper(Str::snake($this->type.'CreateNestedFail'));
-            $this->response  = null;
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'CreateNestedFail'))
+                )
+            );
         }
         return $item;
     }
@@ -65,8 +68,11 @@ trait NestedServiceTrait
         }
         else
         {
-            $this->status   = Str::upper(Str::snake($this->type.'UpdateNestedFail'));
-            $this->response = null;
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'UpdateNestedFail'))
+                )
+            );
         }
 
         return $modify;
@@ -107,7 +113,11 @@ trait NestedServiceTrait
             $this->status =  Str::upper(Str::snake($this->type.'DeleteNestedSuccess'));
         }
         else{
-            $this->status =  Str::upper(Str::snake($this->type.'DeleteNestedFail'));
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'DeleteNestedFail'))
+                )
+            );
         }
 
         return $result;

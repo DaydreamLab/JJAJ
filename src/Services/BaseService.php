@@ -571,8 +571,9 @@ class BaseService
         {
             $item = $this->checkItem($id, $diff);
             $this->checkAction($item, 'delete', $diff);
+            $result_relations = $this->removeMapping($item);
             $result = $this->repo->delete($item, $item);
-            if (!$result)
+            if (!$result || !$result_relations)
             {
                 break;
             }
@@ -590,6 +591,13 @@ class BaseService
         }
         return $result;
     }
+
+
+    public function removeMapping($item)
+    {
+        return true;
+    }
+
 
     /**
      * @param Collection $input

@@ -341,17 +341,17 @@ return [
         'code'      => 200,
         'message'   => 'UcModel front get item success'
     ],
-    'DummyModel_GET_ITEM_FAIL' => [
+    'DummyModel_ITEM_NOT_EXIST' => [
         'code'      => 500,
-        'message'   => 'UcModel get item fail'
+        'message'   => 'UcModel item not exist'
     ],
-    'DummyModel_ADMIN_GET_ITEM_FAIL' => [
+    'DummyModel_ADMIN_ITEM_NOT_EXIST' => [
         'code'      => 500,
-        'message'   => 'UcModel admin get item fail'
+        'message'   => 'UcModel admin item not exist'
     ],
-    'DummyModel_FRONT_GET_ITEM_FAIL' => [
+    'DummyModel_FRONT_ITEM_NOT_EXIST' => [
         'code'      => 500,
-        'message'   => 'UcModel front get item fail'
+        'message'   => 'UcModel front item not exist'
     ],
 
     // Ordering

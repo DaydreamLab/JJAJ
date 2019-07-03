@@ -27,7 +27,7 @@ class DummyClass extends BaseService
     }
 
 
-    public function checkout(Collection $input)
+    public function checkout(Collection $input, $diff = false)
     {
         $result = parent::checkout($input);
 
@@ -37,7 +37,7 @@ class DummyClass extends BaseService
     }
 
 
-    public function modify(Collection $input)
+    public function modify(Collection $input, $diff = false)
     {
         $result =  parent::modify($input);
 
@@ -47,9 +47,9 @@ class DummyClass extends BaseService
     }
 
 
-    public function ordering(Collection $input, $orderingKey = 'ordering')
+    public function ordering(Collection $input, $diff = false)
     {
-        $result = parent::ordering($input, $orderingKey);
+        $result = parent::ordering($input, $diff);
 
         //event(new Ordering($this->model_name, $result, $input, $orderingKey, $this->user));
 
@@ -57,7 +57,7 @@ class DummyClass extends BaseService
     }
 
 
-    public function remove(Collection $input)
+    public function remove(Collection $input, $diff = false)
     {
         $result =  parent::remove($input);
 
@@ -67,7 +67,7 @@ class DummyClass extends BaseService
     }
 
 
-    public function state(Collection $input)
+    public function state(Collection $input, $diff = false)
     {
         $result = parent::state($input);
 

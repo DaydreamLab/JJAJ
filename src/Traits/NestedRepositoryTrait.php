@@ -4,7 +4,10 @@ namespace DaydreamLab\JJAJ\Traits;
 
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
+use DaydreamLab\JJAJ\Helpers\ResponseHelper;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 
 trait NestedRepositoryTrait
@@ -26,7 +29,7 @@ trait NestedRepositoryTrait
             }
             else
             {
-                $parent     = $this->find($input->parent_id);
+                $parent     = $this->find($input->get('parent_id'));
                 $last_child = $parent->children()->get()->last();
                 if ($last_child)
                 {
@@ -46,15 +49,33 @@ trait NestedRepositoryTrait
         }
         else
         {
-            if ($input->get('extension') != '')
+            if ($this->model->hasAttribute('extension'))
             {
-                $parent = $this->findByChain(['title', 'extension'],['=', '='],['ROOT', $input->get('extension')])->first();
+                if($input->get('extension') != '')
+                {
+                    $parent = $this->findByChain(['title', 'extension'],['=', '='],['ROOT', $input->get('extension')])->first();
+                }
+                else
+                {
+                    $parent = $this->find(1);
+                }
             }
             else
             {
-                $parent = $this->find(1);
+                // 這邊是拿來擴充 nestedSet 的(例如：Dddream 的 product category)
+                if ($this->model->hasAttribute('merchant_id'))
+                {
+                    $parent = $this->find($input->get('parent_id'));
+                    if(!$parent)
+                    {
+                        return $this->create($input->toArray());
+                    }
+                }
+                else
+                {
+                    // to-do
+                }
             }
-
 
             $children =  $parent->children()->get();
 
