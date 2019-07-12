@@ -47,7 +47,7 @@ class BaseRepository implements BaseRepositoryInterface
             }
 
             // get last data collection
-            $data = $query->orderBy('ordering', 'desc')->limit(1)->get();
+            $data = $this->getLatestOrdering($input);
             if ($data->count())
             {
                 $last       = $data->first();
@@ -171,9 +171,9 @@ class BaseRepository implements BaseRepositoryInterface
 
 
     // 取出所有欲刪除之 item 後的所有 items
-    public function findDeleteSiblings($ordering)
+    public function findDeleteSiblings($ordering, BaseModel $model)
     {
-        return $this->findBy('ordering', '>', $ordering);
+        return $this->model->where('ordering', '>', $ordering)->get();
     }
 
 
@@ -194,6 +194,12 @@ class BaseRepository implements BaseRepositoryInterface
     public function fixTree()
     {
         $this->model->fixTree();
+    }
+
+
+    public function getLatestOrdering(Collection $input)
+    {
+        return $this->model->orderBy('ordering', 'desc')->limit(1)->get();
     }
 
 

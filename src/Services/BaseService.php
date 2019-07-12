@@ -572,6 +572,18 @@ class BaseService
             $item = $this->checkItem($id, $diff);
             $this->checkAction($item, 'delete', $diff);
             $result_relations = $this->removeMapping($item);
+
+            // 若有排序的欄位則要調整 ordering 大於刪除項目的值
+            if ($this->repo->getModel()->hasAttribute('ordering'))
+            {
+                $delete_siblings = $this->repo->findDeleteSiblings($item->ordering, $item);
+                foreach ($delete_siblings as $delete_sibling)
+                {
+                    $delete_sibling->ordering--;
+                    $this->update($delete_sibling, $delete_sibling);
+                }
+            }
+
             $result = $this->repo->delete($item, $item);
             if (!$result || !$result_relations)
             {
