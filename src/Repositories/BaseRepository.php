@@ -14,6 +14,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Closure;
 
 
 class BaseRepository implements BaseRepositoryInterface
@@ -572,6 +573,12 @@ class BaseRepository implements BaseRepositoryInterface
         {
             return $this->model->find($item['id'])->update($item);
         }
+    }
+
+
+    public function whereHas($relation, Closure $closure)
+    {
+        return $this->model->whereHas($relation, $closure);
     }
 
 

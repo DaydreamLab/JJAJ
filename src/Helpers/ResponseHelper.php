@@ -63,7 +63,8 @@ class ResponseHelper
         elseif(gettype($data) === 'boolean') {
             return null;
         }
-        elseif (get_class($data) == 'Illuminate\Database\Eloquent\Collection' || get_class($data) == 'Illuminate\Support\Collection') {
+        elseif (get_class($data) == 'Illuminate\Database\Eloquent\Collection' ||
+            get_class($data) == 'Illuminate\Support\Collection' ) {
 
             if ($data->has('statistics')) {
                 $response['statistics'] = $data->get('statistics');
@@ -110,6 +111,11 @@ class ResponseHelper
             $items = $temp;
             $response['items']      = $items;
             $response['records']    = count($items);
+        }
+        elseif (get_class($data->collection) == 'Illuminate\Support\Collection')
+        {
+            $response['items'] = $data;
+            $response['records'] = $data->collection->count();
         }
         elseif (get_class($data) == 'Juampi92\CursorPagination\CursorPaginator') {
             $orgDataArray = $data->toArray();

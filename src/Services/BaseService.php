@@ -485,6 +485,7 @@ class BaseService
         $this->checkAction($item, 'edit', $diff);
 
         $update = $this->update($input->toArray(), $item);
+
         if ($update) {
             $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
             $this->response = null;
@@ -658,7 +659,7 @@ class BaseService
             if (InputHelper::null($input, 'alias'))
             {
                 $encode = urlencode($input->title);
-                $alias = Str::random(8);
+                $alias = Str::lower(Str::random(20));
             }
             else
             {
@@ -734,7 +735,6 @@ class BaseService
             return $this->add($input);
         }
         else {
-
             return $this->modify($input, $diff);
         }
     }
