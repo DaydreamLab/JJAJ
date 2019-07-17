@@ -6,7 +6,7 @@ namespace DaydreamLab\JJAJ\Helpers;
 class ResponseHelper
 {
     public static function genResponse($status, $data = null)
-    {   //Helper::show($data);
+    {
         $type = strtolower(explode('_', $status)[0]);
         $config = config('constants.'.$type.'.'.$status);
 
@@ -112,7 +112,7 @@ class ResponseHelper
             $response['items']      = $items;
             $response['records']    = count($items);
         }
-        elseif (get_class($data->collection) == 'Illuminate\Support\Collection')
+        elseif (gettype($data) == 'object' && isset($data->collection) && get_class($data->collection) == 'Illuminate\Support\Collection')
         {
             $response['items'] = $data;
             $response['records'] = $data->collection->count();
