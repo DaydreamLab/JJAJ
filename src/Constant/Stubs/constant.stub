@@ -342,15 +342,15 @@ return [
         'message'   => 'UcModel front get item success'
     ],
     'DummyModel_ITEM_NOT_EXIST' => [
-        'code'      => 500,
+        'code'      => 404,
         'message'   => 'UcModel item not exist'
     ],
     'DummyModel_ADMIN_ITEM_NOT_EXIST' => [
-        'code'      => 500,
+        'code'      => 404,
         'message'   => 'UcModel admin item not exist'
     ],
     'DummyModel_FRONT_ITEM_NOT_EXIST' => [
-        'code'      => 500,
+        'code'      => 404,
         'message'   => 'UcModel front item not exist'
     ],
 

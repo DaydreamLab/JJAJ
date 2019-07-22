@@ -2,9 +2,10 @@
 
 namespace DaydreamLab\JJAJ\Rules;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Contracts\Validation\Rule;
 
-class TaiwanMobilePhone extends BaseRule implements Rule
+class TaiwanTaxSerialNumber extends BaseRule implements Rule
 {
 
     /**
@@ -26,7 +27,12 @@ class TaiwanMobilePhone extends BaseRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        return preg_match("/^09[0-9]{8}$/", $value);
+        if(!preg_match("/^[0-9]{8}[a-zA-Z]{2}$/", $value))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -36,6 +42,6 @@ class TaiwanMobilePhone extends BaseRule implements Rule
      */
     public function message()
     {
-        return 'The :attribute must be taiwan mobile phone.';
+        return 'The taiwan tax serial number id not valid.';
     }
 }

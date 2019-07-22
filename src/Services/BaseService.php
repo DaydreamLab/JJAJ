@@ -487,6 +487,7 @@ class BaseService
         $update = $this->update($input->toArray(), $item);
 
         if ($update) {
+
             $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
             $this->response = null;
         }
