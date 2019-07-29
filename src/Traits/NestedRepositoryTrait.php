@@ -73,7 +73,7 @@ trait NestedRepositoryTrait
                 }
                 else
                 {
-                    // to-do
+                    $parent = $this->findBy('title', '=', 'ROOT')->first();
                 }
             }
 

@@ -404,8 +404,12 @@ class BaseService
         $item = $this->search($input)->first();
 
         if($item) {
-            $item->hits++;
-            $this->update($item, $item);
+            if($item->hasAttribute('hits'))
+            {
+                $item->hits++;
+                $this->update($item, $item);
+            }
+
             $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
             $this->response = $item;
         }
@@ -797,7 +801,16 @@ class BaseService
 
     public function update($data, $model = null)
     {
-        return $this->repo->update($data, $model);
+        if(!$this->repo->update($data, $model))
+        {
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type . 'UpdateFail'))
+                )
+            );
+        }
+
+        return true;
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Traits;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Support\Facades\Auth;
 
 trait RecordChanger

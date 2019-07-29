@@ -2,7 +2,6 @@
 
 namespace DaydreamLab\JJAJ\Traits;
 
-
 use DaydreamLab\JJAJ\Helpers\Helper;
 
 trait HasCustomRelation
@@ -21,7 +20,6 @@ trait HasCustomRelation
     }
 
 
-
     public function __get($name)
     {
         if (static::hasCustomRelation($name))
@@ -35,7 +33,6 @@ trait HasCustomRelation
 
         return parent::__get($name);
     }
-
 
 
     public static function addCustomRelation($name, $closure)
