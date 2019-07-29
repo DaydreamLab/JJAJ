@@ -46,12 +46,26 @@ class ResponseHelper
         }
 
         if (gettype($data) == 'array' ) {
-            $response['items']      = $data;
+
+            if(array_key_exists('data', $data))
+            {
+                $response['items']      = $data['data'];
+            }
+            else
+            {
+                $response['items']      = $data;
+            }
+
             if (array_key_exists('pagination', $data)) {
                 $response['records']    = count($data['data']);
             }
             else {
                 $response['records']    = count($data);
+            }
+
+            if(array_key_exists('filter', $data))
+            {
+                $response['filter']    = $data['filter'];
             }
         }
         elseif(gettype($data) == 'string') {
