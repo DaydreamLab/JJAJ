@@ -57,6 +57,7 @@ class ResponseHelper
             }
 
             if (array_key_exists('pagination', $data)) {
+                $response['pagination'] = $data['pagination'];
                 $response['records']    = count($data['data']);
             }
             else {
