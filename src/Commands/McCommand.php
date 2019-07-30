@@ -95,6 +95,7 @@ class McCommand extends Command
             if (!File::exists('database/migrations/'.$component)) {
                 File::makeDirectory('database/migrations/'.$component);
             }
+
             $this->call('jjaj:migration', [
                 'name'          => 'create_'.$table.'_table',
                 '--path'        => 'database/migrations/'.$component,
