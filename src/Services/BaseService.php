@@ -553,7 +553,6 @@ class BaseService
     public function paginationFormat($items)
     {
         $data = [];
-
         if (array_key_exists('data', $items))
         {
             $data['data'] = $items['data'];
