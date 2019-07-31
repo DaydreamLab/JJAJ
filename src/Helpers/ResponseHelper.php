@@ -12,7 +12,7 @@ class ResponseHelper
 
 
         $config['status'] = $status;
-        $config['data'] = env('APP_DEBUG') ? $data : null;
+        $config['data'] = $data;
 
         if (array_key_exists('message', (array)$data)) {
             $config['message'] = $data['message'];
