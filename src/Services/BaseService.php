@@ -187,7 +187,7 @@ class BaseService
         $result = false;
         foreach ($input->get('ids') as $id)
         {
-            $item  = $this->checkItem($id, $diff);
+            $item  = $this->find($id, true);
             $this->checkAction($item, 'checkout');
 
             $result = $this->repo->checkout($item);
