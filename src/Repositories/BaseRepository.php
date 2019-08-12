@@ -291,7 +291,6 @@ class BaseRepository implements BaseRepositoryInterface
                         }
                         else
                         {
-
 //                            if ($key == 'category_id')
 //                            {
 //                                $query = $query->whereIn('category_id', $item);
@@ -563,7 +562,10 @@ class BaseRepository implements BaseRepositoryInterface
             {
                 foreach ($item as $key => $value)
                 {
-                    $model->{$key} = $value;
+                    if($model->hasAttribute($key))
+                    {
+                        $model->{$key} = $value;
+                    }
                 }
             }
 

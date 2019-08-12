@@ -121,8 +121,8 @@ class BaseService
         }
 
         $model = $this->repo->add($input);
-
         if ($model) {
+            $this->addMapping($model, $input);
             $model = $this->find($model->id);
             $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));
             $this->response = $model;
@@ -136,6 +136,12 @@ class BaseService
         }
 
         return $model;
+    }
+
+
+    public function addMapping($item, $input)
+    {
+        return true;
     }
 
 
@@ -492,6 +498,7 @@ class BaseService
 
         if ($update) {
 
+            $this->modifyMapping($item, $input);
             $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
             $this->response = null;
         }
@@ -504,6 +511,12 @@ class BaseService
         }
 
         return $update;
+    }
+
+
+    public function modifyMapping($item, $input)
+    {
+        return true;
     }
 
 
@@ -572,7 +585,7 @@ class BaseService
     public function remove(Collection $input, $diff = false)
     {
         $result = false;
-        foreach ($input->ids as $id)
+        foreach ($input->get('ids') as $id)
         {
             $item = $this->checkItem($id, $diff);
             $this->checkAction($item, 'delete', $diff);
@@ -662,7 +675,7 @@ class BaseService
         {
             if (InputHelper::null($input, 'alias'))
             {
-                $encode = urlencode($input->title);
+                $encode = urlencode($input->get('title'));
                 $alias = Str::lower(Str::random(20));
             }
             else
