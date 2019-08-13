@@ -3,6 +3,8 @@
 namespace DaydreamLab\JJAJ\Helpers;
 
 
+use Illuminate\Support\Str;
+
 class ResponseHelper
 {
     public static function genResponse($status, $data = null)
@@ -80,7 +82,6 @@ class ResponseHelper
         }
         elseif (get_class($data) == 'Illuminate\Database\Eloquent\Collection' ||
             get_class($data) == 'Illuminate\Support\Collection' ) {
-
             if ($data->has('statistics')) {
                 $response['statistics'] = $data->get('statistics');
                 $data->forget('statistics');
@@ -127,6 +128,13 @@ class ResponseHelper
             $response['items']      = $items;
             $response['records']    = count($items);
         }
+        elseif(Str::contains(get_class($data),'ResourceCollection')) {
+            $temp = $data->resource->toArray();
+            $response['items']      = $temp['data'];
+            unset($temp['data']);
+            $response['pagination'] = $temp;
+            return $response;
+        }
         elseif (gettype($data) == 'object' && isset($data->collection) && get_class($data->collection) == 'Illuminate\Support\Collection')
         {
             $response['items'] = $data;
@@ -149,6 +157,7 @@ class ResponseHelper
             $response['records']    = $data_count;
         }
         else {
+
             $response['items']      = $data;
             $response['records']    = 1;
         }
