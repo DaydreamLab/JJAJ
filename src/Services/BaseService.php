@@ -123,7 +123,6 @@ class BaseService
         $model = $this->repo->add($input);
         if ($model) {
             $this->addMapping($model, $input);
-            $model = $this->find($model->id);
             $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));
             $this->response = $model;
         }
@@ -460,7 +459,7 @@ class BaseService
      */
     public function getList()
     {
-        $items = $this->all();
+        $items = $this->repo->all();
 
         $this->status   = Str::upper(Str::snake($this->type.'GetListSuccess'));
         $this->response = $items;

@@ -72,10 +72,12 @@ class ResponseHelper
             }
         }
         elseif(gettype($data) == 'string') {
-            $response['items']      = $data;
-            //$response['items']      = null;
-            $response['message']    = $data;
-            $response['records']    = count([$data]);
+            /** 不可刪除此區 */
+//            $response['items']      = $data;
+//            $response['message']    = $data;
+//            $response['records']    = count([$data]);
+
+            $response = $data;
         }
         elseif(gettype($data) === 'boolean') {
             return null;
@@ -130,9 +132,17 @@ class ResponseHelper
         }
         elseif(Str::contains(get_class($data),'ResourceCollection')) {
             $temp = $data->resource->toArray();
-            $response['items']      = $temp['data'];
-            unset($temp['data']);
-            $response['pagination'] = $temp;
+            if(array_key_exists('data', $temp))
+            {
+                $response['items']      = $temp['data'];
+                unset($temp['data']);
+                $response['pagination'] = $temp;
+            }
+            else
+            {
+                $response['items']      = $temp;
+            }
+
             return $response;
         }
         elseif (gettype($data) == 'object' && isset($data->collection) && get_class($data->collection) == 'Illuminate\Support\Collection')
