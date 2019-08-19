@@ -745,6 +745,23 @@ class BaseService
     {
         $input = $this->setStoreDefaultInput($input);
 
+        if($input->has('extrafields')){
+            $extrafields = $input->get('extrafields');
+            $extrafields_data = [];
+            foreach ($extrafields as $extrafield) {
+                $temp = [];
+                $temp['id'] = $extrafield['id'];
+                $temp['value'] = $extrafield['value'];
+                if(isset($extrafield['params'])) {
+                    $temp['params'] = $extrafield['params'];
+                } else {
+                  $temp['params'] = [];
+                }
+                $extrafields_data[] = $temp;
+            }
+            $input->put('extrafields', $extrafields_data);
+        }
+
         $this->checkAliasExist($input);
 
         if (InputHelper::null($input, 'id')) {
