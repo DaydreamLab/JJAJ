@@ -3,6 +3,7 @@
 namespace DaydreamLab\JJAJ\Helpers;
 
 
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
 
 class ResponseHelper
@@ -174,6 +175,7 @@ class ResponseHelper
 
         return $response;
     }
+
 
     public static function response($status, $responseData)
     {

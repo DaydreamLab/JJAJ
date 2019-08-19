@@ -457,7 +457,7 @@ class BaseService
      * @param $value
      * @return Collection
      */
-    public function getList()
+    public function getList(Collection $input)
     {
         $items = $this->repo->all();
 
