@@ -477,6 +477,7 @@ class BaseService
     }
 
 
+
     public function isSite()
     {
         return !strrpos($this->type, 'Admin');
