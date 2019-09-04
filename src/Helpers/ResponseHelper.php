@@ -49,7 +49,6 @@ class ResponseHelper
         }
 
         if (gettype($data) == 'array' ) {
-
             if(array_key_exists('data', $data))
             {
                 $response['items']      = $data['data'];

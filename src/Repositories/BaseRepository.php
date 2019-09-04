@@ -478,7 +478,7 @@ class BaseRepository implements BaseRepositoryInterface
         $order_by   = InputHelper::getCollectionKey($input, 'order_by', $this->model->getOrderBy());
         $limit      = (int)InputHelper::getCollectionKey($input, 'limit', $this->model->getLimit());
         $order      = InputHelper::getCollectionKey($input, 'order', $this->model->getOrder());
-        $state      = (int)InputHelper::getCollectionKey($input, 'state', [0,1]);
+        $state      = InputHelper::getCollectionKey($input, 'state', [0,1]);
         $language   = InputHelper::getCollectionKey($input, 'language', '') ;
 
         $query = $this->getQuery($input);
