@@ -556,11 +556,6 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function update($item, $model = null)
     {
-        if($model->hasAttribute('locked_by'))
-        {
-            $item['locked_by'] = 0;
-            $item['locked_at'] = null;
-        }
         if ($model !== null)
         {
             if ($item != $model)

@@ -391,16 +391,17 @@ class BaseService
 
         if ($item->hasAttribute('locked_by'))
         {
-            $item->locked_by = $this->user->id;
-            $item->locked_at = Carbon::now()->toDateTimeString();
+            $data = [
+                'locked_by' => $this->user->id,
+                'locked_at' => Carbon::now()->toDateTimeString()
+            ];
+            $this->update($data, $item);
         }
 
-        $this->update($item, $item);
-
         $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
-        $this->response = $item;
+        $this->response = $item->refresh();
 
-        return $item;
+        return $this->response;
     }
 
 
