@@ -26,12 +26,9 @@ trait NestedServiceTrait
         }
         else
         {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type.'CreateNestedFail'))
-                )
-            );
+            $this->throwResponse($this->type.'CreateNestedFail');
         }
+
         return $item;
     }
 
@@ -45,12 +42,7 @@ trait NestedServiceTrait
             $same = $this->repo->findMultiLanguageItem(Helper::collect($copy));
             if ($same && $same->id != $input->get('id'))
             {
-                throw new HttpResponseException(
-                    ResponseHelper::genResponse(
-                        Str::upper(Str::snake($this->type.'StoreNestedWithExistPath')),
-                        ['path' => $input->get('path')]
-                    )
-                );
+                $this->throwResponse($this->type.'StoreNestedWithExistPath',  ['path' => $input->get('path')]);
             }
         }
 
@@ -68,11 +60,7 @@ trait NestedServiceTrait
         }
         else
         {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type.'UpdateNestedFail'))
-                )
-            );
+            $this->throwResponse($this->type.'UpdateNestedFail');
         }
 
         return $modify;
@@ -113,11 +101,7 @@ trait NestedServiceTrait
             $this->status =  Str::upper(Str::snake($this->type.'DeleteNestedSuccess'));
         }
         else{
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type.'DeleteNestedFail'))
-                )
-            );
+            $this->throwResponse($this->type.'DeleteNestedFail');
         }
 
         return $result;

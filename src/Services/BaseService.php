@@ -70,6 +70,7 @@ class BaseService
         {
             if (!$this->canAction($method))
             {
+
                 throw new HttpResponseException(
                     ResponseHelper::genResponse(
                         Str::upper(Str::snake('UserInsufficientPermission')),
@@ -117,8 +118,7 @@ class BaseService
      */
     public function add(Collection $input)
     {
-        if (!in_array($this->type, $this->except_model))
-        {
+        if (!in_array($this->type, $this->except_model)) {
             $this->canAction('add');
         }
 
@@ -129,11 +129,7 @@ class BaseService
             $this->response = $model;
         }
         else {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type.'CreateFail'))
-                )
-            );
+            $this->throwResponse($this->type.'CreateFail');
         }
 
         return $model;
@@ -146,26 +142,22 @@ class BaseService
     }
 
 
-    public function canAction(...$methods)
+    public function canAction($method)
     {
-        if ((in_array('add', $methods) || in_array('search', $methods)) && env('SEEDING')) return true;
+        //if ((in_array('add', $method) || in_array('search', $method)) && env('SEEDING')) return true;
 
-        if ($this->isSite()) return true;
+        if ($this->isSite() || env('SEEDING')) return true;
 
         foreach ($this->user->groups as $group)
         {
-            if ($group->canAction($this->type, $methods))
+            if ($group->canAction($this->type, $method))
             {
                 return true;
             }
         }
 
-        throw new HttpResponseException(
-            ResponseHelper::genResponse(
-                Str::upper(Str::snake('UserInsufficientPermission')),
-                env('APP_ENV') == 'local' ? ['model' => $this->type, 'methods' => $methods] : null
-            )
-        );
+        $this->throwResponse('UserInsufficientPermission',
+            env('APP_ENV') == 'local' ? ['model' => $this->type, 'methods' => $method] : null);
     }
 
 
@@ -175,13 +167,10 @@ class BaseService
         $user_access_ids = $user_access_ids ? $user_access_ids : [];
         if(!in_array($item_access, $user_access_ids))
         {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake('UserInsufficientPermission')),
-                    'viewlevel insufficient'
-                )
-            );
+            $this->throwResponse('UserInsufficientPermission', 'viewlevel insufficient');
         }
+
+        return true;
     }
 
 
@@ -207,12 +196,9 @@ class BaseService
             $this->response = null;
         }
         else {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type.'CheckoutFail'))
-                )
-            );
+            $this->throwResponse($this->type.'CheckoutFail');
         }
+
         return $result;
     }
 
@@ -243,11 +229,7 @@ class BaseService
 
             if ($same && $same->id != $input->get('id'))
             {
-                throw new HttpResponseException(
-                    ResponseHelper::genResponse(
-                        Str::upper(Str::snake($this->type.'StoreWithExistAlias'))
-                    )
-                );
+                $this->throwResponse($this->type.'StoreWithExistAlias');
             }
         }
 
@@ -270,12 +252,7 @@ class BaseService
         }
         else
         {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type.'ItemNotExist')),
-                    ['id'=> $id]
-                )
-            );
+            $this->throwResponse($this->type.'ItemNotExist', ['id' => $id]);
         }
 
         return $item;
@@ -285,12 +262,7 @@ class BaseService
     {
         if ($item->locked_by && $item->locked_by != $this->user->id && !$this->user->higherPermissionThan($item->locked_by))
         {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type.'IsLocked')),
-                    (object) $this->user->only('email', 'full_name', 'nickname')
-                )
-            );
+            $this->throwResponse($this->type.'IsLocked', (object) $this->user->only('email', 'full_name', 'nickname'));
         }
     }
 
@@ -422,11 +394,7 @@ class BaseService
             $this->response = $item;
         }
         else {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type.'ItemNotExist'))
-                )
-            );
+            $this->throwResponse($this->type.'ItemNotExist');
         }
 
         return $item;
@@ -444,11 +412,7 @@ class BaseService
             $this->response = $item;
         }
         else {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type.'GetItemFail'))
-                )
-            );
+            $this->throwResponse($this->type.'GetItemFail');
         }
 
         return $item;
@@ -520,11 +484,7 @@ class BaseService
             $this->response = null;
         }
         else {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type.'UpdateFail'))
-                )
-            );
+            $this->throwResponse($this->type.'UpdateFail');
         }
 
         return $update;
@@ -554,11 +514,7 @@ class BaseService
                 $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingNestedSuccess'));
             }
             else {
-                throw new HttpResponseException(
-                    ResponseHelper::genResponse(
-                        Str::upper(Str::snake($this->type.'UpdateOrderingNestedFail'))
-                    )
-                );
+                $this->throwResponse($this->type.'UpdateOrderingNestedFail');
             }
         }
         else
@@ -568,11 +524,7 @@ class BaseService
                 $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingSuccess'));
             }
             else {
-                throw new HttpResponseException(
-                    ResponseHelper::genResponse(
-                        Str::upper(Str::snake($this->type.'UpdateOrderingFail'))
-                    )
-                );
+                $this->throwResponse($this->type.'UpdateOrderingFail');
             }
         }
 
@@ -630,11 +582,7 @@ class BaseService
             $this->status =  Str::upper(Str::snake($this->type.'DeleteSuccess'));
         }
         else {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type.'DeleteFail'))
-                )
-            );
+            $this->throwResponse($this->type.'DeleteFail');
         }
         return $result;
     }
@@ -803,18 +751,22 @@ class BaseService
     }
 
 
+    public function throwResponse($status, $response = null)
+    {
+        throw new HttpResponseException(
+            ResponseHelper::genResponse(Str::upper(Str::snake($status)), $response)
+        );
+    }
+
+
+
     public function update($data, $model = null)
     {
         if(!$this->repo->update($data, $model))
         {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake($this->type . 'UpdateFail'))
-                )
-            );
+            $this->throwResponse($this->type.'UpdateFail');
         }
 
         return true;
     }
-
 }
