@@ -41,6 +41,8 @@ class BaseService
 
     protected $except_model = ['UniqueVisitor', 'UniqueVisitorCounter', 'Log', 'FormFront'];
 
+    protected $model_name = null;
+
 
     public function __construct(BaseRepository $repo)
     {
@@ -479,6 +481,19 @@ class BaseService
 
 
 
+    public function getModelName()
+    {
+        if (!$this->model_name)
+        {
+            $str = explode('\\', get_class($this->repo->getModel()));
+            $this->model_name = end($str);
+        }
+
+        return $this->model_name;
+    }
+
+
+
     public function isSite()
     {
         return !strrpos($this->type, 'Admin');
@@ -774,48 +789,6 @@ class BaseService
         }
     }
 
-
-    public function storeKeysMap(Collection $input)
-    {
-        $mainKey = $mapKey = null;
-        foreach ($input->keys() as $key) {
-            if (gettype($input->{$key}) == 'array') {
-                $mapKey = $key;
-            }
-            else {
-//                if ($key!= 'created_by')
-//                {
-                    $mainKey = $key;
-//                }
-            }
-        }
-
-        $delete_items = $this->findBy($mainKey, '=', $input->{$mainKey});
-
-        if ($delete_items->count() > 0) {
-            $data = [];
-            foreach ($delete_items as $item) {
-                $data['ids'][] = $item->id;
-            }
-            if (!$this->remove(Helper::collect($data))) {
-                return false;
-            }
-        }
-
-
-        if (count($input->{$mapKey}) > 0) {
-            foreach ($input->{$mapKey} as $id) {
-                $asset = $this->add(Helper::collect([
-                    $mainKey        => $input->{$mainKey},
-                    Str::substr($mapKey, 0, -1) => $id,
-                ]));
-                if (!$asset) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
 
 
     public function traverseTitle(&$categories, $prefix = '-', &$str = '')
