@@ -37,7 +37,7 @@ class DummyClass extends BaseService
     }
 
 
-    public function modify(Collection $input, $diff = false)
+    public function modify(Collection $input)
     {
         $result =  parent::modify($input);
 
@@ -67,7 +67,7 @@ class DummyClass extends BaseService
     }
 
 
-    public function state(Collection $input, $diff = false)
+    public function state(Collection $input)
     {
         $result = parent::state($input);
 

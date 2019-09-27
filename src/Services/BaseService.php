@@ -13,6 +13,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use PHPUnit\TextUI\Help;
 
 
 class BaseService
@@ -194,7 +195,7 @@ class BaseService
     }
 
 
-    public function checkItem($id, $diff = false)
+    public function checkItem($id)
     {
         $item  = $this->find($id);
 
