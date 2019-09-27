@@ -42,7 +42,7 @@ class BaseService
 
     protected $except_model = ['UniqueVisitor', 'UniqueVisitorCounter', 'Log', 'FormFront'];
 
-    protected $model_name = null;
+    protected $service_name = null;
 
 
     public function __construct(BaseRepository $repo)
@@ -109,7 +109,7 @@ class BaseService
 
         foreach ($this->user->groups as $group)
         {
-            if ($group->canAction($this->getModelName(), $method, $item))
+            if ($group->canAction($this->getServiceName(), $method, $item))
             {
                 return true;
             }
@@ -403,16 +403,15 @@ class BaseService
 
 
 
-    public function getModelName()
+    public function getServiceName()
     {
-        if (!$this->model_name)
+        if (!$this->service_name)
         {
-            $str = explode('\\', get_class($this->repo->getModel()));
-            $this->model_name = end($str);
+            $str = explode('\\', get_class($this));
+            $this->service_name = end($str);
         }
 
-        return $this->model_name;
-
+        return $this->service_name;
     }
 
 
