@@ -62,47 +62,6 @@ class BaseService
     }
 
 
-    public function checkAction($item, $method, $diff = false)
-    {
-        if(env('SEEDING')) return true;
-
-        if (!$diff)
-        {
-            if (!$this->canAction($method))
-            {
-
-                throw new HttpResponseException(
-                    ResponseHelper::genResponse(
-                        Str::upper(Str::snake('UserInsufficientPermission')),
-                        ['model' => $this->type, 'methods' => $method]
-                    )
-                );
-            }
-        }
-        else
-        {
-            if (($item->created_by == $this->user->id && !$this->canAction($method.'Own')))
-            {
-                throw new HttpResponseException(
-                    ResponseHelper::genResponse(
-                        Str::upper(Str::snake('UserInsufficientPermission')),
-                        ['model' => $this->type, 'methods' => $method.'Own']
-                    )
-                );
-            }
-
-            if (($item->created_by != $this->user->id && !$this->canAction($method.'Other')))
-            {
-                throw new HttpResponseException(
-                    ResponseHelper::genResponse(
-                        Str::upper(Str::snake('UserInsufficientPermission')),
-                        ['model' => $this->type, 'methods' => $method.'Other']
-                    )
-                );
-            }
-        }
-    }
-
 
     /**
      * @return \Illuminate\Database\Eloquent\Collection|static[]
@@ -142,22 +101,20 @@ class BaseService
     }
 
 
-    public function canAction($method)
+    public function canAction($method, $item = null)
     {
-        //if ((in_array('add', $method) || in_array('search', $method)) && env('SEEDING')) return true;
-
         if ($this->isSite() || env('SEEDING')) return true;
+
 
         foreach ($this->user->groups as $group)
         {
-            if ($group->canAction($this->type, $method))
+            if ($group->canAction($this->getModelName(), $method, $item))
             {
                 return true;
             }
         }
 
-        $this->throwResponse('UserInsufficientPermission',
-            env('APP_ENV') == 'local' ? ['model' => $this->type, 'methods' => $method] : null);
+        $this->throwResponse('UserInsufficientPermission', ['model' => $this->type, 'methods' => $method]);
     }
 
 
@@ -178,13 +135,13 @@ class BaseService
      * @param Collection $input
      * @return bool
      */
-    public function checkout(Collection $input, $diff = false)
+    public function checkout(Collection $input)
     {
         $result = false;
         foreach ($input->get('ids') as $id)
         {
-            $item  = $this->find($id);
-            $this->checkAction($item, 'checkout');
+            $item  = $this->checkItem($id);
+            $this->canAction('checkout', $item);
 
             $result = $this->repo->checkout($item);
 
@@ -248,7 +205,7 @@ class BaseService
                 $this->canAccess($item->access, $this->access_ids);
             }
 
-            $this->checkAction($item, 'get', $diff);
+            $this->canAction('get', $item);
         }
         else
         {
@@ -357,9 +314,9 @@ class BaseService
      * @param $id
      * @return bool|BaseModel
      */
-    public function getItem($id, $diff = false)
+    public function getItem($id)
     {
-        $item = $this->checkItem($id, $diff);
+        $item = $this->checkItem($id);
 
         $this->checkLocked($item);
 
@@ -469,11 +426,11 @@ class BaseService
      * @param Collection $input
      * @return bool
      */
-    public function modify(Collection $input, $diff = false)
+    public function modify(Collection $input)
     {
-        $item = $this->checkItem($input->get('id'), $diff);
+        $item = $this->checkItem($input->get('id'));
 
-        $this->checkAction($item, 'edit', $diff);
+        $this->canAction('edit', $item);
 
         $update = $this->update($input->toArray(), $item);
 
@@ -497,15 +454,15 @@ class BaseService
     }
 
 
-    public function ordering(Collection $input, $diff = false)
+    public function ordering(Collection $input)
     {
         if (!$input->has('orderingKey'))
         {
             $input->put('orderingKey', 'ordering');
         }
 
-        $item = $this->checkItem($input->get('id'), $diff);
-        $this->checkAction($item, 'edit', $diff);
+        $item = $this->checkItem($input->get('id'));
+        $this->canAction('edit', $item);
 
         if ($this->repo->isNested())
         {
@@ -551,13 +508,13 @@ class BaseService
     }
 
 
-    public function remove(Collection $input, $diff = false)
+    public function remove(Collection $input)
     {
         $result = false;
         foreach ($input->get('ids') as $id)
         {
-            $item = $this->checkItem($id, $diff);
-            $this->checkAction($item, 'delete', $diff);
+            $item = $this->checkItem($id);
+            $this->canAction('delete', $item);
             $result_relations = $this->removeMapping($item);
 
             // 若有排序的欄位則要調整 ordering 大於刪除項目的值
@@ -675,13 +632,13 @@ class BaseService
     }
 
 
-    public function state(Collection $input, $diff = false)
+    public function state(Collection $input)
     {
         $result = false;
         foreach ($input->get('ids') as $id)
         {
-            $item  = $this->checkItem($id, $diff);
-            $this->checkAction($item, 'updateState', $diff);
+            $item  = $this->checkItem($id);
+            $this->canAction('updateState', $item);
 
             $result = $this->repo->state($item, $input->state);
             if (!$result) break;
@@ -707,7 +664,7 @@ class BaseService
     }
 
 
-    public function store(Collection $input, $diff = false)
+    public function store(Collection $input)
     {
         $input = $this->setStoreDefaultInput($input);
 
@@ -734,7 +691,7 @@ class BaseService
             return $this->add($input);
         }
         else {
-            return $this->modify($input, $diff);
+            return $this->modify($input);
         }
     }
 
@@ -754,7 +711,7 @@ class BaseService
     public function throwResponse($status, $response = null)
     {
         throw new HttpResponseException(
-            ResponseHelper::genResponse(Str::upper(Str::snake($status)), $response)
+            ResponseHelper::genResponse(Str::upper(Str::snake($status)), env('APP_DEBUG') ? $response : null)
         );
     }
 

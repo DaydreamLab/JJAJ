@@ -13,7 +13,6 @@ class ResponseHelper
         $type = strtolower(explode('_', $status)[0]);
         $config = config('constants.'.$type.'.'.$status);
 
-
         $config['status'] = $status;
         $config['data'] = $data;
 

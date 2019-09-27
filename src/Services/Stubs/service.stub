@@ -27,7 +27,7 @@ class DummyClass extends BaseService
     }
 
 
-    public function checkout(Collection $input, $diff = false)
+    public function checkout(Collection $input)
     {
         $result = parent::checkout($input);
 
@@ -47,7 +47,7 @@ class DummyClass extends BaseService
     }
 
 
-    public function ordering(Collection $input, $diff = false)
+    public function ordering(Collection $input)
     {
         $result = parent::ordering($input, $diff);
 
@@ -57,7 +57,7 @@ class DummyClass extends BaseService
     }
 
 
-    public function remove(Collection $input, $diff = false)
+    public function remove(Collection $input)
     {
         $result =  parent::remove($input);
 

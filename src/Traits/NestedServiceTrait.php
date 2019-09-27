@@ -86,12 +86,12 @@ trait NestedServiceTrait
 //    }
 
 
-    public function removeNested(Collection $input, $diff)
+    public function removeNested(Collection $input)
     {
         foreach ($input->ids as $id)
         {
-            $item = $this->checkItem($id, $diff);
-            $this->checkAction($item, 'delete', $diff);
+            $item = $this->checkItem($id);
+            $this->canAction('delete', $item);
             $result = $this->repo->removeNested($item);
 
             if(!$result) break;
@@ -135,11 +135,11 @@ trait NestedServiceTrait
         return $input;
     }
 
-    public function storeNested(Collection $input, $diff = false)
+    public function storeNested(Collection $input)
     {
         // 取得 parent
         $parent_id = $input->has('parent_id') ? $input->get('parent_id') : 1;
-        $parent = $this->checkItem($parent_id, $diff);
+        $parent = $this->checkItem($parent_id);
         // 設定初始值
         $input  = $this->setStoreNestedDefaultInput($input, $parent);
         // 檢查多語言下的 path
@@ -153,7 +153,7 @@ trait NestedServiceTrait
         {
             $input->put('locked_by', 0);
             $input->put('locked_at', null);
-            $item = $this->checkItem($input->get('id'), $diff);
+            $item = $this->checkItem($input->get('id'));
 
             return $this->modifyNested($input, $parent, $item);
         }
