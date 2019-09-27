@@ -221,7 +221,6 @@ class BaseRepository implements BaseRepositoryInterface
                 if ($key == 'search' && !InputHelper::null($input, 'search'))
                 {
                     $query = $query->where(function ($query) use ($item, $input) {
-
                         $search_keys = $input->get('search_keys');
 
                         foreach ($search_keys as $search_key)
