@@ -2,8 +2,6 @@
 
 namespace DaydreamLab\JJAJ\Helpers;
 
-
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
 
 class ResponseHelper

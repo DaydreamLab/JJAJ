@@ -106,7 +106,6 @@ class BaseService
     {
         if ($this->isSite() || env('SEEDING')) return true;
 
-
         foreach ($this->user->groups as $group)
         {
             if ($group->canAction($this->getServiceName(), $method, $item))
@@ -205,7 +204,6 @@ class BaseService
             {
                 $this->canAccess($item->access, $this->access_ids);
             }
-
             $this->canAction('get', $item);
         }
         else
