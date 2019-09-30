@@ -78,10 +78,6 @@ class BaseService
      */
     public function add(Collection $input)
     {
-        if (!in_array($this->type, $this->except_model)) {
-            $this->canAction('add');
-        }
-
         $model = $this->repo->add($input);
         if ($model) {
             $this->addMapping($model, $input);
@@ -141,7 +137,6 @@ class BaseService
         foreach ($input->get('ids') as $id)
         {
             $item  = $this->checkItem($id);
-            $this->canAction('checkout', $item);
 
             $result = $this->repo->checkout($item);
 
@@ -204,7 +199,6 @@ class BaseService
             {
                 $this->canAccess($item->access, $this->access_ids);
             }
-            $this->canAction('get', $item);
         }
         else
         {
@@ -428,8 +422,6 @@ class BaseService
     {
         $item = $this->checkItem($input->get('id'));
 
-        $this->canAction('edit', $item);
-
         $update = $this->update($input->toArray(), $item);
 
         if ($update) {
@@ -460,7 +452,6 @@ class BaseService
         }
 
         $item = $this->checkItem($input->get('id'));
-        $this->canAction('edit', $item);
 
         if ($this->repo->isNested())
         {
@@ -512,7 +503,7 @@ class BaseService
         foreach ($input->get('ids') as $id)
         {
             $item = $this->checkItem($id);
-            $this->canAction('delete', $item);
+
             $result_relations = $this->removeMapping($item);
 
             // 若有排序的欄位則要調整 ordering 大於刪除項目的值
@@ -555,8 +546,6 @@ class BaseService
      */
     public function search(Collection $input)
     {
-        $this->canAction('search');
-
         $special_queries = $input->get('special_queries') ?: [];
 
         if ($this->repo->getModel()->hasAttribute('access'))
@@ -636,7 +625,6 @@ class BaseService
         foreach ($input->get('ids') as $id)
         {
             $item  = $this->checkItem($id);
-            $this->canAction('updateState', $item);
 
             $result = $this->repo->state($item, $input->state);
             if (!$result) break;
