@@ -49,6 +49,7 @@ class BaseRepository implements BaseRepositoryInterface
 
             // get last data collection
             $data = $this->getLatestOrdering($input);
+
             if ($data->count())
             {
                 $last       = $data->first();
