@@ -99,7 +99,7 @@ trait NestedRepositoryTrait
     public function findMultiLanguageItem($input)
     {
         $language_options = ['*'];
-        $language = !InputHelper::null($input, 'language') ? $input->get('language') : config('global.locale');
+        $language = !InputHelper::null($input, 'language') ? $input->get('language') : config('daydreamlab.global.locale');
         if ($language != '*')
         {
             $language_options[] = $language;

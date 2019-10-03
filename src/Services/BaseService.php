@@ -167,7 +167,7 @@ class BaseService
             {
                 if (InputHelper::null($input, 'language'))
                 {
-                    $same = $this->findByChain(['alias', 'language'], ['=', '='],[$input->get('alias'), config('global.locale')])->first();
+                    $same = $this->findByChain(['alias', 'language'], ['=', '='],[$input->get('alias'), config('daydreamlab.global.locale')])->first();
                 }
                 else
                 {
@@ -602,7 +602,7 @@ class BaseService
 
         if ($this->repo->getModel()->hasAttribute('language') && InputHelper::null($input, 'language'))
         {
-            $input->put('language', config('global.locale'));
+            $input->put('language', config('daydreamlab.global.locale'));
         }
 
         if ($this->repo->getModel()->hasAttribute('params') && InputHelper::null($input, 'params'))
