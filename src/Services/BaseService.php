@@ -310,7 +310,6 @@ class BaseService
     public function getItem($id)
     {
         $item = $this->checkItem($id);
-
         $this->checkLocked($item);
 
         if ($item->hasAttribute('locked_by'))
