@@ -310,6 +310,7 @@ class BaseService
     public function getItem($id)
     {
         $item = $this->checkItem($id);
+
         $this->checkLocked($item);
 
         if ($item->hasAttribute('locked_by'))
@@ -707,6 +708,10 @@ class BaseService
         if(!$this->repo->update($data, $model))
         {
             $this->throwResponse($this->type.'UpdateFail');
+        }
+        else
+        {
+            $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
         }
 
         return true;
