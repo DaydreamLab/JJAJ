@@ -630,16 +630,16 @@ class BaseService
             if (!$result) break;
         }
 
-        if ($input->state == '1') {
+        if ($input->get('state') == '1') {
             $action = 'Publish';
         }
-        elseif ($input->state == '0') {
+        elseif ($input->get('state') == '0') {
             $action = 'Unpublish';
         }
-        elseif ($input->state == '-1') {
+        elseif ($input->get('state') == '-1') {
             $action = 'Archive';
         }
-        elseif ($input->state == '-2') {
+        elseif ($input->get('state') == '-2') {
             $action = 'Trash';
         }
 
