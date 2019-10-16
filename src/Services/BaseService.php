@@ -502,6 +502,7 @@ class BaseService
         $result = false;
         foreach ($input->get('ids') as $id)
         {
+            Helper::show($id);
             $item = $this->checkItem($id);
 
             $result_relations = $this->removeMapping($item);
@@ -517,8 +518,8 @@ class BaseService
                 }
             }
 
-            $result = $this->repo->delete($item, $item);
-            if (!$result || !$result_relations)
+            $result = $this->repo->delete($id, $item);
+            if (!$result)
             {
                 break;
             }
