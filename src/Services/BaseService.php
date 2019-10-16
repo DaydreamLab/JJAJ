@@ -502,7 +502,6 @@ class BaseService
         $result = false;
         foreach ($input->get('ids') as $id)
         {
-            Helper::show($id);
             $item = $this->checkItem($id);
 
             $result_relations = $this->removeMapping($item);
