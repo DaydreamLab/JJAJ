@@ -236,7 +236,23 @@ class BaseRepository implements BaseRepositoryInterface
                 {
                     foreach ($item as $q)
                     {
-                        $query = $query->{$q['type']}($q['key'], $q['value']);
+                        if(count($q) == 2)
+                        {
+                            $query = $query->{$q['type']}(function ($query) use ($q){
+                                foreach ($q['callback'] as $callback)
+                                {
+                                    $query->{$callback['type']}($callback['key'], $callback['operator'], $callback['value']);
+                                }
+                            });
+                        }
+                        elseif(count($q) == 3)
+                        {
+                            $query = $query->{$q['type']}($q['key'], $q['value']);
+                        }
+                        elseif(count($q) == 4)
+                        {
+                            $query = $query->{$q['type']}($q['key'], $q['operator'], $q['value']);
+                        }
                     }
                 }
                 elseif ($key == 'without_root')
