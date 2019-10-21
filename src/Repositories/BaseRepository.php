@@ -247,7 +247,14 @@ class BaseRepository implements BaseRepositoryInterface
                         }
                         elseif(count($q) == 3)
                         {
-                            $query = $query->where($q['key'], $q['operator'], $q['value']);
+                            if(array_key_exists('type', $q))
+                            {
+                                $query = $query->{$q['type']}($q['key'], $q['value']);
+                            }
+                            else
+                            {
+                                $query = $query->where($q['key'], $q['operator'], $q['value']);
+                            }
                         }
                         elseif(count($q) == 4)
                         {

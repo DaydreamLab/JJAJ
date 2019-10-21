@@ -332,7 +332,6 @@ class BaseService
     public function getItemByAlias(Collection $input)
     {
         $item = $this->search($input)->first();
-
         if($item) {
             if($item->hasAttribute('hits'))
             {
