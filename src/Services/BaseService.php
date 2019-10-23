@@ -548,7 +548,7 @@ class BaseService
     {
         $special_queries = $input->get('special_queries') ?: [];
 
-        if ($this->repo->getModel()->hasAttribute('access'))
+        if ($this->repo->getModel()->hasAttribute('access') && $this->access_ids)
         {
             $input->put('special_queries', array_merge($special_queries ,
                 [[
