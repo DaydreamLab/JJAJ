@@ -3,6 +3,7 @@
 namespace DaydreamLab\JJAJ\Services;
 
 use Carbon\Carbon;
+use DaydreamLab\Dddream\Services\Product\Admin\ProductAdminService;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
@@ -241,7 +242,7 @@ class BaseService
      */
     public function find($id)
     {
-        return count($this->eagers) ? $this->repo->with($this->eagers)->find($id) : $this->repo->find($id);
+        return $this->repo->find($id, $this->eagers);
     }
 
     /**
@@ -263,8 +264,7 @@ class BaseService
      */
     public function findBy($filed, $operator, $value)
     {
-        return count($this->eagers) ? $this->repo->with($this->eagers)->findBy($filed, $operator, $value)
-                                    : $this->repo->findBy($filed, $operator, $value);
+        return  $this->repo->findBy($filed, $operator, $value, $this->eagers);
     }
 
     /**
@@ -275,8 +275,7 @@ class BaseService
      */
     public function findByChain($fields, $operators, $values)
     {
-        return count($this->eagers) ? $this->repo->with($this->eagers)->findByChain($fields , $operators, $values)
-                                    : $this->repo->findByChain($fields , $operators, $values);
+        return $this->repo->findByChain($fields , $operators, $values, $this->eagers);
     }
 
     /**
@@ -287,8 +286,7 @@ class BaseService
      */
     public function findBySpecial($type, $key, $value)
     {
-        return count($this->eagers) ? $this->repo->with($this->eagers)->findBySpecial($type, $key, $value)
-                                    : $this->repo->findBySpecial($type, $key, $value);
+        return $this->repo->findBySpecial($type, $key, $value, $this->eagers);
     }
 
     /**
@@ -501,11 +499,9 @@ class BaseService
         $result = false;
         foreach ($input->get('ids') as $id)
         {
-            Helper::show($id);
             $item = $this->checkItem($id);
 
             $result_relations = $this->removeMapping($item);
-
             // 若有排序的欄位則要調整 ordering 大於刪除項目的值
             if ($this->repo->getModel()->hasAttribute('ordering'))
             {
@@ -653,7 +649,6 @@ class BaseService
     public function store(Collection $input)
     {
         $input = $this->setStoreDefaultInput($input);
-
         if($input->has('extrafields')){
             $extrafields = $input->get('extrafields');
             $extrafields_data = [];
@@ -674,6 +669,7 @@ class BaseService
         $this->checkAliasExist($input);
 
         if (InputHelper::null($input, 'id')) {
+
             return $this->add($input);
         }
         else {

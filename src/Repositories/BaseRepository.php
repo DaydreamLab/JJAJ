@@ -8,6 +8,7 @@ use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
 use DaydreamLab\User\Models\User\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -145,27 +146,31 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function find($id)
+    public function find($id, $eagers = [])
     {
-        return $this->model->find($id);
+        return count($eagers) ? $this->model->with($eagers)->find($id) : $this->model->find($id);
     }
 
 
-    public function findBy($field, $operator, $value)
+    public function findBy($field, $operator, $value, $eagers = [])
     {
-        return $this->model->where($field, $operator, $value)->get();
+        return count($eagers)
+            ? $this->model->with($eagers)->where($field, $operator, $value)->get()
+            : $this->model->where($field, $operator, $value)->get();
     }
 
 
-    public function findBySpecial($type, $key, $value)
+    public function findBySpecial($type, $key, $value, $eagers = [])
     {
-        return $this->model->{$type}($key, $value)->get();
+        return count($eagers)
+            ? $this->model->with($eagers)->{$type}($key, $value)->get()
+            : $this->model->{$type}($key, $value)->get();
     }
 
 
-    public function findByChain($fields, $operators, $values)
+    public function findByChain($fields, $operators, $values, $eagers = [])
     {
-        $model = $this->model;
+        $model = count($eagers) ? $this->model->with($eagers) : $this->model;
         foreach ($fields as $key => $field) {
             $model = $model->where($field , $operators[$key], $values[$key]);
         }
@@ -204,6 +209,7 @@ class BaseRepository implements BaseRepositoryInterface
     {
         return $this->model->orderBy('ordering', 'desc')->limit(1)->get();
     }
+
 
 
     public function getModel()
@@ -610,8 +616,6 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function with($relations)
     {
-        $this->model = $this->model->with($relations);
-
-        return $this;
+        return $this->model->with($relations);
     }
 }
