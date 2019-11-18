@@ -425,7 +425,7 @@ class BaseService
 
             $this->modifyMapping($item, $input);
             $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
-            $this->response = null;
+            $this->response = $update;
         }
         else {
             $this->throwResponse($this->type.'UpdateFail');
@@ -649,6 +649,7 @@ class BaseService
     public function store(Collection $input)
     {
         $input = $this->setStoreDefaultInput($input);
+
         if($input->has('extrafields')){
             $extrafields = $input->get('extrafields');
             $extrafields_data = [];
