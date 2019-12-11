@@ -509,7 +509,7 @@ class BaseRepository implements BaseRepositoryInterface
     public function search(Collection $input, $paginate = true)
     {
         $order_by   = InputHelper::getCollectionKey($input, 'order_by', $this->model->getOrderBy());
-        if(!$this->model->hasAttribute($order_by) && in_array($order_by, $this->order_by_ignore_keys)) {
+        if(!$this->model->hasAttribute($order_by) && !in_array($order_by, $this->order_by_ignore_keys)) {
             throw new HttpResponseException(ResponseHelper::genResponse('INPUT_INVALID', ['order_by' => $order_by]));
         }
         $limit      = (int)InputHelper::getCollectionKey($input, 'limit', $this->model->getLimit());
