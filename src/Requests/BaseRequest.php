@@ -47,6 +47,7 @@ class BaseRequest extends FormRequest
         $collect->each(function ($item, $key) use ($collect) {
             $collect->{$key} = $item;
         });
+
         return $collect;
     }
 }

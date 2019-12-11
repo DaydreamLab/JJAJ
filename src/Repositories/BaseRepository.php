@@ -28,6 +28,8 @@ class BaseRepository implements BaseRepositoryInterface
 
     protected $ignore_keys = ['limit', 'order_by', 'order', 'state', 'search_keys'];
 
+    protected $order_by_ignore_keys = ['index', 'id', 'created_at', 'updated_at'];
+
     protected $infinity = 1000000;
 
 
@@ -255,6 +257,7 @@ class BaseRepository implements BaseRepositoryInterface
                         {
                             if(array_key_exists('type', $q))
                             {
+
                                 $query = $query->{$q['type']}($q['key'], $q['value']);
                             }
                             else
@@ -506,6 +509,9 @@ class BaseRepository implements BaseRepositoryInterface
     public function search(Collection $input, $paginate = true)
     {
         $order_by   = InputHelper::getCollectionKey($input, 'order_by', $this->model->getOrderBy());
+        if(!$this->model->hasAttribute($order_by) && in_array($order_by, $this->order_by_ignore_keys)) {
+            throw new HttpResponseException(ResponseHelper::genResponse('INPUT_INVALID', ['order_by' => $order_by]));
+        }
         $limit      = (int)InputHelper::getCollectionKey($input, 'limit', $this->model->getLimit());
         $order      = InputHelper::getCollectionKey($input, 'order', $this->model->getOrder());
         $state      = InputHelper::getCollectionKey($input, 'state', [0,1]);
