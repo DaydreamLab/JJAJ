@@ -3,22 +3,20 @@
 namespace DaydreamLab\JJAJ\Services;
 
 use Carbon\Carbon;
-use DaydreamLab\Dddream\Services\Product\Admin\ProductAdminService;
+use DaydreamLab\JJAJ\Traits\LoggedIn;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
-use DaydreamLab\User\Models\User\User;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use PHPUnit\TextUI\Help;
-
 
 class BaseService
 {
+    use LoggedIn;
+
     public $response = null;
 
     public $status;
@@ -49,7 +47,7 @@ class BaseService
     public function __construct(BaseRepository $repo)
     {
         $this->repo = $repo;
-        $this->user = Auth::guard('api')->user();
+        $this->user = $this->getUser();
 
         if ($this->user)
         {

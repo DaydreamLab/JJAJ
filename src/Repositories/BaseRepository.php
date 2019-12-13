@@ -479,7 +479,6 @@ class BaseRepository implements BaseRepositoryInterface
 
         $paginate = new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
 
-
         if (count($options))
         {
             $url = url()->current() . '?';
