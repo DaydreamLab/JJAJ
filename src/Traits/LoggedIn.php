@@ -60,6 +60,15 @@ trait LoggedIn
     }
 
 
+
+    public function setLoggedIn($user, $access_ids = null, $viewlevels = null)
+    {
+        $this->user = $user;
+        $this->access_ids = $this->access_ids ?: $this->getUser()->access_ids;
+        $this->viewlevels = $this->viewlevels ?: $this->getUser()->viewlevels;
+    }
+
+
     public function setUser($user)
     {
         $this->user = $user;

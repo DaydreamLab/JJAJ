@@ -47,18 +47,19 @@ class BaseService
     public function __construct(BaseRepository $repo)
     {
         $this->repo = $repo;
-        $this->user = $this->getUser();
 
-        if ($this->user)
-        {
-            $this->access_ids = $this->user->access_ids;
-        }
-        else
-        {
-            //限制前台選單
-            $this->viewlevels = config('cms.item.front.viewlevels');
-            $this->access_ids = config('cms.item.front.access_ids');
-        }
+//        $this->user = $this->getUser();
+
+//        if ($this->user)
+//        {
+//            $this->access_ids = $this->user->access_ids;
+//        }
+//        else
+//        {
+//            //限制前台選單
+//            $this->viewlevels = config('cms.item.front.viewlevels');
+//            $this->access_ids = config('cms.item.front.access_ids');
+//        }
     }
 
 
