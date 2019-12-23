@@ -669,7 +669,6 @@ class BaseService
         $this->checkAliasExist($input);
 
         if (InputHelper::null($input, 'id')) {
-
             return $this->add($input);
         }
         else {
@@ -696,7 +695,6 @@ class BaseService
             ResponseHelper::genResponse(Str::upper(Str::snake($status)), env('APP_DEBUG') ? $response : null)
         );
     }
-
 
 
     public function update($data, $model = null)

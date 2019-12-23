@@ -28,14 +28,22 @@ class BaseTest extends TestCase
         return json_decode($response->content(), true);
     }
 
+
+    public function getContentData($response)
+    {
+        return $this->getContent($response)['data']['items'];
+    }
+
+
     public function getContentStatus($response)
     {
         return $this->getContent($response)['status'];
     }
 
-    public function getContentData($response)
+
+    public function getContentCode($response)
     {
-        return $this->getContent($response)['data']['items'];
+        return json_decode($response->content(), true)['code'];
     }
 
     public function showContent($response)
