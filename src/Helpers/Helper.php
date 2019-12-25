@@ -83,6 +83,12 @@ class Helper {
     }
 
 
+    public static function flushLog()
+    {
+        DB::connection()->flushQueryLog();
+    }
+
+
     public static function startLog()
     {
         DB::connection()->enableQueryLog();
@@ -94,4 +100,15 @@ class Helper {
         self::show(DB::getQueryLog());
     }
 
+
+    public static function showLogCount()
+    {
+        self::show(count(DB::getQueryLog()));
+    }
+
+
+    public static function stopLog()
+    {
+        DB::connection()->disableQueryLog();
+    }
 }
