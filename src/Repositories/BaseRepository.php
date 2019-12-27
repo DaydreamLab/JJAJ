@@ -282,14 +282,19 @@ class BaseRepository implements BaseRepositoryInterface
                         $query = $query->where($q['key'], $q['operator'], $q['value']);
                     }
                 }
-
+                elseif ($key == 'whereHas')
+                {
+                    foreach ($item as $q)
+                    {
+                        $query = $query->whereHas($q['relation'], $q['callback']);
+                    }
+                }
                 elseif ($key == 'eagers')
                 {
-                    foreach ($input->get('eagers') as $eager)
+                    foreach ($input->get('eagers') as $eager_key => $eager)
                     {
                         $query = $query->with($eager);
                     }
-
                 }
                 elseif ($key == 'loads')
                 {

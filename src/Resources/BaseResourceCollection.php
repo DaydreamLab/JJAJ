@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Resources;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class BaseResourceCollection extends ResourceCollection
