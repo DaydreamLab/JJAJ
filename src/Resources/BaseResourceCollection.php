@@ -22,7 +22,7 @@ class BaseResourceCollection extends ResourceCollection
         if($this->resource instanceof \Illuminate\Pagination\LengthAwarePaginator)
         {
             return [
-                'items'         => $this->collection,
+                'items'         => $this->collection->all(),
                 'pagination'    => $resource,
                 'records'       => $this->collection->count()
             ];
@@ -30,7 +30,7 @@ class BaseResourceCollection extends ResourceCollection
         else
         {
             return [
-                'items'         => $this->collection,
+                'items'         => $this->collection->all(),
                 'records'       => $this->collection->count()
             ];
         }
