@@ -32,7 +32,7 @@ class ServiceCommand extends GeneratorCommand
             $stub = $this->files->get($this->getStub());
         }
         catch (\Exception $e) {
-            echo $e->getMessage();
+            //echo $e->getMessage();
             return false;
         }
 

@@ -223,7 +223,6 @@ class BaseRepository implements BaseRepositoryInterface
     public function getQuery(Collection $input)
     {
         $query = $this->model;
-
         foreach ($input->toArray() as $key => $item)
         {
             if (!in_array($key, $this->ignore_keys))
@@ -567,6 +566,7 @@ class BaseRepository implements BaseRepositoryInterface
         {
             $items = $paginate ? $query->paginate($limit)
                 : $query->get();
+
         }
 
         return $items;
