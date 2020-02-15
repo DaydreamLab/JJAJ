@@ -162,6 +162,11 @@ class ResponseHelper
     }
 
 
+    public static function genStatus($string)
+    {
+        return  Str::upper(Str::snake($string));
+    }
+
 
 
     public static function response($status, $responseData)
