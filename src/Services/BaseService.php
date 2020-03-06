@@ -403,6 +403,17 @@ class BaseService
     }
 
 
+    public function hook($input, $status, $response)
+    {
+        if($response && $input && $log = $input->log)
+        {
+            $log->status = $status;
+            $log->response = $response;
+            $log->save();
+        }
+        return true;
+    }
+
 
     public function isSite()
     {
@@ -689,10 +700,13 @@ class BaseService
     }
 
 
-    public function throwResponse($status, $response = null)
+    public function throwResponse($status, $response = null, $input = null)
     {
+        $statusString = Str::upper(Str::snake($status));
+        $this->hook($input, $statusString, $response);
+
         throw new HttpResponseException(
-            ResponseHelper::genResponse(Str::upper(Str::snake($status)), env('APP_DEBUG') ? $response : null)
+            ResponseHelper::genResponse($statusString, env('APP_DEBUG') ? $response : null)
         );
     }
 

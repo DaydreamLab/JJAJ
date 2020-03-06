@@ -164,7 +164,7 @@ class ResponseHelper
 
     public static function genStatus($string)
     {
-        return  Str::upper(Str::snake($string));
+        return Str::upper(Str::snake($string));
     }
 
 
