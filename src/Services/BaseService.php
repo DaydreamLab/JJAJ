@@ -102,11 +102,25 @@ class BaseService
     {
         if ($this->isSite() || env('SEEDING')) return true;
 
-        foreach ($this->user->groups as $group)
+        // 這邊為了特化 dddream 使用所以特化成這樣（利用有沒有item）
+        if($item)
         {
-            if ($group->canAction($this->getServiceName(), $method, $item))
+            foreach ($this->user->groups as $group)
             {
-                return true;
+                if ($group->canAction($this->getServiceName(), $method, $item))
+                {
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            foreach ($this->user->groups as $group)
+            {
+                if (in_array($method, $group->accessResource['apis']))
+                {
+                    return true;
+                }
             }
         }
 
