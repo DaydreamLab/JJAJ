@@ -220,6 +220,36 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    public function recursiveCallback($query, $q)
+    {
+        if(count($q) == 2 && array_key_exists('type', $q))
+        {
+            foreach ($q['callback'] as $c)
+            {
+                if(count($c) == 2 && array_key_exists('type', $c))
+                {
+                    return $this->recursiveCallback($query->{$c['type']}($c['callback']), $c['callback']);
+                }
+                else
+                {
+                    $query = $query->{$c['type']}($c['key'], $c['operator'], $c['value']);
+                }
+            }
+
+            return $query;
+        }
+        else
+        {
+            foreach ($q as $c)
+            {
+                $query = $query->{$c['type']}($c['key'], $c['operator'], $c['value']);
+            }
+        }
+
+        return $query;
+    }
+
+
     public function getQuery(Collection $input)
     {
         $query = $this->model;
@@ -245,12 +275,7 @@ class BaseRepository implements BaseRepositoryInterface
                     {
                         if(count($q) == 2)
                         {
-                            $query = $query->{$q['type']}(function ($query) use ($q){
-                                foreach ($q['callback'] as $callback)
-                                {
-                                    $query->{$callback['type']}($callback['key'], $callback['operator'], $callback['value']);
-                                }
-                            });
+                            $this->recursiveCallback($query, $q);
                         }
                         elseif(count($q) == 3)
                         {
