@@ -220,36 +220,6 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function recursiveCallback($query, $q)
-    {
-        if(count($q) == 2 && array_key_exists('type', $q))
-        {
-            foreach ($q['callback'] as $c)
-            {
-                if(count($c) == 2 && array_key_exists('type', $c))
-                {
-                    return $this->recursiveCallback($query->{$c['type']}($c['callback']), $c['callback']);
-                }
-                else
-                {
-                    $query = $query->{$c['type']}($c['key'], $c['operator'], $c['value']);
-                }
-            }
-
-            return $query;
-        }
-        else
-        {
-            foreach ($q as $c)
-            {
-                $query = $query->{$c['type']}($c['key'], $c['operator'], $c['value']);
-            }
-        }
-
-        return $query;
-    }
-
-
     public function getQuery(Collection $input)
     {
         $query = $this->model;
@@ -275,7 +245,10 @@ class BaseRepository implements BaseRepositoryInterface
                     {
                         if(count($q) == 2)
                         {
-                            $this->recursiveCallback($query, $q);
+                            foreach ($q['callback'] as $c)
+                            {
+                                $query = $query->{$c['type']}($c['key'], $c['operator'], $c['value']);
+                            }
                         }
                         elseif(count($q) == 3)
                         {
@@ -301,9 +274,16 @@ class BaseRepository implements BaseRepositoryInterface
                 }
                 elseif ($key == 'where')
                 {
-                    foreach ($item as $q)
+                    if(gettype($item) == 'array')
                     {
-                        $query = $query->where($q['key'], $q['operator'], $q['value']);
+                        foreach ($item as $q)
+                        {
+                            $query = $query->where($q['key'], $q['operator'], $q['value']);
+                        }
+                    }
+                    else
+                    {
+                        $query = $query->where($item);
                     }
                 }
                 elseif ($key == 'whereHas')
