@@ -419,12 +419,13 @@ class BaseService
 
     public function hook($input, $status, $response)
     {
-        if($response && $input && $log = $input->log)
+        if($input && $log = $input->log)
         {
             $log->status = $status;
-            $log->response = $response;
+            $log->response = json_encode($response);
             $log->save();
         }
+
         return true;
     }
 
