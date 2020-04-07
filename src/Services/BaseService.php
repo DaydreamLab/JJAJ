@@ -63,7 +63,6 @@ class BaseService
     }
 
 
-
     /**
      * @return \Illuminate\Database\Eloquent\Collection|static[]
      */
@@ -93,6 +92,12 @@ class BaseService
 
 
     public function addMapping($item, $input)
+    {
+        return true;
+    }
+
+
+    public function afterCheckItem($item)
     {
         return true;
     }
@@ -206,7 +211,6 @@ class BaseService
     public function checkItem($id)
     {
         $item  = $this->find($id);
-
         if($item)
         {
             if ($item->hasAttribute('access'))
@@ -218,6 +222,8 @@ class BaseService
         {
             $this->throwResponse($this->type.'ItemNotExist', ['id' => $id]);
         }
+
+        $this->afterCheckItem($item);
 
         return $item;
     }
