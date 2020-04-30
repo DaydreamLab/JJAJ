@@ -425,10 +425,11 @@ class BaseService
 
     public function hook($input, $status, $response)
     {
-        if($input && $log = $input->log)
+        if($input && property_exists($input, 'log'))
         {
+            $log = $input->log;
             $log->status = $status;
-            $log->response = json_encode($response);
+            $log->response = $response;
             $log->save();
         }
 
