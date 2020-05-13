@@ -524,7 +524,6 @@ class BaseRepository implements BaseRepositoryInterface
         $order      = InputHelper::getCollectionKey($input, 'order', $this->model->getOrder());
         $state      = InputHelper::getCollectionKey($input, 'state', [0,1]);
         $language   = InputHelper::getCollectionKey($input, 'language', '') ;
-
         $query = $this->getQuery($input);
 
         if ($this->model->hasAttribute('state') && $this->model->getTable() != 'users')
@@ -571,7 +570,6 @@ class BaseRepository implements BaseRepositoryInterface
         {
             $items = $paginate ? $query->paginate($limit)
                 : $query->get();
-
         }
 
         return $items;
