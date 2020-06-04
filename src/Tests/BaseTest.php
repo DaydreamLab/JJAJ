@@ -3,7 +3,8 @@
 namespace DaydreamLab\JJAJ\Tests;
 
 use DaydreamLab\JJAJ\Helpers\Helper;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 use Mockery;
 
@@ -20,6 +21,18 @@ class BaseTest extends TestCase
     {
         parent::tearDown();
         Mockery::close();
+    }
+
+
+    public function assertHttpResponseException($funcName, $funcParams = [], $expect)
+    {
+        try {
+            $this->service->{$funcName}(...$funcParams);
+        } catch (HttpResponseException $e) {
+
+            $content = $this->getContent($e->getResponse());
+            $this->assertEquals(Str::upper(Str::snake($expect)), $content['status']);
+        }
     }
 
 
@@ -60,6 +73,11 @@ class BaseTest extends TestCase
     public function showContentStatus($response)
     {
         Helper::show($this->getContentStatus($response));
+    }
+
+    public function upperSnake($string)
+    {
+        return Str::upper(Str::snake($string));
     }
 
 }

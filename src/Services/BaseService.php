@@ -208,9 +208,9 @@ class BaseService
     }
 
 
-    public function checkItem($id)
+    public function checkItem($input)
     {
-        $item  = $this->find($id);
+        $item  = $this->find($input->get('id'));
         if($item)
         {
             if ($item->hasAttribute('access'))
@@ -480,11 +480,11 @@ class BaseService
             $input->put('orderingKey', 'ordering');
         }
 
-        $item = $this->checkItem($input->get('id'));
+        $item = $this->checkItem($input);
 
         if ($this->repo->isNested())
         {
-            $result = $this->repo->orderingNested($input);
+            $result = $this->repo->orderingNested($input, $item);
             if($result) {
                 $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingNestedSuccess'));
             }
@@ -494,7 +494,7 @@ class BaseService
         }
         else
         {
-            $result = $this->repo->ordering($input);
+            $result = $this->repo->ordering($input, $item);
             if($result) {
                 $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingSuccess'));
             }
@@ -728,7 +728,7 @@ class BaseService
         $this->hook($input, $statusString, $response);
 
         throw new HttpResponseException(
-            ResponseHelper::genResponse($statusString, env('APP_DEBUG') ? $response : null)
+            ResponseHelper::genResponse(Str::upper(Str::snake($status)), env('APP_DEBUG') ? $response : null)
         );
     }
 

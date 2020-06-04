@@ -1,6 +1,8 @@
 <?php
 namespace DaydreamLab\JJAJ\Helpers;
 
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -86,6 +88,35 @@ class Helper {
     public static function flushLog()
     {
         DB::connection()->flushQueryLog();
+    }
+
+
+    public static function paginate($items, $perPage = 15, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+
+        $paginate = new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+
+        if (count($options))
+        {
+            $url = url()->current() . '?';
+            $counter = 0;
+            foreach ($options as $key => $option)
+            {
+                $url .= $key . '=' .$option;
+                $counter++;
+                $counter != count($options) ? $url.= '&' : true;
+            }
+            $paginate = $paginate->setPath($url);
+        }
+        else
+        {
+            $paginate = $paginate->setPath(url()->current());
+        }
+
+        return $paginate;
     }
 
 

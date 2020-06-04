@@ -398,9 +398,8 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function ordering(Collection $input)
+    public function ordering(Collection $input, $item)
     {
-        $item           = $this->find($input->id);
         $orderingKey    = $input->get('orderingKey');
         $input_order    = $input->get('order');
         $origin         = $item->{$orderingKey};
