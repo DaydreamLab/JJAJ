@@ -155,7 +155,7 @@ class BaseService
         $result = false;
         foreach ($input->get('ids') as $id)
         {
-            $item  = $this->checkItem($id);
+            $item  = $this->checkItem(collect(['id' => $id]));
 
             $result = $this->repo->checkout($item);
 
@@ -324,9 +324,9 @@ class BaseService
      * @param $id
      * @return bool|BaseModel
      */
-    public function getItem($id)
+    public function getItem($input)
     {
-        $item = $this->checkItem($id);
+        $item = $this->checkItem($input);
 
         $this->checkLocked($item);
 
@@ -449,7 +449,7 @@ class BaseService
      */
     public function modify(Collection $input)
     {
-        $item = $this->checkItem($input->get('id'));
+        $item = $this->checkItem($input);
 
         $update = $this->update($input->toArray(), $item);
 
@@ -531,7 +531,7 @@ class BaseService
         $result = false;
         foreach ($input->get('ids') as $id)
         {
-            $item = $this->checkItem($id);
+            $item = $this->checkItem(collect(['id' => $id]));
 
             $result_relations = $this->removeMapping($item);
             // 若有排序的欄位則要調整 ordering 大於刪除項目的值
@@ -652,7 +652,7 @@ class BaseService
         $result = false;
         foreach ($input->get('ids') as $id)
         {
-            $item  = $this->checkItem($id);
+            $item  = $this->checkItem(collect(['id' => $id]));
 
             $result = $this->repo->state($item, $input->state);
             if (!$result) break;

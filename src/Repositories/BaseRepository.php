@@ -51,47 +51,31 @@ class BaseRepository implements BaseRepositoryInterface
             }
 
             // get last data collection
-            $data = $this->getLatestOrdering($input);
-
-            if ($data->count())
-            {
-                $last       = $data->first();
+            $last = $this->getLatestOrdering($input);
+            if ($last->count()) {
                 $ordering   = $input->get('ordering');
-
-                if (InputHelper::null($input, 'ordering'))
-                {
+                if (InputHelper::null($input, 'ordering')) {
                     $input->put('ordering', $last->ordering + 1);
-                }
-                else
-                {
-                    if ($ordering >= $last->ordering)
-                    {
+                } else {
+                    if ($ordering > $last->ordering) {
                         $input->put('ordering', $last->ordering + 1);
-                    }
-                    else
-                    {
-                        if ($ordering <= 0)
-                        {
+                    } else {
+                        if ($ordering <= 0) {
                             $input->put('ordering', 1);
                         }
 
-                        $update_items = $this->model->where('ordering', '>=', $ordering)
-                                                    ->where('ordering', '<=', $last->ordering)
-                                                    ->get();
+                        $update_items = $this->getOrderingUpdateItems($input, $this->model->getOrderBy(), $input->get('ordering'), $last->ordering);
                         $result = $update_items->each(function ($item, $key){
                             $item->ordering++;
-                            return $this->update($item, $item);
+                            return $item->save();
                         });
 
-                        if (!$result)
-                        {
+                        if (!$result) {
                             return $result;
                         }
                     }
                 }
-            }
-            else
-            {
+            } else {
                 $input->put('ordering', 1);
             }
         }
@@ -173,6 +157,7 @@ class BaseRepository implements BaseRepositoryInterface
     public function findByChain($fields, $operators, $values, $eagers = [])
     {
         $model = count($eagers) ? $this->model->with($eagers) : $this->model;
+
         foreach ($fields as $key => $field) {
             $model = $model->where($field , $operators[$key], $values[$key]);
         }
@@ -209,7 +194,10 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function getLatestOrdering(Collection $input)
     {
-        return $this->model->orderBy('ordering', 'desc')->limit(1)->get();
+        return $this->model
+            ->orderBy($this->model->getOrderBy(), $this->model->getOrder())
+            ->limit(1)
+            ->first();
     }
 
 
@@ -241,8 +229,8 @@ class BaseRepository implements BaseRepositoryInterface
 
         foreach ($extraRules as $extraRule) {
             $keys[] = $extraRule[0];
-            $operators = $extraRule[1];
-            $values = $extraRule[2];
+            $operators[] = $extraRule[1];
+            $values[] = $extraRule[2];
         }
 
         return $this->findByChain($keys, $operators, $values);
@@ -429,14 +417,21 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function ordering(Collection $input, $item)
     {
-        $orderingKey    = $input->get('orderingKey');
-        $input_order    = $input->get('order');
+        $orderingKey    = $input->get('orderingKey') ?: $this->model->getOrderBy();
+        $input_order    = $input->get('order') ?: $this->model->getOrder();
         $origin         = $item->{$orderingKey};
         $diff           = $input->get('index_diff');
+        $latestItem     = $this->getLatestOrdering($input);
 
         if ($input_order == 'asc')
         {
-            $item->{$orderingKey} = $origin + $diff;
+            $final = $origin + $diff;
+            // 有最新項目（也就是不是沒資料）並且 ordering 超出界線
+            if ($latestItem && ($final <= 0 || $final > $latestItem->{$orderingKey})) {
+                return false;
+            }
+
+            $item->{$orderingKey} = $final;
             $update_items = $this->getOrderingUpdateItems($input, $orderingKey, $origin, $item->{$orderingKey});
             if (!$update_items->count()) return false;
             $result = $update_items->each(function ($item) use ($orderingKey, $input_order, $diff) {
@@ -446,6 +441,12 @@ class BaseRepository implements BaseRepositoryInterface
         }
         else
         {
+            $final = $origin - $diff;
+            // 有最新項目（也就是不是沒資料）並且 ordering 超出界線
+            if ($latestItem && ($final <= 0 || $final > $latestItem->{$orderingKey})){
+                return false;
+            }
+
             $item->{$orderingKey} = $origin - $diff;
             $update_items = $this->getOrderingUpdateItems($input, $orderingKey, $origin, $item->{$orderingKey});
             if (!$update_items->count()) return false;

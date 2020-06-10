@@ -91,6 +91,12 @@ class Helper {
     }
 
 
+    public static function getJson($path, $assoc = true)
+    {
+        return json_decode(file_get_contents($path), $assoc);
+    }
+
+
     public static function paginate($items, $perPage = 15, $page = null, $options = [])
     {
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
