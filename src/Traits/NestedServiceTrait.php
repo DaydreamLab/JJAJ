@@ -139,7 +139,7 @@ trait NestedServiceTrait
     {
         // 取得 parent
         $parent_id = $input->has('parent_id') ? $input->get('parent_id') : 1;
-        $parent = $this->checkItem($parent_id);
+        $parent = $this->checkItem(collect(['id' => $parent_id]));
         // 設定初始值
         $input  = $this->setStoreNestedDefaultInput($input, $parent);
         // 檢查多語言下的 path

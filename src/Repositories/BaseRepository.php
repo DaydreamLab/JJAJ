@@ -52,7 +52,7 @@ class BaseRepository implements BaseRepositoryInterface
 
             // get last data collection
             $last = $this->getLatestOrdering($input);
-            if ($last->count()) {
+            if ($last) {
                 $ordering   = $input->get('ordering');
                 if (InputHelper::null($input, 'ordering')) {
                     $input->put('ordering', $last->ordering + 1);

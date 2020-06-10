@@ -220,7 +220,7 @@ class BaseService
         }
         else
         {
-            $this->throwResponse($this->type.'ItemNotExist', ['id' => $id]);
+            $this->throwResponse($this->type.'ItemNotExist', ['id' => $input->get('id')]);
         }
 
         $this->afterCheckItem($item);
