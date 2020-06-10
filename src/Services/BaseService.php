@@ -728,7 +728,7 @@ class BaseService
         $this->hook($input, $statusString, $response);
 
         throw new HttpResponseException(
-            ResponseHelper::genResponse(Str::upper(Str::snake($status)), env('APP_DEBUG') ? $response : null)
+            ResponseHelper::genResponse(Str::upper(Str::snake($status)), $response)
         );
     }
 
