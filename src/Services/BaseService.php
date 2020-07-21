@@ -425,8 +425,10 @@ class BaseService
 
     public function hook($input, $status, $response)
     {
-        if($input && property_exists($input, 'log'))
-        {
+        if($input
+            && ((gettype($input) == 'array' && array_key_exists('log', $input))
+                || (gettype($input) == 'object' && property_exists($input, 'log')))
+        ) {
             $log = $input->log;
             $log->status = $status;
             $log->response = $response;
