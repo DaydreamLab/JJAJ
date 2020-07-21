@@ -18,19 +18,29 @@ trait RecordChanger
             if (!$item->created_by)
             {
                 if ($user) {
-                    $item->created_by = $user->id;
-                }
-                else
-                {
-                    $item->created_by = 0;
+                    if ($user->token()->name == 'Merchant Member') {
+                        $item->created_by = 999999990;
+                    } else {
+                        $item->created_by = $user->id;
+                    }
+                } else {
+                    $item->created_by = 99999993;
                 }
             }
         });
 
 
         static::updating(function ($item) use ($user) {
-            if ($user) {
-                $item->updated_by = $user->id;
+            if ($user && $user->token()->name != 'Merchant Member') {
+                if ($user->token()->name == 'Merchant Member') {
+                    $item->updated_by = 999999990;
+                } else {
+                    $item->updated_by = $user->id;
+                }
+            } else {
+                if (!$item->updated_by) {
+                    $item->updated_by = 999999993;
+                }
             }
         });
     }
