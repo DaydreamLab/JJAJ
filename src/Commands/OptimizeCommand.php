@@ -40,6 +40,6 @@ class OptimizeCommand extends Command
         $this->call('config:cache');
         $this->call('view:cache');
         $this->call('route:cache');
-        $this->call('optimize --force');
+        $this->call('optimize');
     }
 }
