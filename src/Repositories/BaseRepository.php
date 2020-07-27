@@ -430,14 +430,14 @@ class BaseRepository implements BaseRepositoryInterface
             if ($latestItem && ($final <= 0 || $final > $latestItem->{$orderingKey})) {
                 return false;
             }
-
             $item->{$orderingKey} = $final;
-            $update_items = $this->getOrderingUpdateItems($input, $orderingKey, $origin, $item->{$orderingKey});
-            if (!$update_items->count()) return false;
-            $result = $update_items->each(function ($item) use ($orderingKey, $input_order, $diff) {
-                $diff < 0 ? $item->{$orderingKey}++ : $item->{$orderingKey}--;
-                return $item->save();
-            });
+            $update_items = $this->getOrderingUpdateItems($input, $orderingKey, $origin, $item->{$orderingKey}, $input->get('extraRules'));
+            if ($update_items->count()) {
+                $update_items->each(function ($update_item) use ($orderingKey, $input_order, $diff) {
+                    $diff < 0 ? $update_item->{$orderingKey}++ : $update_item->{$orderingKey}--;
+                    return $update_item->save();
+                });
+            }
         }
         else
         {
@@ -446,17 +446,17 @@ class BaseRepository implements BaseRepositoryInterface
             if ($latestItem && ($final <= 0 || $final > $latestItem->{$orderingKey})){
                 return false;
             }
-
             $item->{$orderingKey} = $origin - $diff;
-            $update_items = $this->getOrderingUpdateItems($input, $orderingKey, $origin, $item->{$orderingKey});
-            if (!$update_items->count()) return false;
-            $result = $update_items->each(function ($item) use ($orderingKey, $input_order, $diff) {
-                $diff < 0 ? $item->{$orderingKey}-- : $item->{$orderingKey}++;
-                return $item->save();
-            });
+            $update_items = $this->getOrderingUpdateItems($input, $orderingKey, $origin, $item->{$orderingKey}, $input->get('extraRules'));
+            if ($update_items->count()) {
+                $update_items->each(function ($update_item) use ($orderingKey, $input_order, $diff) {
+                    $diff < 0 ? $update_item->{$orderingKey}-- : $update_item->{$orderingKey}++;
+                    return $update_item->save();
+                });
+            }
         }
 
-        return $result ? $item->save() : $result;
+        return $item->save();
     }
 
 
