@@ -4,21 +4,21 @@ namespace DaydreamLab\JJAJ\Commands;
 
 use Illuminate\Console\Command;
 
-class ClearCommand extends Command
+class OptimizeCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'jjaj:clear';
+    protected $signature = 'jjaj:optimize';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Clear cache view config';
+    protected $description = 'Optimize config';
 
     /**
      * Create a new command instance.
@@ -37,10 +37,9 @@ class ClearCommand extends Command
      */
     public function handle()
     {
-        $this->call('config:clear');
-        $this->call('view:clear');
-        $this->call('cache:clear');
-        $this->call('route:clear');
-        $this->call('clear-compiled');
+        $this->call('config:cache');
+        $this->call('view:cache');
+        $this->call('route:cache');
+        $this->call('optimize --force');
     }
 }
