@@ -105,7 +105,7 @@ class BaseService
 
     public function canAction($method, $item = null)
     {
-        if ($this->isSite() || env('SEEDING')) return true;
+        if ($this->isSite() || config('app.seeding')) return true;
 
         // 這邊為了特化 dddream 使用所以特化成這樣（利用有沒有item）
         if($item)

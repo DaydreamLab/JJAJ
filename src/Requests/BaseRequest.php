@@ -24,7 +24,7 @@ class BaseRequest extends FormRequest
 
     protected function failedValidation(Validator $validator)
     {
-        if (env('APP_DEBUG')) {
+        if (config('app.debug')) {
             throw new HttpResponseException(ResponseHelper::genResponse('INPUT_INVALID', $validator->errors()));
         }
         else {
