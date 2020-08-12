@@ -135,7 +135,7 @@ class BaseService
 
     public function canAccess($item_access, $user_access_ids)
     {
-        if (env('SEEDING')) return true;
+        if (config('app.seeding')) return true;
         $user_access_ids = $user_access_ids ? $user_access_ids : [];
         if(!in_array($item_access, $user_access_ids))
         {
