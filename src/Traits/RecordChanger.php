@@ -7,6 +7,14 @@ use Illuminate\Support\Facades\Auth;
 
 trait RecordChanger
 {
+    /**
+     * 999999990: 前台使用者
+     * 999999991: 系統
+     * 999999992: 外部呼叫
+     * 999999993: 未知或沒有設定
+     * */
+
+
     public static function boot()
     {
         parent::boot();
