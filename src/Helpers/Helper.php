@@ -97,6 +97,14 @@ class Helper {
     }
 
 
+    public static function getUserToken($guard = 'api')
+    {
+        $user = auth()->guard($guard)->user();
+
+        return $user ? $user->token() : null;
+    }
+
+
     public static function paginate($items, $perPage = 15, $page = null, $options = [])
     {
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
