@@ -10,6 +10,7 @@ class ListRequest extends BaseRequest
     public function rules()
     {
         return [
+            'search'        => 'nullable|string',
             'limit'         => 'nullable|integer',
             'order_by'      => 'nullable|string',
             'order'      => [

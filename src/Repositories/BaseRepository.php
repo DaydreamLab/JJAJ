@@ -310,6 +310,14 @@ class BaseRepository implements BaseRepositoryInterface
                         $query = $query->whereHas($q['relation'], $q['callback']);
                     }
                 }
+                elseif ($key == 'orWhereHas')
+                {
+                    foreach ($item as $q)
+                    {
+                        $query = $query->orWhereHas($q['relation'], $q['callback']);
+                    }
+                }
+
                 elseif ($key == 'eagers')
                 {
                     foreach ($input->get('eagers') as $eager_key => $eager)
