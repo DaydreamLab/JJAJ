@@ -49,7 +49,7 @@ class DummyClass extends BaseService
 
     public function ordering(Collection $input)
     {
-        $result = parent::ordering($input, $diff);
+        $result = parent::ordering($input);
 
         //event(new Ordering($this->model_name, $result, $input, $orderingKey, $this->user));
 

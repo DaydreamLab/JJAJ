@@ -439,7 +439,7 @@ class BaseRepository implements BaseRepositoryInterface
                 return false;
             }
             $item->{$orderingKey} = $final;
-            $update_items = $this->getOrderingUpdateItems($input, $orderingKey, $origin, $item->{$orderingKey}, $input->get('extraRules'));
+            $update_items = $this->getOrderingUpdateItems($input, $orderingKey, $origin, $item->{$orderingKey}, $input->get('extraRules') ?: []);
             if ($update_items->count()) {
                 $update_items->each(function ($update_item) use ($orderingKey, $input_order, $diff) {
                     $diff < 0 ? $update_item->{$orderingKey}++ : $update_item->{$orderingKey}--;
@@ -455,7 +455,7 @@ class BaseRepository implements BaseRepositoryInterface
                 return false;
             }
             $item->{$orderingKey} = $origin - $diff;
-            $update_items = $this->getOrderingUpdateItems($input, $orderingKey, $origin, $item->{$orderingKey}, $input->get('extraRules'));
+            $update_items = $this->getOrderingUpdateItems($input, $orderingKey, $origin, $item->{$orderingKey}, $input->get('extraRules') ?: []);
             if ($update_items->count()) {
                 $update_items->each(function ($update_item) use ($orderingKey, $input_order, $diff) {
                     $diff < 0 ? $update_item->{$orderingKey}-- : $update_item->{$orderingKey}++;

@@ -39,6 +39,7 @@ class ResponseHelper
         }
     }
 
+
     public static function format($data)
     {
         if($data === null) {
@@ -173,5 +174,4 @@ class ResponseHelper
     {
         return self::genResponse($status, self::format($responseData));
     }
-
 }

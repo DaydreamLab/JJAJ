@@ -32,6 +32,7 @@ class BaseRequest extends FormRequest
         }
     }
 
+
     public function rulesInput()
     {
         $need = [];

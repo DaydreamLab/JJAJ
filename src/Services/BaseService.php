@@ -625,6 +625,12 @@ class BaseService
             $input->put('alias', Str::lower($alias));
         }
 
+        if ($this->repo->getModel()->hasAttribute('state') && $input->get('state') === null)
+        {
+            $input->forget('state');
+        }
+
+
         if ($this->repo->getModel()->hasAttribute('access') && InputHelper::null($input, 'access'))
         {
             $input->put('access', 1);
@@ -654,9 +660,10 @@ class BaseService
         $result = false;
         foreach ($input->get('ids') as $id)
         {
-            $item  = $this->checkItem(collect(['id' => $id]));
+            $input->put('id', $id);
+            $item  = $this->checkItem($input->except('ids'));
 
-            $result = $this->repo->state($item, $input->state);
+            $result = $this->repo->state($item, $input->get('state'));
             if (!$result) break;
         }
 
