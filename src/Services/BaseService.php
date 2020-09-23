@@ -15,13 +15,11 @@ use Illuminate\Support\Str;
 
 class BaseService
 {
-    use LoggedIn;
-
     public $response = null;
 
     public $status;
 
-    protected $access_ids;
+    public $package = null;
 
     protected $eagers = [];
 
@@ -33,33 +31,12 @@ class BaseService
 
     protected $type;
 
-    protected $user;
-
-    protected $viewlevels;
-
-    protected $asset;
-
-    protected $except_model = ['UniqueVisitor', 'UniqueVisitorCounter', 'Log', 'FormFront'];
-
     protected $service_name = null;
 
 
     public function __construct(BaseRepository $repo)
     {
         $this->repo = $repo;
-
-//        $this->user = $this->getUser();
-
-//        if ($this->user)
-//        {
-//            $this->access_ids = $this->user->access_ids;
-//        }
-//        else
-//        {
-//            //限制前台選單
-//            $this->viewlevels = config('cms.item.front.viewlevels');
-//            $this->access_ids = config('cms.item.front.access_ids');
-//        }
     }
 
 
@@ -717,7 +694,6 @@ class BaseService
             return $this->modify($input);
         }
     }
-
 
 
     public function traverseTitle(&$categories, $prefix = '-', &$str = '')

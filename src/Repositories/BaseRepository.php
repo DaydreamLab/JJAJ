@@ -2,13 +2,11 @@
 
 namespace DaydreamLab\JJAJ\Repositories;
 
-use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
 use DaydreamLab\User\Models\User\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -17,14 +15,14 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Closure;
 
-
 class BaseRepository implements BaseRepositoryInterface
 {
-
     /**
      * @var BaseModel
      */
     protected $model;
+
+    protected $package = null;
 
     protected $ignore_keys = ['limit', 'order_by', 'order', 'state', 'search_keys'];
 
@@ -45,15 +43,14 @@ class BaseRepository implements BaseRepositoryInterface
         {
             $query = $this->model;
 
-            if($this->model->hasAttribute('category_id'))
-            {
+            if($this->model->hasAttribute('category_id')) {
                 $query = $query->where('category_id', $input->get('category_id'));
             }
 
             // get last data collection
             $last = $this->getLatestOrdering($input);
             if ($last) {
-                $ordering   = $input->get('ordering');
+                $ordering = $input->get('ordering');
                 if (InputHelper::null($input, 'ordering')) {
                     $input->put('ordering', $last->ordering + 1);
                 } else {
@@ -64,7 +61,12 @@ class BaseRepository implements BaseRepositoryInterface
                             $input->put('ordering', 1);
                         }
 
-                        $update_items = $this->getOrderingUpdateItems($input, $this->model->getOrderBy(), $input->get('ordering'), $last->ordering);
+                        $update_items = $this->getOrderingUpdateItems($input,
+                            $this->model->getOrderBy(),
+                            $input->get('ordering'),
+                            $last->ordering
+                        );
+
                         $result = $update_items->each(function ($item, $key){
                             $item->ordering++;
                             return $item->save();
@@ -93,21 +95,17 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function checkout($item)
+    public function checkout($item, $user)
     {
-        /**
-         * @var User $user
-         */
-        $user = Auth::guard('api')->user();
-
-        if ($item->locked_by == 0 || $item->locked_by == $user->id || $user->higherPermissionThan($item->locked_by))
+        if ($item->locked_by == 0
+            || $item->locked_by == $user->id
+            || $user->higherPermissionThan($item->locked_by))
         {
             $item->locked_by = 0;
             $item->locked_at = null;
+
             return $this->update($item, $item);
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -121,20 +119,25 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function delete($id, $model = null)
     {
-        if ($model === null)
-        {
+        if ($model === null) {
             $model = $this->model->find($id);
 
-            if (!$model) throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
-        }
+            if (!$model) {
+                throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
+            }
 
-        return $model->delete();
+            return $model->delete();
+        } else {
+            return $model->delete();
+        }
     }
 
 
     public function find($id, $eagers = [])
     {
-        return count($eagers) ? $this->model->with($eagers)->find($id) : $this->model->find($id);
+        return count($eagers)
+            ? $this->model->with($eagers)->find($id)
+            : $this->model->find($id);
     }
 
 
@@ -176,10 +179,12 @@ class BaseRepository implements BaseRepositoryInterface
     {
         $query = $this->model->where('parent_id', $parent_id);
         if($origin > $modified) {   // 排序向上移動
-            $query = $query->where('ordering', '>=', $modified)->where('ordering', '<', $origin);
+            $query = $query->where('ordering', '>=', $modified)
+                ->where('ordering', '<', $origin);
         }
         else { // 排序向下移動
-            $query = $query->where('ordering', '>', $origin)->where('ordering', '<=', $modified);
+            $query = $query->where('ordering', '>', $origin)
+                ->where('ordering', '<=', $modified);
         }
 
         return $query->get();
@@ -195,7 +200,7 @@ class BaseRepository implements BaseRepositoryInterface
     public function getLatestOrdering(Collection $input)
     {
         return $this->model
-            ->orderBy($this->model->getOrderBy(), $this->model->getOrder())
+            ->orderBy('ordering', 'desc')
             ->limit(1)
             ->first();
     }
@@ -383,7 +388,9 @@ class BaseRepository implements BaseRepositoryInterface
         $this_trait     = class_uses($this->model);
         $parent_trait   = class_uses(get_parent_class($this->model));
 
-        return (in_array($trait, $this_trait) || in_array($trait, $parent_trait)) ? true : false;
+        return (in_array($trait, $this_trait) || in_array($trait, $parent_trait))
+            ? true
+            : false;
     }
 
 
@@ -407,8 +414,7 @@ class BaseRepository implements BaseRepositoryInterface
     public function getParamsIds($params, $key)
     {
         $ids = [];
-        foreach ($params[$key] as $param)
-        {
+        foreach ($params[$key] as $param) {
             $ids[] = $param->id;
         }
 
@@ -431,8 +437,7 @@ class BaseRepository implements BaseRepositoryInterface
         $diff           = $input->get('index_diff');
         $latestItem     = $this->getLatestOrdering($input);
 
-        if ($input_order == 'asc')
-        {
+        if ($input_order == 'asc') {
             $final = $origin + $diff;
             // 有最新項目（也就是不是沒資料）並且 ordering 超出界線
             if ($latestItem && ($final <= 0 || $final > $latestItem->{$orderingKey})) {
@@ -446,9 +451,7 @@ class BaseRepository implements BaseRepositoryInterface
                     return $update_item->save();
                 });
             }
-        }
-        else
-        {
+        } else {
             $final = $origin - $diff;
             // 有最新項目（也就是不是沒資料）並且 ordering 超出界線
             if ($latestItem && ($final <= 0 || $final > $latestItem->{$orderingKey})){
@@ -514,7 +517,8 @@ class BaseRepository implements BaseRepositoryInterface
         $language   = InputHelper::getCollectionKey($input, 'language', '') ;
         $query = $this->getQuery($input);
 
-        if ($this->model->hasAttribute('state') && $this->model->getTable() != 'users')
+        if ($this->model->hasAttribute('state')
+            && $this->model->getTable() != 'users')
         {
             if (is_array($state))
             {
@@ -537,7 +541,6 @@ class BaseRepository implements BaseRepositoryInterface
         if ($this->isNested()) //重組出樹狀
         {
             $query = $query->orderBy('_lft', $order);
-
         }
         else
         {
@@ -576,7 +579,8 @@ class BaseRepository implements BaseRepositoryInterface
     {
         $item = $this->find($id);
 
-        if(!$item)  throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
+        if(!$item)
+            throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
 
         $item->lock_by = 0;
         $item->lock_at = null;
