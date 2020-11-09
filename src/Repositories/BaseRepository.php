@@ -6,7 +6,7 @@ use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
-use DaydreamLab\JJAJ\Models\Repositories\Interfaces\BaseRepositoryInterface;
+use DaydreamLab\JJAJ\Repositories\Interfaces\BaseRepositoryInterface;
 use DaydreamLab\User\Models\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -17,10 +17,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Closure;
 
-
 class BaseRepository implements BaseRepositoryInterface
 {
-
     /**
      * @var BaseModel
      */
@@ -317,7 +315,6 @@ class BaseRepository implements BaseRepositoryInterface
                         $query = $query->orWhereHas($q['relation'], $q['callback']);
                     }
                 }
-
                 elseif ($key == 'eagers')
                 {
                     foreach ($input->get('eagers') as $eager_key => $eager)

@@ -736,6 +736,27 @@ class BaseService
         $statusString = Str::upper(Str::snake($status));
         $this->hook($input, $statusString, $response);
 
+        if (config('app.debug')) {
+            $bt = debug_backtrace();
+            $trace = array_shift($bt);
+            if (gettype($response) == 'array') {
+                $response['debug']['file'] = $trace['file'];
+                $response['debug']['line'] = $trace['line'];
+                $response['debug']['function'] = $trace['function'];
+            } elseif (gettype($response) == 'object') {
+                $temp['file'] = $trace['file'];
+                $temp['line'] = $trace['line'];
+                $temp['function'] = $trace['function'];
+                $response->debug = $temp;
+            } elseif (gettype($response) == 'string') {
+                $temp['file'] = $trace['file'];
+                $temp['line'] = $trace['line'];
+                $temp['function'] = $trace['function'];
+                $temp['response'] = $response;
+                $response = $temp;
+            }
+        }
+
         throw new HttpResponseException(
             ResponseHelper::genResponse(Str::upper(Str::snake($status)), $response)
         );
