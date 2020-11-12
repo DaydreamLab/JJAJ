@@ -296,6 +296,9 @@ class BaseRepository implements BaseRepositoryInterface
                             $query = $query->where($q['key'], $q['operator'], $q['value']);
                         }
                     }
+                    elseif ($item instanceof Closure) {
+                        $q = $q->where($item);
+                    }
                     else
                     {
                         $query = $query->where($item);
