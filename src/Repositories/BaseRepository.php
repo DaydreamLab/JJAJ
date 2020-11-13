@@ -297,7 +297,7 @@ class BaseRepository implements BaseRepositoryInterface
                         }
                     }
                     elseif ($item instanceof Closure) {
-                        $q = $q->where($item);
+                        $query = $query->where($item);
                     }
                     else
                     {
