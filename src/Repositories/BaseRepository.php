@@ -38,42 +38,30 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function add(Collection $input)
     {
-        if ($this->model->hasAttribute('ordering'))
-        {
-            $query = $this->model;
-
-            if($this->model->hasAttribute('category_id')) {
-                $query = $query->where('category_id', $input->get('category_id'));
-            }
-
-            // get last data collection
+        if ($this->model->hasAttribute('ordering')) {
             $last = $this->getLatestOrdering($input);
             if ($last) {
-                $ordering = $input->get('ordering');
-                if (InputHelper::null($input, 'ordering')) {
+                $inputOrdering = $input->get('ordering');
+                if (!$inputOrdering) {
                     $input->put('ordering', $last->ordering + 1);
                 } else {
-                    if ($ordering > $last->ordering) {
+                    if ($inputOrdering >= $last->ordering) {
                         $input->put('ordering', $last->ordering + 1);
                     } else {
-                        if ($ordering <= 0) {
+                        if ($inputOrdering <= 1) {
                             $input->put('ordering', 1);
                         }
 
                         $update_items = $this->getOrderingUpdateItems($input,
-                            $this->model->getOrderBy(),
-                            $input->get('ordering'),
+                           'ordering',
+                            (int)$input->get('ordering') - 1,
                             $last->ordering
                         );
 
-                        $result = $update_items->each(function ($item, $key){
+                        $result = $update_items->each(function ($item, $key) {
                             $item->ordering++;
                             return $item->save();
                         });
-
-                        if (!$result) {
-                            return $result;
-                        }
                     }
                 }
             } else {
@@ -90,7 +78,7 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function all()
     {
-        return $this->model->get();
+        return $this->model->all();
     }
 
 
@@ -98,8 +86,7 @@ class BaseRepository implements BaseRepositoryInterface
     {
         if ($item->locked_by == 0
             || $item->locked_by == $user->id
-            || $user->higherPermissionThan($item->locked_by))
-        {
+            || $user->higherPermissionThan($item->locked_by)) {
             $item->locked_by = 0;
             $item->locked_at = null;
 
@@ -121,11 +108,7 @@ class BaseRepository implements BaseRepositoryInterface
         if ($model === null) {
             $model = $this->model->find($id);
 
-            if (!$model) {
-                throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
-            }
-
-            return $model->delete();
+            return $model ? $model->delete() : false;
         } else {
             return $model->delete();
         }
@@ -161,7 +144,7 @@ class BaseRepository implements BaseRepositoryInterface
         $model = count($eagers) ? $this->model->with($eagers) : $this->model;
 
         foreach ($fields as $key => $field) {
-            $model = $model->where($field , $operators[$key], $values[$key]);
+            $model = $model->where($field, $operators[$key], $values[$key]);
         }
         return $model->get();
     }
@@ -177,11 +160,10 @@ class BaseRepository implements BaseRepositoryInterface
     public function findOrderingInterval($parent_id, $origin, $modified)
     {
         $query = $this->model->where('parent_id', $parent_id);
-        if($origin > $modified) {   // 排序向上移動
+        if ($origin > $modified) {   // 排序向上移動
             $query = $query->where('ordering', '>=', $modified)
                 ->where('ordering', '<', $origin);
-        }
-        else { // 排序向下移動
+        } else { // 排序向下移動
             $query = $query->where('ordering', '>', $origin)
                 ->where('ordering', '<=', $modified);
         }
@@ -205,7 +187,6 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-
     public function getModel()
     {
         return $this->model;
@@ -215,14 +196,14 @@ class BaseRepository implements BaseRepositoryInterface
     // 找出除了自己以外的需要更新的項目
     public function getOrderingUpdateItems(Collection $input, $orderingKey, $origin, $final, $extraRules = [])
     {
-        $keys       = [$orderingKey, $orderingKey];
+        $keys = [$orderingKey, $orderingKey];
 
         if ($origin > $final) {
-            $operators  = ['>=', '<'];
-            $values     = [$final, $origin];
+            $operators = ['>=', '<'];
+            $values = [$final, $origin];
         } else {
-            $operators  = ['>', '<='];
-            $values     = [$origin, $final];
+            $operators = ['>', '<='];
+            $values = [$origin, $final];
         }
 
         if ($this->model->hasAttribute('category_id')) {
@@ -244,124 +225,78 @@ class BaseRepository implements BaseRepositoryInterface
     public function getQuery(Collection $input)
     {
         $query = $this->model;
-        foreach ($input->toArray() as $key => $item)
-        {
-            if (!in_array($key, $this->ignore_keys))
-            {
-                if ($key == 'search' && !InputHelper::null($input, 'search'))
-                {
+        foreach ($input->toArray() as $key => $item) {
+            if (!in_array($key, $this->ignore_keys)) {
+                if ($key == 'search' && !InputHelper::null($input, 'search')) {
                     $query = $query->where(function ($query) use ($item, $input) {
                         $search_keys = $input->get('search_keys');
 
-                        foreach ($search_keys as $search_key)
-                        {
-                            $query->orWhere($search_key, 'LIKE', '%%'.$item.'%%');
+                        foreach ($search_keys as $search_key) {
+                            $query->orWhere($search_key, 'LIKE', '%%' . $item . '%%');
                         }
 
                     });
-                }
-                elseif ($key == 'special_queries')
-                {
-                    foreach ($item as $q)
-                    {
-                        if(count($q) == 2)
-                        {
-                            foreach ($q['callback'] as $c)
-                            {
+                } elseif ($key == 'special_queries') {
+                    foreach ($item as $q) {
+                        if (count($q) == 2) {
+                            foreach ($q['callback'] as $c) {
                                 $query = $query->{$c['type']}($c['key'], $c['operator'], $c['value']);
                             }
-                        }
-                        elseif(count($q) == 3)
-                        {
-                            if(array_key_exists('type', $q))
-                            {
+                        } elseif (count($q) == 3) {
+                            if (array_key_exists('type', $q)) {
 
                                 $query = $query->{$q['type']}($q['key'], $q['value']);
-                            }
-                            else
-                            {
+                            } else {
                                 $query = $query->where($q['key'], $q['operator'], $q['value']);
                             }
-                        }
-                        elseif(count($q) == 4)
-                        {
+                        } elseif (count($q) == 4) {
                             $query = $query->{$q['type']}($q['key'], $q['operator'], $q['value']);
                         }
                     }
-                }
-                elseif ($key == 'without_root')
-                {
+                } elseif ($key == 'without_root') {
                     $query = $query->where('title', '!=', 'ROOT');
-                }
-                elseif ($key == 'where')
-                {
-                    if(gettype($item) == 'array')
-                    {
-                        foreach ($item as $q)
-                        {
+                } elseif ($key == 'where') {
+                    if (gettype($item) == 'array') {
+                        foreach ($item as $q) {
                             $query = $query->where($q['key'], $q['operator'], $q['value']);
                         }
-                    }
-                    else
-                    {
+                    } elseif ($item instanceof Closure) {
+                        $query = $query->where($item);
+                    } else {
                         $query = $query->where($item);
                     }
-                }
-                elseif ($key == 'whereHas')
-                {
-                    foreach ($item as $q)
-                    {
+                } elseif ($key == 'whereHas') {
+                    foreach ($item as $q) {
                         $query = $query->whereHas($q['relation'], $q['callback']);
                     }
-                }
-                elseif ($key == 'orWhereHas')
-                {
-                    foreach ($item as $q)
-                    {
+                } elseif ($key == 'orWhereHas') {
+                    foreach ($item as $q) {
                         $query = $query->orWhereHas($q['relation'], $q['callback']);
                     }
-                }
-
-                elseif ($key == 'eagers')
-                {
-                    foreach ($input->get('eagers') as $eager_key => $eager)
-                    {
+                } elseif ($key == 'eagers') {
+                    foreach ($input->get('eagers') as $eager_key => $eager) {
                         $query = $query->with($eager);
                     }
-                }
-                elseif ($key == 'loads')
-                {
-                    foreach ($input->get('loads') as $load)
-                    {
+                } elseif ($key == 'loads') {
+                    foreach ($input->get('loads') as $load) {
                         $query = $query->load($load);
                     }
-                }
-                else
-                {
-                    if ($item != null)
-                    {
+                } else {
+                    if ($item != null) {
                         // 需要重寫這段
-                        if ($this->isNested())
-                        {
-                            if ($key == 'id')
-                            {
+                        if ($this->isNested()) {
+                            if ($key == 'id') {
                                 $category = $this->find($input->id);
                                 $query = $query->where('_lft', '>=', $category->_lft)
-                                                ->where('_rgt', '<=', $category->_rgt);
-                            }
-                            else if ($key == 'tag_id')
-                            {
+                                    ->where('_rgt', '<=', $category->_rgt);
+                            } else if ($key == 'tag_id') {
                                 $tag = $this->find($input->tag_id);
                                 $query = $query->where('_lft', '>', $tag->_lft)
-                                                ->where('_rgt', '>', $tag->_rgt);
-                            }
-                            else
-                            {
+                                    ->where('_rgt', '>', $tag->_rgt);
+                            } else {
                                 $query = $query->where("$key", '=', $item);
                             }
-                        }
-                        else
-                        {
+                        } else {
 //                            if ($key == 'category_id')
 //                            {
 //                                $query = $query->whereIn('category_id', $item);
@@ -384,8 +319,8 @@ class BaseRepository implements BaseRepositoryInterface
     public function isNested()
     {
         $trait = 'Kalnoy\Nestedset\NodeTrait';
-        $this_trait     = class_uses($this->model);
-        $parent_trait   = class_uses(get_parent_class($this->model));
+        $this_trait = class_uses($this->model);
+        $parent_trait = class_uses(get_parent_class($this->model));
 
         return (in_array($trait, $this_trait) || in_array($trait, $parent_trait))
             ? true
@@ -398,8 +333,7 @@ class BaseRepository implements BaseRepositoryInterface
         $user = Auth::guard('api')->user();
 
         $item = $this->find($id);
-        if (!$item)
-        {
+        if (!$item) {
             return false;
         }
 
@@ -430,11 +364,11 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function ordering(Collection $input, $item)
     {
-        $orderingKey    = $input->get('orderingKey') ?: $this->model->getOrderBy();
-        $input_order    = $input->get('order') ?: $this->model->getOrder();
-        $origin         = $item->{$orderingKey};
-        $diff           = $input->get('index_diff');
-        $latestItem     = $this->getLatestOrdering($input);
+        $orderingKey = $input->get('orderingKey') ?: $this->model->getOrderBy();
+        $input_order = $input->get('order') ?: $this->model->getOrder();
+        $origin = $item->{$orderingKey};
+        $diff = $input->get('index_diff');
+        $latestItem = $this->getLatestOrdering($input);
 
         if ($input_order == 'asc') {
             $final = $origin + $diff;
@@ -453,7 +387,7 @@ class BaseRepository implements BaseRepositoryInterface
         } else {
             $final = $origin - $diff;
             // 有最新項目（也就是不是沒資料）並且 ordering 超出界線
-            if ($latestItem && ($final <= 0 || $final > $latestItem->{$orderingKey})){
+            if ($latestItem && ($final <= 0 || $final > $latestItem->{$orderingKey})) {
                 return false;
             }
             $item->{$orderingKey} = $origin - $diff;
@@ -478,20 +412,16 @@ class BaseRepository implements BaseRepositoryInterface
 
         $paginate = new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
 
-        if (count($options))
-        {
+        if (count($options)) {
             $url = url()->current() . '?';
             $counter = 0;
-            foreach ($options as $key => $option)
-            {
-                $url .= $key . '=' .$option;
+            foreach ($options as $key => $option) {
+                $url .= $key . '=' . $option;
                 $counter++;
-                $counter != count($options) ? $url.= '&' : true;
+                $counter != count($options) ? $url .= '&' : true;
             }
             $paginate = $paginate->setPath($url);
-        }
-        else
-        {
+        } else {
             $paginate = $paginate->setPath(url()->current());
         }
 
@@ -506,32 +436,27 @@ class BaseRepository implements BaseRepositoryInterface
      */
     public function search(Collection $input, $paginate = true)
     {
-        $order_by   = InputHelper::getCollectionKey($input, 'order_by', $this->model->getOrderBy());
-        if(!$this->model->hasAttribute($order_by) && !in_array($order_by, $this->order_by_ignore_keys)) {
+        $order_by = InputHelper::getCollectionKey($input, 'order_by', $this->model->getOrderBy());
+        if (!$this->model->hasAttribute($order_by) && !in_array($order_by, $this->order_by_ignore_keys)) {
             throw new HttpResponseException(ResponseHelper::genResponse('INPUT_INVALID', ['order_by' => $order_by]));
         }
-        $limit      = (int)InputHelper::getCollectionKey($input, 'limit', $this->model->getLimit());
-        $order      = InputHelper::getCollectionKey($input, 'order', $this->model->getOrder());
-        $state      = InputHelper::getCollectionKey($input, 'state', [0,1]);
-        $language   = InputHelper::getCollectionKey($input, 'language', '') ;
+        $limit = (int)InputHelper::getCollectionKey($input, 'limit', $this->model->getLimit());
+        $order = InputHelper::getCollectionKey($input, 'order', $this->model->getOrder());
+        $state = InputHelper::getCollectionKey($input, 'state', [0, 1]);
+        $language = InputHelper::getCollectionKey($input, 'language', '');
         $query = $this->getQuery($input);
 
         if ($this->model->hasAttribute('state')
-            && $this->model->getTable() != 'users')
-        {
-            if (is_array($state))
-            {
+            && $this->model->getTable() != 'users') {
+            if (is_array($state)) {
                 $query = $query->whereIn('state', $state);
-            }
-            else{
+            } else {
                 $query = $query->where('state', '=', $state);
             }
         }
 
-        if ($this->model->hasAttribute('language'))
-        {
-            if ($language != '')
-            {
+        if ($this->model->hasAttribute('language')) {
+            if ($language != '') {
                 $query = $query->where('language', $language);
             }
         }
@@ -540,24 +465,18 @@ class BaseRepository implements BaseRepositoryInterface
         if ($this->isNested()) //重組出樹狀
         {
             $query = $query->orderBy('_lft', $order);
-        }
-        else
-        {
+        } else {
             $query = $query->orderBy($order_by, $order);
-            if ($this->model->hasAttribute('publish_up'))
-            {
+            if ($this->model->hasAttribute('publish_up')) {
                 $query = $query->orderBy('publish_up', 'desc');
             }
         }
 
 
-        if ($limit == 0)
-        {
+        if ($limit == 0) {
             $items = $paginate ? $query->paginate($this->infinity)
                 : $query->get();
-        }
-        else
-        {
+        } else {
             $items = $paginate ? $query->paginate($limit)
                 : $query->get();
         }
@@ -578,7 +497,7 @@ class BaseRepository implements BaseRepositoryInterface
     {
         $item = $this->find($id);
 
-        if(!$item)
+        if (!$item)
             throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
 
         $item->lock_by = 0;
@@ -590,27 +509,20 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function update($item, $model = null)
     {
-        if ($model !== null)
-        {
-            if ($item != $model)
-            {
-                foreach ($item as $key => $value)
-                {
-                    if($model->hasAttribute($key))
-                    {
+        if ($model !== null) {
+            if ($item != $model) {
+                foreach ($item as $key => $value) {
+                    if ($model->hasAttribute($key)) {
                         $model->{$key} = $value;
                     }
                 }
             }
 
             return $model->save();
-        }
-        else
-        {
+        } else {
             return $this->model->find($item['id'])->update($item);
         }
     }
-
 
     public function whereHas($relation, Closure $closure)
     {

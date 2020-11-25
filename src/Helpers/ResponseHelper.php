@@ -6,6 +6,38 @@ use Illuminate\Support\Str;
 
 class ResponseHelper
 {
+    public static function genResponse1($statusString, $data, $package, $modelName, $trans_params = [])
+    {
+        $code = config("constants.default.{$statusString}");
+        $message = trans("jjaj::default.{$statusString}", $trans_params);
+
+        if (!$code) {
+            if ($package) {
+                $code = config("constants.{$package}.{$modelName}.{$statusString}");
+                $message = trans("{$package}::{$modelName}.{$statusString}", $trans_params);
+            } else {
+                $code = config("constants.{$modelName}.{$statusString}");
+                $message = trans("{$modelName}.{$statusString}", $trans_params);
+            }
+
+            if (!$code) {
+                $response['status'] = config('constants.default.UNDEFINED_STATUS');
+                $response['message'] = trans("jjaj::default.UNDEFINED_STATUS",  ['status' => $statusString]);
+            } else {
+                $response['status'] = $statusString;
+                $response['message'] = str_replace('{$ModelName}', $modelName, $message);
+                $response['data']['items'] = $data;
+            }
+        } else {
+            $response['status'] = $statusString;
+            $response['message'] = str_replace('{$ModelName}', $modelName,$message);
+            $response['data']['items'] = $data;
+        }
+
+        return response()->json($response, $code);
+    }
+
+
     public static function genResponse($status, $data = null)
     {
         $type = strtolower(explode('_', $status)[0]);

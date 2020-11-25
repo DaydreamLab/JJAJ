@@ -2,11 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Models;
 
-use Carbon\Carbon;
-use DaydreamLab\JJAJ\Helpers\Helper;
-use DaydreamLab\User\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
-
 
 class BaseModel extends Model
 {

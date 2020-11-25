@@ -32,6 +32,7 @@ class JJAJServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'jjaj');
     }
 
     /**
@@ -42,6 +43,7 @@ class JJAJServiceProvider extends ServiceProvider
     public function register()
     {
         $this->commands($this->commands);
+
         $this->app->bind(
             ExceptionHandler::class,
             BaseExceptionHandler::class

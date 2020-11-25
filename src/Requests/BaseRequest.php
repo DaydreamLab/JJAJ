@@ -11,6 +11,10 @@ use Illuminate\Contracts\Validation\Validator;
 
 class BaseRequest extends FormRequest
 {
+    protected $package;
+
+    protected $modelName;
+
     public function __construct(array $query = array(), array $request = array(), array $attributes = array(), array $cookies = array(), array $files = array(), array $server = array(), $content = null)
     {
         parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
@@ -21,14 +25,25 @@ class BaseRequest extends FormRequest
         return true;
     }
 
-
     protected function failedValidation(Validator $validator)
     {
         if (config('app.debug')) {
-            throw new HttpResponseException(ResponseHelper::genResponse('INPUT_INVALID', $validator->errors()));
+            throw new HttpResponseException(
+                ResponseHelper::genResponse1(
+                    'INPUT_INVALID',
+                    $validator->errors(),
+                    $this->package,
+                    $this->modelName
+                ));
         }
         else {
-            throw new HttpResponseException(ResponseHelper::genResponse('INPUT_INVALID', null));
+            throw new HttpResponseException(
+                ResponseHelper::genResponse1(
+                    'INPUT_INVALID',
+                    null,
+                    $this->package,
+                    $this->modelName
+                ));
         }
     }
 

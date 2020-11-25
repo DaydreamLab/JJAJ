@@ -21,6 +21,8 @@ class BaseService
 
     public $package = null;
 
+    protected $modelName = '';
+
     protected $eagers = [];
 
     protected $loads = [];
@@ -57,11 +59,10 @@ class BaseService
         $model = $this->repo->add($input);
         if ($model) {
             $this->addMapping($model, $input);
-            $this->status =  Str::upper(Str::snake($this->type.'CreateSuccess'));
+            $this->status = Str::upper(Str::snake($this->type . 'CreateSuccess'));
             $this->response = $model;
-        }
-        else {
-            $this->throwResponse($this->type.'CreateFail');
+        } else {
+            $this->throwResponse($this->type . 'CreateFail');
         }
 
         return $model;
@@ -85,22 +86,15 @@ class BaseService
         if ($this->isSite() || config('app.seeding')) return true;
 
         // 這邊為了特化 dddream 使用所以特化成這樣（利用有沒有item）
-        if($item)
-        {
-            foreach ($this->user->groups as $group)
-            {
-                if ($group->canAction($this->getServiceName(), $method, $item))
-                {
+        if ($item) {
+            foreach ($this->user->groups as $group) {
+                if ($group->canAction($this->getServiceName(), $method, $item)) {
                     return true;
                 }
             }
-        }
-        else
-        {
-            foreach ($this->user->groups as $group)
-            {
-                if (in_array($method, $group->accessResource['apis']))
-                {
+        } else {
+            foreach ($this->user->groups as $group) {
+                if (in_array($method, $group->accessResource['apis'])) {
                     return true;
                 }
             }
@@ -114,8 +108,7 @@ class BaseService
     {
         if (config('app.seeding')) return true;
         $user_access_ids = $user_access_ids ? $user_access_ids : [];
-        if(!in_array($item_access, $user_access_ids))
-        {
+        if (!in_array($item_access, $user_access_ids)) {
             $this->throwResponse('UserInsufficientPermission', 'viewlevel insufficient');
         }
 
@@ -130,9 +123,8 @@ class BaseService
     public function checkout(Collection $input)
     {
         $result = false;
-        foreach ($input->get('ids') as $id)
-        {
-            $item  = $this->checkItem(collect(['id' => $id]));
+        foreach ($input->get('ids') as $id) {
+            $item = $this->checkItem(collect(['id' => $id]));
 
             $result = $this->repo->checkout($item);
 
@@ -140,11 +132,10 @@ class BaseService
         }
 
         if ($result) {
-            $this->status =  Str::upper(Str::snake($this->type.'CheckoutSuccess'));
+            $this->status = Str::upper(Str::snake($this->type . 'CheckoutSuccess'));
             $this->response = null;
-        }
-        else {
-            $this->throwResponse($this->type.'CheckoutFail');
+        } else {
+            $this->throwResponse($this->type . 'CheckoutFail');
         }
 
         return $result;
@@ -156,28 +147,20 @@ class BaseService
      */
     public function checkAliasExist(Collection $input)
     {
-        if ($this->repo->getModel()->hasAttribute('alias') && $this->repo->getModel()->getTable() != 'extrafields')
-        {
+        if ($this->repo->getModel()->hasAttribute('alias') && $this->repo->getModel()->getTable() != 'extrafields') {
             $same = null;
-            if ($this->repo->getModel()->hasAttribute('language'))
-            {
-                if (InputHelper::null($input, 'language'))
-                {
-                    $same = $this->findByChain(['alias', 'language'], ['=', '='],[$input->get('alias'), config('daydreamlab.global.locale')])->first();
+            if ($this->repo->getModel()->hasAttribute('language')) {
+                if (InputHelper::null($input, 'language')) {
+                    $same = $this->findByChain(['alias', 'language'], ['=', '='], [$input->get('alias'), config('daydreamlab.global.locale')])->first();
+                } else {
+                    $same = $this->findByChain(['alias', 'language'], ['=', '='], [$input->get('alias'), $input->get('language')])->first();
                 }
-                else
-                {
-                    $same = $this->findByChain(['alias', 'language'], ['=', '='],[$input->get('alias'), $input->get('language')])->first();
-                }
-            }
-            else
-            {
+            } else {
                 $same = $this->findBy('alias', '=', $input->get('alias'))->first();
             }
 
-            if ($same && $same->id != $input->get('id'))
-            {
-                $this->throwResponse($this->type.'StoreWithExistAlias');
+            if ($same && $same->id != $input->get('id')) {
+                $this->throwResponse($this->type . 'StoreWithExistAlias');
             }
         }
 
@@ -187,17 +170,13 @@ class BaseService
 
     public function checkItem($input)
     {
-        $item  = $this->find($input->get('id'));
-        if($item)
-        {
-            if ($item->hasAttribute('access'))
-            {
+        $item = $this->find($input->get('id'));
+        if ($item) {
+            if ($item->hasAttribute('access')) {
                 $this->canAccess($item->access, $this->access_ids);
             }
-        }
-        else
-        {
-            $this->throwResponse($this->type.'ItemNotExist', ['id' => $input->get('id')]);
+        } else {
+            $this->throwResponse($this->type . 'ItemNotExist', ['id' => $input->get('id')]);
         }
 
         $this->afterCheckItem($item);
@@ -207,9 +186,8 @@ class BaseService
 
     public function checkLocked($item)
     {
-        if ($item->locked_by && $item->locked_by != $this->user->id && !$this->user->higherPermissionThan($item->locked_by))
-        {
-            $this->throwResponse($this->type.'IsLocked', (object) $this->user->only('email', 'full_name', 'nickname'));
+        if ($item->locked_by && $item->locked_by != $this->user->id && !$this->user->higherPermissionThan($item->locked_by)) {
+            $this->throwResponse($this->type . 'IsLocked', (object)$this->user->only('email', 'full_name', 'nickname'));
         }
     }
 
@@ -260,7 +238,7 @@ class BaseService
      */
     public function findBy($filed, $operator, $value)
     {
-        return  $this->repo->findBy($filed, $operator, $value, $this->eagers);
+        return $this->repo->findBy($filed, $operator, $value, $this->eagers);
     }
 
     /**
@@ -271,7 +249,7 @@ class BaseService
      */
     public function findByChain($fields, $operators, $values)
     {
-        return $this->repo->findByChain($fields , $operators, $values, $this->eagers);
+        return $this->repo->findByChain($fields, $operators, $values, $this->eagers);
     }
 
     /**
@@ -307,8 +285,7 @@ class BaseService
 
         $this->checkLocked($item);
 
-        if ($item->hasAttribute('locked_by'))
-        {
+        if ($item->hasAttribute('locked_by')) {
             $data = [
                 'locked_by' => $this->user->id,
                 'locked_at' => Carbon::now()->toDateTimeString()
@@ -316,7 +293,7 @@ class BaseService
             $this->update($data, $item);
         }
 
-        $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
+        $this->status = Str::upper(Str::snake($this->type . 'GetItemSuccess'));
         $this->response = $item->refresh();
 
         return $this->response;
@@ -326,18 +303,16 @@ class BaseService
     public function getItemByAlias(Collection $input)
     {
         $item = $this->search($input)->first();
-        if($item) {
-            if($item->hasAttribute('hits'))
-            {
+        if ($item) {
+            if ($item->hasAttribute('hits')) {
                 $item->hits++;
                 $this->update($item, $item);
             }
 
-            $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
+            $this->status = Str::upper(Str::snake($this->type . 'GetItemSuccess'));
             $this->response = $item;
-        }
-        else {
-            $this->throwResponse($this->type.'ItemNotExist');
+        } else {
+            $this->throwResponse($this->type . 'ItemNotExist');
         }
 
         return $item;
@@ -350,12 +325,11 @@ class BaseService
     public function getItemByPath(Collection $input)
     {
         $item = $this->search($input)->first();
-        if($item) {
-            $this->status   = Str::upper(Str::snake($this->type.'GetItemSuccess'));
+        if ($item) {
+            $this->status = Str::upper(Str::snake($this->type . 'GetItemSuccess'));
             $this->response = $item;
-        }
-        else {
-            $this->throwResponse($this->type.'GetItemFail');
+        } else {
+            $this->throwResponse($this->type . 'GetItemFail');
         }
 
         return $item;
@@ -371,7 +345,7 @@ class BaseService
     {
         $items = $this->repo->all();
 
-        $this->status   = Str::upper(Str::snake($this->type.'GetListSuccess'));
+        $this->status = Str::upper(Str::snake($this->type . 'GetListSuccess'));
         $this->response = $items;
 
         return $items;
@@ -387,11 +361,9 @@ class BaseService
     }
 
 
-
     public function getServiceName()
     {
-        if (!$this->service_name)
-        {
+        if (!$this->service_name) {
             $str = explode('\\', get_class($this));
             $this->service_name = end($str);
         }
@@ -402,7 +374,7 @@ class BaseService
 
     public function hook($input, $status, $response)
     {
-        if($input
+        if ($input
             && ((gettype($input) == 'array' && array_key_exists('log', $input))
                 || (gettype($input) == 'object' && property_exists($input, 'log')))
         ) {
@@ -435,11 +407,10 @@ class BaseService
         if ($update) {
 
             $this->modifyMapping($item, $input);
-            $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
+            $this->status = Str::upper(Str::snake($this->type . 'UpdateSuccess'));
             $this->response = $update;
-        }
-        else {
-            $this->throwResponse($this->type.'UpdateFail');
+        } else {
+            $this->throwResponse($this->type . 'UpdateFail');
         }
 
         return $update;
@@ -454,31 +425,25 @@ class BaseService
 
     public function ordering(Collection $input)
     {
-        if (!$input->has('orderingKey'))
-        {
+        if (!$input->has('orderingKey')) {
             $input->put('orderingKey', 'ordering');
         }
 
         $item = $this->checkItem($input);
 
-        if ($this->repo->isNested())
-        {
+        if ($this->repo->isNested()) {
             $result = $this->repo->orderingNested($input, $item);
-            if($result) {
-                $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingNestedSuccess'));
+            if ($result) {
+                $this->status = Str::upper(Str::snake($this->type . 'UpdateOrderingNestedSuccess'));
+            } else {
+                $this->throwResponse($this->type . 'UpdateOrderingNestedFail');
             }
-            else {
-                $this->throwResponse($this->type.'UpdateOrderingNestedFail');
-            }
-        }
-        else
-        {
+        } else {
             $result = $this->repo->ordering($input, $item);
-            if($result) {
-                $this->status =  Str::upper(Str::snake($this->type.'UpdateOrderingSuccess'));
-            }
-            else {
-                $this->throwResponse($this->type.'UpdateOrderingFail');
+            if ($result) {
+                $this->status = Str::upper(Str::snake($this->type . 'UpdateOrderingSuccess'));
+            } else {
+                $this->throwResponse($this->type . 'UpdateOrderingFail');
             }
         }
 
@@ -489,14 +454,11 @@ class BaseService
     public function paginationFormat($items)
     {
         $data = [];
-        if (array_key_exists('data', $items))
-        {
+        if (array_key_exists('data', $items)) {
             $data['data'] = $items['data'];
             unset($items['data']);
             $data['pagination'] = $items;
-        }
-        else
-        {
+        } else {
             $data['data'] = $items;
             $data['paginate'] = [];
         }
@@ -508,34 +470,29 @@ class BaseService
     public function remove(Collection $input)
     {
         $result = false;
-        foreach ($input->get('ids') as $id)
-        {
+        foreach ($input->get('ids') as $id) {
             $item = $this->checkItem(collect(['id' => $id]));
 
             $result_relations = $this->removeMapping($item);
             // 若有排序的欄位則要調整 ordering 大於刪除項目的值
-            if ($this->repo->getModel()->hasAttribute('ordering'))
-            {
+            if ($this->repo->getModel()->hasAttribute('ordering')) {
                 $delete_siblings = $this->repo->findDeleteSiblings($item->ordering, $item);
-                foreach ($delete_siblings as $delete_sibling)
-                {
+                foreach ($delete_siblings as $delete_sibling) {
                     $delete_sibling->ordering--;
                     $this->update($delete_sibling, $delete_sibling);
                 }
             }
 
             $result = $this->repo->delete($id, $item);
-            if (!$result || !$result_relations)
-            {
+            if (!$result || !$result_relations) {
                 break;
             }
         }
 
-        if($result) {
-            $this->status =  Str::upper(Str::snake($this->type.'DeleteSuccess'));
-        }
-        else {
-            $this->throwResponse($this->type.'DeleteFail');
+        if ($result) {
+            $this->status = Str::upper(Str::snake($this->type . 'DeleteSuccess'));
+        } else {
+            $this->throwResponse($this->type . 'DeleteFail');
         }
         return $result;
     }
@@ -555,13 +512,12 @@ class BaseService
     {
         $special_queries = $input->get('special_queries') ?: [];
 
-        if ($this->repo->getModel()->hasAttribute('access') && $this->access_ids)
-        {
-            $input->put('special_queries', array_merge($special_queries ,
+        if ($this->repo->getModel()->hasAttribute('access') && $this->access_ids) {
+            $input->put('special_queries', array_merge($special_queries,
                 [[
                     'type' => 'whereIn',
-                    'key'  => 'access',
-                    'value'=> $this->access_ids
+                    'key' => 'access',
+                    'value' => $this->access_ids
                 ]]
             ));
         }
@@ -578,7 +534,7 @@ class BaseService
 
         $items = $this->repo->search($input, $paginate);
 
-        $this->status   = Str::upper(Str::snake($this->type.'SearchSuccess'));
+        $this->status = Str::upper(Str::snake($this->type . 'SearchSuccess'));
         $this->response = $items;
 
         return $items;
@@ -587,44 +543,34 @@ class BaseService
 
     public function setStoreDefaultInput(Collection $input)
     {
-        if ($this->repo->getModel()->hasAttribute('alias'))
-        {
-            if (InputHelper::null($input, 'alias'))
-            {
+        if ($this->repo->getModel()->hasAttribute('alias')) {
+            if (InputHelper::null($input, 'alias')) {
                 $encode = urlencode($input->get('title'));
                 $alias = Str::lower(Str::random(20));
-            }
-            else
-            {
+            } else {
                 $alias = $input->get('alias');
             }
 
             $input->put('alias', Str::lower($alias));
         }
 
-        if ($this->repo->getModel()->hasAttribute('state') && $input->get('state') === null)
-        {
+        if ($this->repo->getModel()->hasAttribute('state') && $input->get('state') === null) {
             $input->forget('state');
         }
 
-
-        if ($this->repo->getModel()->hasAttribute('access') && InputHelper::null($input, 'access'))
-        {
+        if ($this->repo->getModel()->hasAttribute('access') && InputHelper::null($input, 'access')) {
             $input->put('access', 1);
         }
 
-        if ($this->repo->getModel()->hasAttribute('language') && InputHelper::null($input, 'language'))
-        {
+        if ($this->repo->getModel()->hasAttribute('language') && InputHelper::null($input, 'language')) {
             $input->put('language', config('daydreamlab.global.locale'));
         }
 
-        if ($this->repo->getModel()->hasAttribute('params') && InputHelper::null($input, 'params'))
-        {
+        if ($this->repo->getModel()->hasAttribute('params') && InputHelper::null($input, 'params')) {
             $input->put('params', (object)[]);
         }
 
-        if ($this->repo->getModel()->hasAttribute('extrafields') && InputHelper::null($input, 'extrafields'))
-        {
+        if ($this->repo->getModel()->hasAttribute('extrafields') && InputHelper::null($input, 'extrafields')) {
             $input->put('extrafields', []);
         }
 
@@ -635,10 +581,9 @@ class BaseService
     public function state(Collection $input)
     {
         $result = false;
-        foreach ($input->get('ids') as $id)
-        {
+        foreach ($input->get('ids') as $id) {
             $input->put('id', $id);
-            $item  = $this->checkItem($input->except('ids'));
+            $item = $this->checkItem($input->except('ids'));
 
             $result = $this->repo->state($item, $input->get('state'));
             if (!$result) break;
@@ -646,19 +591,16 @@ class BaseService
 
         if ($input->get('state') == '1') {
             $action = 'Publish';
-        }
-        elseif ($input->get('state') == '0') {
+        } elseif ($input->get('state') == '0') {
             $action = 'Unpublish';
-        }
-        elseif ($input->get('state') == '-1') {
+        } elseif ($input->get('state') == '-1') {
             $action = 'Archive';
-        }
-        elseif ($input->get('state') == '-2') {
+        } elseif ($input->get('state') == '-2') {
             $action = 'Trash';
         }
 
-        $this->status = $result ? Str::upper(Str::snake($this->type. $action . 'Success'))
-            : Str::upper(Str::snake($this->type. $action . 'Fail'));
+        $this->status = $result ? Str::upper(Str::snake($this->type . $action . 'Success'))
+            : Str::upper(Str::snake($this->type . $action . 'Fail'));
 
         return $result;
     }
@@ -668,17 +610,17 @@ class BaseService
     {
         $input = $this->setStoreDefaultInput($input);
 
-        if($input->has('extrafields')){
+        if ($input->has('extrafields')) {
             $extrafields = $input->get('extrafields');
             $extrafields_data = [];
             foreach ($extrafields as $extrafield) {
                 $temp = [];
                 $temp['id'] = $extrafield['id'];
                 $temp['value'] = $extrafield['value'];
-                if(isset($extrafield['params'])) {
+                if (isset($extrafield['params'])) {
                     $temp['params'] = $extrafield['params'];
                 } else {
-                  $temp['params'] = [];
+                    $temp['params'] = [];
                 }
                 $extrafields_data[] = $temp;
             }
@@ -689,8 +631,7 @@ class BaseService
 
         if (InputHelper::null($input, 'id')) {
             return $this->add($input);
-        }
-        else {
+        } else {
             return $this->modify($input);
         }
     }
@@ -698,10 +639,10 @@ class BaseService
 
     public function traverseTitle(&$categories, $prefix = '-', &$str = '')
     {
-        $categories  = $categories->sortBy('order');
+        $categories = $categories->sortBy('order');
         foreach ($categories as $category) {
-            $str = $str . PHP_EOL.$prefix.' '.$category->title;
-            $this->traverseTitle($category->children, $prefix.'-', $str);
+            $str = $str . PHP_EOL . $prefix . ' ' . $category->title;
+            $this->traverseTitle($category->children, $prefix . '-', $str);
         }
         return $str;
     }
@@ -712,6 +653,27 @@ class BaseService
         $statusString = Str::upper(Str::snake($status));
         $this->hook($input, $statusString, $response);
 
+        if (config('app.debug')) {
+            $bt = debug_backtrace();
+            $trace = array_shift($bt);
+            if (gettype($response) == 'array') {
+                $response['debug']['file'] = $trace['file'];
+                $response['debug']['line'] = $trace['line'];
+                $response['debug']['function'] = $trace['function'];
+            } elseif (gettype($response) == 'object') {
+                $temp['file'] = $trace['file'];
+                $temp['line'] = $trace['line'];
+                $temp['function'] = $trace['function'];
+                $response->debug = $temp;
+            } elseif (gettype($response) == 'string') {
+                $temp['file'] = $trace['file'];
+                $temp['line'] = $trace['line'];
+                $temp['function'] = $trace['function'];
+                $temp['response'] = $response;
+                $response = $temp;
+            }
+        }
+
         throw new HttpResponseException(
             ResponseHelper::genResponse(Str::upper(Str::snake($status)), $response)
         );
@@ -720,13 +682,10 @@ class BaseService
 
     public function update($data, $model = null)
     {
-        if(!$this->repo->update($data, $model))
-        {
-            $this->throwResponse($this->type.'UpdateFail');
-        }
-        else
-        {
-            $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
+        if (!$this->repo->update($data, $model)) {
+            $this->throwResponse($this->type . 'UpdateFail');
+        } else {
+            $this->status = Str::upper(Str::snake($this->type . 'UpdateSuccess'));
         }
 
         return true;

@@ -1,4 +1,5 @@
 <?php
+
 namespace DaydreamLab\JJAJ\Repositories\Interfaces;
 
 interface BaseRepositoryInterface {
