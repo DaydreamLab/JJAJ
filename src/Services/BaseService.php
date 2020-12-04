@@ -589,6 +589,17 @@ class BaseService
             ));
         }
 
+        if (!InputHelper::null($input, 'search_keys')) {
+            $this->search_keys = array_merge($this->search_keys, $input->get('search_keys'));
+        }
+
+        if (!InputHelper::null($input, 'eagers')) {
+            $this->eagers = array_merge($this->eagers, $input->get('eagers'));
+        }
+
+        if (!InputHelper::null($input, 'loads')) {
+            $this->loads = array_merge($this->loads, $input->get('loads'));
+        }
         $input->put('search_keys', $this->search_keys);
         $input->put('eagers', $this->eagers);
         $input->put('loads', $this->loads);
