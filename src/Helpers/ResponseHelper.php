@@ -10,7 +10,6 @@ class ResponseHelper
     {
         $code = config("constants.default.{$statusString}");
         $message = trans("jjaj::default.{$statusString}", $trans_params);
-
         if (!$code) {
             if ($package) {
                 $code = config("constants.{$package}.{$modelName}.{$statusString}");
@@ -30,7 +29,7 @@ class ResponseHelper
             }
         } else {
             $response['status'] = $statusString;
-            $response['message'] = str_replace('{$ModelName}', $modelName,$message);
+            $response['message'] = str_replace('{$ModelName}', $modelName, $message);
             $response['data']['items'] = $data;
         }
 

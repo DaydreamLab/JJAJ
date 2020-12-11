@@ -48,7 +48,6 @@ class BaseExceptionHandler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-
         if ($exception instanceof \Illuminate\Auth\AuthenticationException) {
             return ResponseHelper::response('USER_UNAUTHORIZED', null);
         }

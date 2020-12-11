@@ -2,12 +2,10 @@
 
 namespace DaydreamLab\JJAJ\Requests;
 
-use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use Illuminate\Contracts\Validation\Validator;
-
 
 class BaseRequest extends FormRequest
 {

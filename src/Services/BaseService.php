@@ -3,8 +3,6 @@
 namespace DaydreamLab\JJAJ\Services;
 
 use Carbon\Carbon;
-use DaydreamLab\JJAJ\Traits\LoggedIn;
-use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
@@ -17,7 +15,7 @@ class BaseService
 {
     public $response = null;
 
-    public $status;
+    public $status = '';
 
     public $package = null;
 
@@ -59,10 +57,10 @@ class BaseService
         $model = $this->repo->add($input);
         if ($model) {
             $this->addMapping($model, $input);
-            $this->status = Str::upper(Str::snake($this->type . 'CreateSuccess'));
-            $this->response = $model;
+            $this->status = 'CreateSuccess';
+            $this->response = $model->refresh();
         } else {
-            $this->throwResponse($this->type . 'CreateFail');
+            $this->throwResponse('CreateFail', null, $input);
         }
 
         return $model;
@@ -100,7 +98,11 @@ class BaseService
             }
         }
 
-        $this->throwResponse('UserInsufficientPermission', ['model' => $this->type, 'methods' => $method]);
+        $this->throwResponse('InsufficientPermission',
+            null,
+            null,
+            ['method' => $method, 'model' => $this->modelName]
+        );
     }
 
 
@@ -109,7 +111,7 @@ class BaseService
         if (config('app.seeding')) return true;
         $user_access_ids = $user_access_ids ? $user_access_ids : [];
         if (!in_array($item_access, $user_access_ids)) {
-            $this->throwResponse('UserInsufficientPermission', 'viewlevel insufficient');
+            $this->throwResponse('InsufficientPermissionView');
         }
 
         return true;
@@ -599,8 +601,9 @@ class BaseService
             $action = 'Trash';
         }
 
-        $this->status = $result ? Str::upper(Str::snake($this->type . $action . 'Success'))
-            : Str::upper(Str::snake($this->type . $action . 'Fail'));
+        $this->status = $result
+            ? $action . 'Success'
+            : $action . 'Fail';
 
         return $result;
     }
@@ -648,7 +651,7 @@ class BaseService
     }
 
 
-    public function throwResponse($status, $response = null, $input = null)
+    public function throwResponse($status, $response = null, $input = null, $trans_params = [])
     {
         $statusString = Str::upper(Str::snake($status));
         $this->hook($input, $statusString, $response);
@@ -675,19 +678,26 @@ class BaseService
         }
 
         throw new HttpResponseException(
-            ResponseHelper::genResponse(Str::upper(Str::snake($status)), $response)
+            ResponseHelper::genResponse1(
+                $statusString,
+                $response,
+                $this->package,
+                $this->modelName,
+                $trans_params
+            )
         );
     }
 
 
     public function update($data, $model = null)
     {
-        if (!$this->repo->update($data, $model)) {
-            $this->throwResponse($this->type . 'UpdateFail');
+        $result = $this->repo->update($data, $model);
+        if (!$result) {
+            $this->throwResponse('UpdateFail');
         } else {
-            $this->status = Str::upper(Str::snake($this->type . 'UpdateSuccess'));
+            $this->status = 'UpdateSuccess';
         }
 
-        return true;
+        return $result ;
     }
 }

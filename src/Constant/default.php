@@ -5,6 +5,8 @@ return [
     'UNAUTHORIZED'                      => 401,
     'INPUT_INVALID'                     => 403,
     'INSUFFICIENT_PERMISSION'           => 403,
+    'INSUFFICIENT_PERMISSION_ACTION'    => 403,
+    'INSUFFICIENT_PERMISSION_VIEW'      => 403,
 
     // Get
     'GET_ITEM_SUCCESS'                  => 200,

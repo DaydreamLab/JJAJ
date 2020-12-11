@@ -23,14 +23,14 @@ class BaseController extends Controller
     }
 
 
-    public function response($status, $response)
+    public function response($status, $response, $trans_params = [])
     {
         return ResponseHelper::genResponse1(
-            $status,
+           Str::upper(Str::snake($status)),
             $this->formatResponse($response),
             $this->package,
             $this->modelName,
-            $this->modelName
+            $trans_params
         );
     }
 
