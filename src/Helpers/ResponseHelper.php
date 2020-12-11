@@ -19,16 +19,18 @@ class ResponseHelper
                 $message = trans("{$modelName}.{$statusString}", $trans_params);
             }
 
+            $responseStatusString = Str::upper($modelName).'_'.$statusString;
             if (!$code) {
-                $response['status'] = config('constants.default.UNDEFINED_STATUS');
-                $response['message'] = trans("jjaj::default.UNDEFINED_STATUS",  ['status' => $statusString]);
+                $code = config('constants.default.UNDEFINED_STATUS');
+                $response['status'] = 'UNDEFINED_STATUS';
+                $response['message'] = trans("jjaj::default.UNDEFINED_STATUS",  ['status' => $responseStatusString]);
             } else {
-                $response['status'] = $statusString;
+                $response['status'] = $responseStatusString;
                 $response['message'] = str_replace('{$ModelName}', $modelName, $message);
                 $response['data']['items'] = $data;
             }
         } else {
-            $response['status'] = $statusString;
+            $response['status'] = Str::upper($modelName).'_'.$statusString;
             $response['message'] = str_replace('{$ModelName}', $modelName, $message);
             $response['data']['items'] = $data;
         }
