@@ -19,7 +19,7 @@ class BaseService
 
     public $package = null;
 
-    protected $modelName = '';
+    protected $modelName = 'Base';
 
     protected $eagers = [];
 
@@ -678,7 +678,7 @@ class BaseService
         }
 
         throw new HttpResponseException(
-            ResponseHelper::genResponse1(
+            ResponseHelper::genResponse(
                 $statusString,
                 $response,
                 $this->package,
@@ -686,6 +686,22 @@ class BaseService
                 $trans_params
             )
         );
+    }
+
+
+    public function unlock($id)
+    {
+        $item = $this->find($id);
+        if (!$item) {
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    'ItemNotExist',
+                    ['id' => $id],
+                    $this->package,
+                    $this->modelName,
+                )
+            );
+        }
     }
 
 

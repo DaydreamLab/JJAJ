@@ -16,18 +16,16 @@ use Closure;
 
 class BaseRepository implements BaseRepositoryInterface
 {
-    /**
-     * @var BaseModel
-     */
+
     protected $model;
 
     protected $package = null;
 
+    protected $modelName = 'Base';
+
     protected $ignore_keys = ['limit', 'order_by', 'order', 'state', 'search_keys'];
 
     protected $order_by_ignore_keys = ['index', 'id', 'created_at', 'updated_at'];
-
-    protected $infinity = 1000000;
 
 
     public function __construct(Model $model)
@@ -76,6 +74,10 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    /**
+     * 取得所有資料
+     * @return BaseModel[]|\Illuminate\Database\Eloquent\Collection|Model[]
+     */
     public function all()
     {
         return $this->model->all();
@@ -97,17 +99,26 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function create($data)
+    /**
+     * 建立資料
+     * @param array $data
+     * @return mixed
+     */
+    public function create(array $data)
     {
         return $this->model->create($data);
     }
 
 
+    /**
+     * @param $id
+     * @param null|Model $model
+     * @return boolean
+     */
     public function delete($id, $model = null)
     {
         if ($model === null) {
             $model = $this->model->find($id);
-
             return $model ? $model->delete() : false;
         } else {
             return $model->delete();
@@ -115,6 +126,11 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    /**
+     * @param $id
+     * @param array $eagers
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Model|null
+     */
     public function find($id, $eagers = [])
     {
         return count($eagers)
@@ -151,7 +167,7 @@ class BaseRepository implements BaseRepositoryInterface
 
 
     // 取出所有欲刪除之 item 後的所有 items
-    public function findDeleteSiblings($ordering, BaseModel $model)
+    public function findDeleteSiblings($ordering)
     {
         return $this->model->where('ordering', '>', $ordering)->get();
     }
@@ -286,11 +302,11 @@ class BaseRepository implements BaseRepositoryInterface
                         // 需要重寫這段
                         if ($this->isNested()) {
                             if ($key == 'id') {
-                                $category = $this->find($input->id);
+                                $category = $this->find($input->get('id'));
                                 $query = $query->where('_lft', '>=', $category->_lft)
                                     ->where('_rgt', '<=', $category->_rgt);
                             } else if ($key == 'tag_id') {
-                                $tag = $this->find($input->tag_id);
+                                $tag = $this->find($input->get('tag_id'));
                                 $query = $query->where('_lft', '>', $tag->_lft)
                                     ->where('_rgt', '>', $tag->_rgt);
                             } else {
@@ -344,6 +360,12 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    /**
+     * 取得參數某 key 的所有id
+     * @param $params
+     * @param $key
+     * @return array
+     */
     public function getParamsIds($params, $key)
     {
         $ids = [];
@@ -355,7 +377,6 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    // Get model's relation
     public function getRelation($model, $relation)
     {
         return $model->getRelationValue($relation);
@@ -404,13 +425,19 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function paginate($items, $perPage = 15, $page = null, $options = [])
+    public function paginate($items, $perPage = 25, $page = null, $options = [])
     {
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
 
         $items = $items instanceof Collection ? $items : Collection::make($items);
 
-        $paginate = new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+        $paginate = new LengthAwarePaginator(
+            $items->forPage($page, $perPage),
+            $items->count(),
+            $perPage,
+            $page,
+            $options
+        );
 
         if (count($options)) {
             $url = url()->current() . '?';
@@ -437,8 +464,15 @@ class BaseRepository implements BaseRepositoryInterface
     public function search(Collection $input, $paginate = true)
     {
         $order_by = InputHelper::getCollectionKey($input, 'order_by', $this->model->getOrderBy());
-        if (!$this->model->hasAttribute($order_by) && !in_array($order_by, $this->order_by_ignore_keys)) {
-            throw new HttpResponseException(ResponseHelper::genResponse('INPUT_INVALID', ['order_by' => $order_by]));
+        if (!$this->model->hasAttribute($order_by)
+            && !in_array($order_by, $this->order_by_ignore_keys)) {
+            throw new HttpResponseException(
+                ResponseHelper::genResponse('INPUT_INVALID', [
+                    'order_by' => $order_by],
+                    $this->package,
+                    $this->modelName
+                )
+            );
         }
         $limit = (int)InputHelper::getCollectionKey($input, 'limit', $this->model->getLimit());
         $order = InputHelper::getCollectionKey($input, 'order', $this->model->getOrder());
@@ -461,9 +495,7 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-
-        if ($this->isNested()) //重組出樹狀
-        {
+        if ($this->isNested()) { //重組出樹狀
             $query = $query->orderBy('_lft', $order);
         } else {
             $query = $query->orderBy($order_by, $order);
@@ -472,12 +504,13 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-
         if ($limit == 0) {
-            $items = $paginate ? $query->paginate($this->infinity)
+            $items = $paginate
+                ? $query->paginate(-1)
                 : $query->get();
         } else {
-            $items = $paginate ? $query->paginate($limit)
+            $items = $paginate
+                ? $query->paginate($limit)
                 : $query->get();
         }
 
@@ -485,6 +518,12 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    /**
+     * @param $item
+     * @param $state
+     * @param string $key
+     * @return boolean
+     */
     public function state($item, $state, $key = 'state')
     {
         $item->{$key} = $state;
@@ -493,13 +532,8 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function unlock($id)
+    public function unlock($item)
     {
-        $item = $this->find($id);
-
-        if (!$item)
-            throw new HttpResponseException(ResponseHelper::genResponse('INPUT_ID_NOT_EXIST', ['id' => $id]));
-
         $item->lock_by = 0;
         $item->lock_at = null;
 
@@ -523,6 +557,7 @@ class BaseRepository implements BaseRepositoryInterface
             return $this->model->find($item['id'])->update($item);
         }
     }
+
 
     public function whereHas($relation, Closure $closure)
     {

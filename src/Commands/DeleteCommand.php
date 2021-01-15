@@ -39,11 +39,11 @@ class DeleteCommand extends Command
      */
     public function handle()
     {
-        $controller_path    = 'app/Http/Controllers/API/';
+        $controller_path    = 'app/Controllers/';
         $model_path         = 'app/Models/';
         $repository_path    = 'app/Repositories/';
         $service_path       = 'app/Services/';
-        $request_path       = 'app/Http/Requests/';
+        $request_path       = 'app/Requests/';
         $constants_path     = 'app/constants/';
 
         $name = $this->option('name');

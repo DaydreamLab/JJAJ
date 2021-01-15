@@ -25,7 +25,7 @@ class BaseController extends Controller
 
     public function response($status, $response, $trans_params = [])
     {
-        return ResponseHelper::genResponse1(
+        return ResponseHelper::genResponse(
             Str::upper(Str::snake($status)),
             $this->formatResponse($response),
             $this->package,
@@ -137,6 +137,5 @@ class BaseController extends Controller
         }
 
         return $response;
-
     }
 }

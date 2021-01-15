@@ -70,9 +70,9 @@ class McCommand extends Command
             $request_admin_namespace    = $component_namespace.'/Requests/'.$type.'/Admin/'.$name;
         }
         else {
-            $controller_namespace       = 'API/'. $type . '/' .$name.'Controller';
-            $controller_front_namespace = 'API/'. $type . '/Front/' .$name.'FrontController';
-            $controller_admin_namespace = 'API/'. $type . '/Admin/' .$name.'AdminController';
+            $controller_namespace       = $type . '/' .$name.'Controller';
+            $controller_front_namespace = $type . '/Front/' .$name.'FrontController';
+            $controller_admin_namespace = $type . '/Admin/' .$name.'AdminController';
 
             $service_namespace          = 'Services/'.$type . '/' .$name.'Service';
             $service_front_namespace    = 'Services/'.$type . '/Front/' .$name.'FrontService';
@@ -103,10 +103,10 @@ class McCommand extends Command
             ]);
         }
         else {
-            $this->call('jjaj:migration', [
-                'name'          => 'create_'.$table.'_table',
-                '--create'      => $table
-            ]);
+//            $this->call('jjaj:migration', [
+//                'name'          => 'create_'.$table.'_table',
+//                '--create'      => $table
+//            ]);
         }
 
         $this->call('jjaj:controller', [
@@ -127,42 +127,45 @@ class McCommand extends Command
             '--component'   => $component,
         ]);
 
-        $this->call('jjaj:request', [
-            'name'      => $request_namespace.'StorePost',
-            '--component'   => $component,
-            '--store'   => true
-        ]);
-        $this->call('jjaj:request', [
-            'name'      => $request_namespace.'RemovePost',
-            '--component'   => $component,
-            '--remove'  => true
-        ]);
-        $this->call('jjaj:request', [
-            'name'      => $request_namespace.'StatePost',
-            '--component'   => $component,
-            '--state'   => true
-        ]);
-        $this->call('jjaj:request', [
-            'name'      => $request_namespace.'SearchPost',
-            '--component'   => $component,
-            '--search'    => true,
-        ]);
-        $this->call('jjaj:request', [
-            'name'      => $request_namespace.'OrderingPost',
-            '--component'   => $component,
-            '--ordering'    => true,
-        ]);
-        $this->call('jjaj:request', [
-            'name'      => $request_namespace.'FeaturedPost',
-            '--component'   => $component,
-            '--featured'    => true,
-        ]);
+        if (!$this->option('admin') && !$this->option('front')) {
+            $this->call('jjaj:request', [
+                'name'      => $request_namespace.'StorePost',
+                '--component'   => $component,
+                '--store'   => true
+            ]);
+            $this->call('jjaj:request', [
+                'name'      => $request_namespace.'RemovePost',
+                '--component'   => $component,
+                '--remove'  => true
+            ]);
+            $this->call('jjaj:request', [
+                'name'      => $request_namespace.'StatePost',
+                '--component'   => $component,
+                '--state'   => true
+            ]);
+            $this->call('jjaj:request', [
+                'name'      => $request_namespace.'SearchPost',
+                '--component'   => $component,
+                '--search'    => true,
+            ]);
+            $this->call('jjaj:request', [
+                'name'      => $request_namespace.'OrderingPost',
+                '--component'   => $component,
+                '--ordering'    => true,
+            ]);
+            $this->call('jjaj:request', [
+                'name'      => $request_namespace.'FeaturedPost',
+                '--component'   => $component,
+                '--featured'    => true,
+            ]);
 
-        $this->call('jjaj:request', [
-            'name'      => $request_namespace.'CheckoutPost',
-            '--component'   => $component,
-            '--checkout'    => true,
-        ]);
+            $this->call('jjaj:request', [
+                'name'      => $request_namespace.'CheckoutPost',
+                '--component'   => $component,
+                '--checkout'    => true,
+            ]);
+
+        }
 
         $this->call('jjaj:constant', ['name' => 'constants/'.Str::lower($type), '--model' => $name]);
 

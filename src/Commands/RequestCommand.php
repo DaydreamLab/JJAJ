@@ -13,7 +13,7 @@ class RequestCommand extends RequestMakeCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:request {name}, {--list} {--admin} {--front} {--remove} {--store} {--state} {--search} {--ordering} {--featured} {--checkout} {--component=}';
+    protected $signature = 'jjaj:request {name}, {--list} {--remove} {--store} {--state} {--search} {--ordering} {--featured} {--checkout} {--admin} {--front} {--component=}';
 
     /**
      * The console command description.
@@ -22,8 +22,13 @@ class RequestCommand extends RequestMakeCommand
      */
     protected $description = 'Create request';
 
-
     protected $type = 'Request';
+
+
+    protected function getDefaultNamespace($rootNamespace)
+    {
+        return $rootNamespace.'\Requests';
+    }
 
     protected function buildClass($name)
     {
@@ -44,16 +49,8 @@ class RequestCommand extends RequestMakeCommand
 
     public function getStub()
     {
-        if ($this->option('list')) {
-            return __DIR__.'/../Requests/Stubs/request.list.stub';
-        }
-        elseif($this->option('admin')){
-            return __DIR__.'/../Requests/Stubs/request.admin.admin.stub';
-        }
-        elseif($this->option('front')){
-            return __DIR__.'/../Requests/Stubs/request.admin.front.stub';
-        }
-        else if($this->option('remove') || $this->option('checkout') ){
+
+        if($this->option('remove') || $this->option('checkout') ){
             return __DIR__.'/../Requests/Stubs/request.admin.remove.stub';
         }
         else if($this->option('state')){
@@ -70,6 +67,15 @@ class RequestCommand extends RequestMakeCommand
         }
         else if($this->option('featured')){
             return __DIR__.'/../Requests/Stubs/request.admin.featured.stub';
+        }
+        elseif ($this->option('list')) {
+            return __DIR__.'/../Requests/Stubs/request.list.stub';
+        }
+        elseif($this->option('admin')){
+            return __DIR__.'/../Requests/Stubs/request.admin.admin.stub';
+        }
+        elseif($this->option('front')){
+            return __DIR__.'/../Requests/Stubs/request.admin.front.stub';
         }
         else {
             return __DIR__.'/../Requests/Stubs/request.admin.stub';

@@ -27,7 +27,7 @@ class BaseRequest extends FormRequest
     {
         if (config('app.debug')) {
             throw new HttpResponseException(
-                ResponseHelper::genResponse1(
+                ResponseHelper::genResponse(
                     'INPUT_INVALID',
                     $validator->errors(),
                     $this->package,
@@ -36,7 +36,7 @@ class BaseRequest extends FormRequest
         }
         else {
             throw new HttpResponseException(
-                ResponseHelper::genResponse1(
+                ResponseHelper::genResponse(
                     'INPUT_INVALID',
                     null,
                     $this->package,

@@ -27,6 +27,12 @@ class ControllerCommand extends ControllerMakeCommand
 
     protected $type = 'Controller';
 
+
+    protected function getDefaultNamespace($rootNamespace)
+    {
+        return $rootNamespace.'\Controllers';
+    }
+
     protected function getStub()
     {
         if($this->option('front')) {
@@ -45,14 +51,15 @@ class ControllerCommand extends ControllerMakeCommand
     {
         try {
             $stub = $this->files->get($this->getStub());
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             echo $e->getMessage();
             return false;
         }
 
         if ($this->option('component')) {
             $name = str_replace('App\Http\Controllers\\', '', $name);
+        } else {
+            $name = str_replace('App\Http\Controllers\\', 'App\Controllers\\', $name);
         }
 
         return $this->replaceNamespace($stub, $name)->replaceScaffold($stub, $name)->replaceClass($stub, $name);
@@ -72,9 +79,8 @@ class ControllerCommand extends ControllerMakeCommand
         }
         else {
             $service_path = 'App';
-            $request_path = 'App\Http';
+            $request_path = 'App';
         }
-
 
         if ($this->option('front')) {
             $site = 'Front';
