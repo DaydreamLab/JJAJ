@@ -3,11 +3,11 @@
 namespace DummyNamespace;
 
 use DaydreamLab\JJAJ\Controllers\BaseController;
-use DummyPathService\Services\DummyType\DummyService;
+use DaydreamLab\JJAJ\Services\BaseService;
 
-class DummyClass extends BaseController
+abstract class DummyClass extends BaseController
 {
-    public function __construct(DummyService $service)
+    public function __construct(BaseService $service)
     {
         parent::__construct($service);
         $this->service = $service;

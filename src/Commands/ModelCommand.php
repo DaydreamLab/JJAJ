@@ -15,7 +15,7 @@ class ModelCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:model {name} {--table=} {--front} {--admin} {--component=}';
+    protected $signature = 'jjaj:model {name} {--table=} {--front} {--admin} {--componentBase} {--component=}';
 
     /**
      * The console command description.
@@ -30,11 +30,13 @@ class ModelCommand extends GeneratorCommand
     {
         if($this->option('front')) {
             return __DIR__.'/../Models/Stubs/model.front.stub';
-        }
-        elseif ($this->option('admin')) {
+        } elseif ($this->option('admin')) {
             return __DIR__.'/../Models/Stubs/model.admin.stub';
-        }
-        else {
+        } elseif ($this->option('component')) {
+            return $this->option('componentBase')
+                ? __DIR__.'/../Models/Stubs/model.component.base.stub'
+                : __DIR__.'/../Models/Stubs/model.component.stub';
+        } else {
             return __DIR__.'/../Models/Stubs/model.stub';
         }
     }
@@ -53,6 +55,7 @@ class ModelCommand extends GeneratorCommand
         if ($this->option('component')) {
             $name = str_replace('App\\', '', $name);
         }
+
         return $this->replaceNamespace($stub, $name)->replaceScaffold($stub, $name)->replaceClass($stub, $name);
     }
 
@@ -60,6 +63,7 @@ class ModelCommand extends GeneratorCommand
     protected function replaceScaffold(&$stub, $name)
     {
         $model = str_replace($this->getNamespace($name).'\\', '', $name);
+        $component = $this->option('component');
 
         if ($this->option('front') || $this->option('admin')) {
             $parent_model       = CommandHelper::getParent($model);
@@ -72,6 +76,21 @@ class ModelCommand extends GeneratorCommand
         else {
             $stub  = str_replace('DummyTable', CommandHelper::convertTableName($model), $stub);
         }
+
+
+        if ($component) {
+            $component_path = 'DaydreamLab\\'.$component;
+            $stub  = str_replace('DummyComponentBaseClass', $component.'Model' , $stub);
+            $stub  = str_replace('DummyComponentBasePath', $component_path.'\\Models\\'.$component.'Model' , $stub);
+            if (!$this->option('componentBase')) {
+                $stub  = str_replace('DummyComponentModelClass', $model , $stub);
+                $stub  = str_replace('DummyComponentModelPath', $component_path.'\\Models\\'.$model, $stub);
+            }
+        }
+        else {
+            $model_path = 'App';
+        }
+
 
         return $this;
     }

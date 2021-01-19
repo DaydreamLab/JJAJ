@@ -1,0 +1,18 @@
+<?php
+
+namespace DummyNamespace;
+
+use DaydreamLab\JJAJ\Repositories\BaseRepository;
+use DaydreamLab\JJAJ\Services\BaseService;
+use Illuminate\Support\Collection;
+
+abstract class DummyClass extends BaseService
+{
+    protected $type = 'DummyModel';
+
+    public function __construct(BaseRepository $repo)
+    {
+        parent::__construct($repo);
+        $this->repo = $repo;
+    }
+}

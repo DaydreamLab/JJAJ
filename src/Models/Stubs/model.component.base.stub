@@ -1,0 +1,9 @@
+<?php
+
+namespace DummyNamespace;
+
+use DaydreamLab\JJAJ\Models\BaseModel;
+
+abstract class DummyClass extends BaseModel
+{
+}

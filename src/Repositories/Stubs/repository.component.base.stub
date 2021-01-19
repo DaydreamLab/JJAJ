@@ -1,0 +1,15 @@
+<?php
+
+namespace DummyNamespace;
+
+use DaydreamLab\JJAJ\Models\BaseModel;
+use DaydreamLab\JJAJ\Repositories\BaseRepository;
+
+abstract class DummyClass extends BaseRepository
+{
+    public function __construct(BaseModel $model)
+    {
+        parent::__construct($model);
+        $this->model = $model;
+    }
+}

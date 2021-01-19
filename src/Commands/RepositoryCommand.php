@@ -13,7 +13,7 @@ class RepositoryCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:repository {name} {--admin} {--front} {--component=}';
+    protected $signature = 'jjaj:repository {name} {--admin} {--front} {--componentBase} {--component=}';
 
     /**
      * The console command description.
@@ -48,11 +48,13 @@ class RepositoryCommand extends GeneratorCommand
     {
         if($this->option('front')) {
             return __DIR__.'/../Repositories/Stubs/repository.front.stub';
-        }
-        elseif ($this->option('admin')) {
+        } elseif ($this->option('admin')) {
             return __DIR__.'/../Repositories/Stubs/repository.admin.stub';
-        }
-        else {
+        } elseif ($this->option('component')) {
+            return $this->option('componentBase')
+                ? __DIR__.'/../Repositories/Stubs/repository.component.base.stub'
+                : __DIR__.'/../Repositories/Stubs/repository.component.stub';
+        } else {
             return __DIR__.'/../Repositories/Stubs/repository.stub';
         }
     }
@@ -66,16 +68,22 @@ class RepositoryCommand extends GeneratorCommand
 
         if ($this->option('front')) {
             $site = 'Front';
-        }
-        elseif ($this->option('admin')) {
+        } elseif ($this->option('admin')) {
             $site = 'Admin';
         }
 
         if ($component) {
-            $model_path = 'DaydreamLab\\'.$component;
+            $component_path = 'DaydreamLab\\'.$component;
+            $stub  = str_replace('DummyComponentBaseClass', $component.'Repository' , $stub);
+            $stub  = str_replace('DummyComponentBasePath', $component_path.'\\Repositories\\'.$component.'Repository' , $stub);
+
+            if (!$this->option('componentBase')) {
+                $stub  = str_replace('DummyComponentModelClass', $model , $stub);
+                $stub  = str_replace('DummyComponentModelPath', $component_path.'\\Models\\'.$model.'\\'.$model, $stub);
+            }
         }
         else {
-            $model_path = 'App';
+            $component_path = 'App';
         }
 
 
@@ -91,8 +99,7 @@ class RepositoryCommand extends GeneratorCommand
 
         $stub  = str_replace('DummyType', $type , $stub);
         $stub  = str_replace('DummyModel', $model, $stub);
-        $stub  = str_replace('DummyPathModel', $model_path, $stub);
-
+        $stub  = str_replace('DummyPathModel', $component_path, $stub);
 
         return  $this;
     }

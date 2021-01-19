@@ -8,25 +8,7 @@ class CommandHelper
 {
     public static function convertTableName($name)
     {
-        $input_snake = Str::snake($name);
-        $items = explode('_', $input_snake);
-        $snake = '';
-
-        for ($i = 0 ; $i < count($items) ; $i++) {
-            if (substr($items[$i],-1) == 'y') {
-                $snake .= ucfirst(substr($items[$i],0, -1) . 'ies');
-            }
-            else {
-                $snake .=ucfirst($items[$i] . 's');
-            }
-//            if ($i == 0 || $i == count($items) - 1) {
-//
-//            }
-//            else {
-//                $snake .=ucfirst($items[$i]) ;
-//            }
-        }
-        return Str::snake($snake);
+        return Str::snake(Str::plural($name));
     }
 
 

@@ -50,18 +50,22 @@ class McCommand extends Command
         if ($component) {
             $component_namespace = 'DaydreamLab/'. $component;
             $controller_namespace       = $component_namespace.'/Controllers/'.$type.'/'.$name.'Controller';
+            $controller_base_namespace  = $component_namespace.'/Controllers/'.$component.'Controller';
             $controller_front_namespace = $component_namespace.'/Controllers/'.$type.'/Front/'.$name.'FrontController';
             $controller_admin_namespace = $component_namespace.'/Controllers/'.$type.'/Admin/'.$name.'AdminController';
 
             $service_namespace          = $component_namespace.'/Services/'.$type.'/'.$name.'Service';
+            $service_base_namespace     = $component_namespace.'/Services/'.$component.'Service';
             $service_front_namespace    = $component_namespace.'/Services/'.$type.'/Front/'.$name.'FrontService';
             $service_admin_namespace    = $component_namespace.'/Services/'.$type.'/Admin/'.$name.'AdminService';
 
             $repository_namespace       = $component_namespace.'/Repositories/'.$type.'/'.$name.'Repository';
+            $repository_base_namespace  = $component_namespace.'/Repositories/'.$component.'Repository';
             $repository_front_namespace = $component_namespace.'/Repositories/'.$type.'/Front/'.$name.'FrontRepository';
             $repository_admin_namespace = $component_namespace.'/Repositories/'.$type.'/Admin/'.$name.'AdminRepository';
 
             $model_namespace            = $component_namespace.'/Models/'.$type.'/'.$name;
+            $model_base_namespace       = $component_namespace.'/Models/'. $component.'Model';
             $model_front_namespace      = $component_namespace.'/Models/'.$type.'/Front/'.$name.'Front';
             $model_admin_namespace      = $component_namespace.'/Models/'.$type.'/Admin/'.$name.'Admin';
 
@@ -92,15 +96,37 @@ class McCommand extends Command
         }
 
         if ($component) {
-            if (!File::exists('database/migrations/'.$component)) {
-                File::makeDirectory('database/migrations/'.$component);
-            }
-
-            $this->call('jjaj:migration', [
-                'name'          => 'create_'.$table.'_table',
-                '--path'        => 'database/migrations/'.$component,
-                '--create'      => $table
+            $this->call('jjaj:controller', [
+                'name'          => $controller_base_namespace,
+                '--component'   => $component,
+                '--componentBase' => 1
             ]);
+
+            $this->call('jjaj:service', [
+                'name'          => $service_base_namespace,
+                '--component'   => $component,
+                '--componentBase' => 1
+            ]);
+            $this->call('jjaj:repository', [
+                'name'          => $repository_base_namespace,
+                '--component'   => $component,
+                '--componentBase' => 1
+            ]);
+            $this->call('jjaj:model', [
+                'name'          => $model_base_namespace,
+                '--component'   => $component,
+                '--componentBase' => 1
+            ]);
+
+//            if (!File::exists('database/migrations/'.$component)) {
+//                File::makeDirectory('database/migrations/'.$component);
+//            }
+//
+//            $this->call('jjaj:migration', [
+//                'name'          => 'create_'.$table.'_table',
+//                '--path'        => 'database/migrations/'.$component,
+//                '--create'      => $table
+//            ]);
         }
         else {
 //            $this->call('jjaj:migration', [
@@ -318,16 +344,16 @@ class McCommand extends Command
             File::makeDirectory('packages');
         }
 
-        File::copyDirectory('app/Http/Controllers/Daydreamlab/'.$component, 'packages/'.$component);
-        File::copyDirectory('app/Http/Requests/Daydreamlab/'.$component, 'packages/'.$component);
+        File::copyDirectory('app/Controllers/Daydreamlab/'.$component, 'packages/'.$component);
+        File::copyDirectory('app/Requests/Daydreamlab/'.$component, 'packages/'.$component);
         File::copyDirectory('app/Daydreamlab/'.$component, 'packages/'.$component);
         File::copyDirectory('app/Daydreamlab/'.$component, 'packages/'.$component);
         File::copyDirectory('app/Daydreamlab/'.$component, 'packages/'.$component);
         File::copyDirectory('app/constants', 'packages/'.$component.'/constants');
         File::copyDirectory('database/migrations/'.$component, 'packages/'.$component.'/database/migrations');
 
-        File::deleteDirectory('app/Http/Controllers/Daydreamlab/');
-        File::deleteDirectory('app/Http/Requests/Daydreamlab/');
+        File::deleteDirectory('app/Controllers/Daydreamlab/');
+        File::deleteDirectory('app/Requests/Daydreamlab/');
         File::deleteDirectory('app/Daydreamlab/');
         File::deleteDirectory('app/Daydreamlab/');
         File::deleteDirectory('app/Daydreamlab/');

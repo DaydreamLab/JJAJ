@@ -5,8 +5,6 @@ namespace DaydreamLab\JJAJ\Commands;
 use DaydreamLab\JJAJ\Helpers\CommandHelper;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Routing\Console\ControllerMakeCommand;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 class ControllerCommand extends ControllerMakeCommand
 {
@@ -15,7 +13,7 @@ class ControllerCommand extends ControllerMakeCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:controller {name} {--admin} {--front} {--component=}';
+    protected $signature = 'jjaj:controller {name} {--admin} {--front} {--componentBase} {--component=}';
 
     /**
      * The console command description.
@@ -37,11 +35,13 @@ class ControllerCommand extends ControllerMakeCommand
     {
         if($this->option('front')) {
             return __DIR__.'/../Controllers/Stubs/controller.front.stub';
-        }
-        elseif ($this->option('admin')) {
+        } elseif ($this->option('admin')) {
             return __DIR__.'/../Controllers/Stubs/controller.admin.stub';
-        }
-        else {
+        } elseif ($this->option('component')) {
+            return $this->option('componentBase')
+                ? __DIR__.'/../Controllers/Stubs/controller.component.base.stub'
+                : __DIR__.'/../Controllers/Stubs/controller.component.stub';
+        } else {
             return __DIR__.'/../Controllers/Stubs/controller.stub';
         }
     }
@@ -57,9 +57,7 @@ class ControllerCommand extends ControllerMakeCommand
         }
 
         if ($this->option('component')) {
-            $name = str_replace('App\Http\Controllers\\', '', $name);
-        } else {
-            $name = str_replace('App\Http\Controllers\\', 'App\Controllers\\', $name);
+            $name = str_replace('App\Controllers\\', '', $name);
         }
 
         return $this->replaceNamespace($stub, $name)->replaceScaffold($stub, $name)->replaceClass($stub, $name);
@@ -76,8 +74,7 @@ class ControllerCommand extends ControllerMakeCommand
         if ($component) {
             $service_path = 'DaydreamLab\\'.$component;
             $request_path = 'DaydreamLab\\'.$component;
-        }
-        else {
+        } else {
             $service_path = 'App';
             $request_path = 'App';
         }
@@ -92,6 +89,16 @@ class ControllerCommand extends ControllerMakeCommand
 
         if ($this->option('front') || $this->option('admin')) {
             $stub  = str_replace('DummySite', $site, $stub);
+        }
+
+        if($this->option('component')) {
+            $stub  = str_replace('DummyComponentBaseClass', $component.'Controller' , $stub);
+            $stub  = str_replace('DummyComponentBasePath', $service_path.'\\Controllers\\'.$component.'Controller' , $stub);
+            //$stub  = str_replace('DummyComponentServicePath', $service_path.'\\Services\\'.$component.'Service' , $stub);
+            if (!$this->option('componentBase')) {
+                $stub  = str_replace('DummyComponentServicePath', $service_path.'\\Services\\'.$component.'Service' , $stub);
+                $stub  = str_replace('DummyComponentServiceClass', $component.'Service' , $stub);
+            }
         }
 
         $stub  = str_replace('DummyType', $type , $stub);

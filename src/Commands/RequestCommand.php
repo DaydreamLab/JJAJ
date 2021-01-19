@@ -13,7 +13,7 @@ class RequestCommand extends RequestMakeCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:request {name}, {--list} {--remove} {--store} {--state} {--search} {--ordering} {--featured} {--checkout} {--admin} {--front} {--component=}';
+    protected $signature = 'jjaj:request {name}, {--list} {--remove} {--store} {--state} {--search} {--ordering} {--featured} {--checkout} {--admin} {--front} {--componentBase} {--component=}';
 
     /**
      * The console command description.
@@ -41,8 +41,9 @@ class RequestCommand extends RequestMakeCommand
         }
 
         if ($this->option('component')) {
-            $name = str_replace('App\Http\Requests\\', '', $name);
+            $name = str_replace('App\Requests\\', '', $name);
         }
+
         return  $this->replaceNamespace($stub, $name)->replaceScaffold($stub,$name)->replaceClass($stub, $name);
     }
 
@@ -91,9 +92,8 @@ class RequestCommand extends RequestMakeCommand
         $component      = $this->option('component');
         if ($component) {
             $prefix = 'DaydreamLab\\'.$component;
-        }
-        else {
-            $prefix = 'App\Http';
+        } else {
+            $prefix = 'App';
         }
 
         $stub  = str_replace('DummyPostRequest', $model . 'Repository' , $stub);

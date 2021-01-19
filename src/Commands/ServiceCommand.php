@@ -13,7 +13,7 @@ class ServiceCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:service {name} {--admin} {--front} {--component=}';
+    protected $signature = 'jjaj:service {name} {--admin} {--front} {--componentBase} {--component=}';
 
     /**
      * The console command description.
@@ -48,11 +48,13 @@ class ServiceCommand extends GeneratorCommand
     {
         if($this->option('front')) {
             return __DIR__.'/../Services/Stubs/service.front.stub';
-        }
-        elseif ($this->option('admin')) {
+        } elseif ($this->option('admin')) {
             return __DIR__.'/../Services/Stubs/service.admin.stub';
-        }
-        else {
+        } elseif ($this->option('component')) {
+            return $this->option('componentBase')
+                ? __DIR__.'/../Services/Stubs/service.component.base.stub'
+                : __DIR__.'/../Services/Stubs/service.component.stub';
+        } else {
             return __DIR__.'/../Services/Stubs/service.stub';
         }
 
@@ -67,16 +69,19 @@ class ServiceCommand extends GeneratorCommand
 
         if ($this->option('front')) {
             $site = 'Front';
-        }
-        elseif ($this->option('admin')) {
+        } elseif ($this->option('admin')) {
             $site = 'Admin';
         }
 
-
         if ($component) {
             $repository_path = 'DaydreamLab\\'.$component;
-        }
-        else {
+            $stub  = str_replace('DummyComponentBaseClass', $component.'Service' , $stub);
+            $stub  = str_replace('DummyComponentBasePath', $repository_path.'\\Services\\'.$component.'Service' , $stub);
+            if (!$this->option('componentBase')) {
+                $stub  = str_replace('DummyComponentRepositoryClass', $component.'Repository' , $stub);
+                $stub  = str_replace('DummyComponentRepositoryPath', $repository_path.'\\Repositories\\'.$component.'Repository' , $stub);
+            }
+        } else {
             $repository_path = 'App';
         }
 

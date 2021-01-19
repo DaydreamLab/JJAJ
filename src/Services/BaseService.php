@@ -698,7 +698,7 @@ class BaseService
                     'ItemNotExist',
                     ['id' => $id],
                     $this->package,
-                    $this->modelName,
+                    $this->modelName
                 )
             );
         }

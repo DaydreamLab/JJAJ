@@ -1,0 +1,15 @@
+<?php
+
+namespace DummyNamespace;
+
+use DummyComponentBasePath;
+use DummyComponentModelPath;
+
+class DummyClass extends DummyComponentBaseClass
+{
+    public function __construct(DummyComponentModelClass $model)
+    {
+        parent::__construct($model);
+        $this->model = $model;
+    }
+}

@@ -1,0 +1,15 @@
+<?php
+
+namespace DummyNamespace;
+
+use DummyComponentBasePath;
+use DummyComponentServicePath;
+
+class DummyClass extends DummyComponentBaseClass
+{
+    public function __construct(DummyComponentServiceClass $service)
+    {
+        parent::__construct($service);
+        $this->service = $service;
+    }
+}
