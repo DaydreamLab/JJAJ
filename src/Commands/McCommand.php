@@ -3,7 +3,6 @@
 namespace DaydreamLab\JJAJ\Commands;
 
 use DaydreamLab\JJAJ\Helpers\CommandHelper;
-use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -118,21 +117,21 @@ class McCommand extends Command
                 '--componentBase' => 1
             ]);
 
-//            if (!File::exists('database/migrations/'.$component)) {
-//                File::makeDirectory('database/migrations/'.$component);
-//            }
-//
-//            $this->call('jjaj:migration', [
-//                'name'          => 'create_'.$table.'_table',
-//                '--path'        => 'database/migrations/'.$component,
-//                '--create'      => $table
-//            ]);
+            if (!File::exists('database/migrations/'.$component)) {
+                File::makeDirectory('database/migrations/'.$component);
+            }
+
+            $this->call('jjaj:migration', [
+                'name'          => 'create_'.$table.'_table',
+                '--path'        => 'database/migrations/'.$component,
+                '--create'      => $table
+            ]);
         }
         else {
-//            $this->call('jjaj:migration', [
-//                'name'          => 'create_'.$table.'_table',
-//                '--create'      => $table
-//            ]);
+            $this->call('jjaj:migration', [
+                'name'          => 'create_'.$table.'_table',
+                '--create'      => $table
+            ]);
         }
 
         $this->call('jjaj:controller', [
@@ -372,5 +371,4 @@ class McCommand extends Command
     {
         File::copyDirectory('app/resources/', 'resources');
     }
-
 }
