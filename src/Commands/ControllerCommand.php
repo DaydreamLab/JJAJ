@@ -84,6 +84,8 @@ class ControllerCommand extends ControllerMakeCommand
         }
         elseif ($this->option('admin')) {
             $site = 'Admin';
+        } else {
+            $site = 'Base';
         }
 
 
@@ -99,8 +101,14 @@ class ControllerCommand extends ControllerMakeCommand
                 $stub  = str_replace('DummyComponentServicePath', $service_path.'\\Services\\'.$component.'Service' , $stub);
                 $stub  = str_replace('DummyComponentServiceClass', $component.'Service' , $stub);
             }
+            $stub = str_replace('{package}', $this->option('component'), $stub);
+
+        } else {
+            $stub = str_replace('{package}', '', $stub);
         }
 
+        $stub = str_replace('{modelName}', $model, $stub);
+        $stub = str_replace('{modelType}', $site, $stub);
         $stub  = str_replace('DummyType', $type , $stub);
         $stub  = str_replace('DummyService', $model.'Service', $stub);
         $stub  = str_replace('DummyPathService', $service_path, $stub);

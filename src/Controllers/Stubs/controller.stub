@@ -4,12 +4,80 @@ namespace DummyNamespace;
 
 use DaydreamLab\JJAJ\Controllers\BaseController;
 use DummyPathService\Services\DummyType\DummyService;
+use DummyPathRequest\Requests\DummyType\DummyRemovePostRequest;
+use DummyPathRequest\Requests\DummyType\DummyStorePostRequest;
+use DummyPathRequest\Requests\DummyType\DummyStatePostRequest;
+use DummyPathRequest\Requests\DummyType\DummySearchPostRequest;
+use DummyPathRequest\Requests\DummyType\DummyOrderingPostRequest;
+use DummyPathRequest\Requests\DummyType\DummyCheckoutPostRequest;
 
 class DummyClass extends BaseController
 {
+    protected $package = '{package}';
+
+    protected $modelName = '{modelName}';
+
+    protected $modelType = '{modelType}';
+
     public function __construct(DummyService $service)
     {
         parent::__construct($service);
         $this->service = $service;
+    }
+
+
+    public function checkout(DummyCheckoutPostRequest $request)
+    {
+        $this->service->checkout($request->rulesInput());
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function getItem($id)
+    {
+        $this->service->getItem($id);
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function ordering(DummyOrderingPostRequest $request)
+    {
+        $this->service->ordering($request->rulesInput());
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function remove(DummyRemovePostRequest $request)
+    {
+        $this->service->remove($request->rulesInput());
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function state(DummyStatePostRequest $request)
+    {
+        $this->service->state($request->rulesInput());
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function store(DummyStorePostRequest $request)
+    {
+        $this->service->store($request->rulesInput());
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function search(DummySearchPostRequest $request)
+    {
+        $this->service->search($request->rulesInput());
+
+        return $this->response($this->service->status, $this->service->response);
     }
 }

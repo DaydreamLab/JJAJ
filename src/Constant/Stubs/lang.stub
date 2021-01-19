@@ -1,0 +1,5 @@
+<?php
+
+return [
+    //'GET_ITEM_SUCCESS'                      => '{$ModelName} get item success',
+];

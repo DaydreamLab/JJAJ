@@ -194,6 +194,8 @@ class McCommand extends Command
         }
 
         $this->call('jjaj:constant', ['name' => 'constants/'.Str::lower($type), '--model' => $name]);
+        $this->call('jjaj:constant', ['name' => 'resources/lang/en/'.Str::lower($type), '--model' => $name, '--lang']);
+        $this->call('jjaj:constant', ['name' => 'resources/lang/zh-Hant/'.Str::lower($type), '--model' => $name, '--lang']);
 
         if ($this->option('front')) {
             $this->call('jjaj:controller', [
@@ -334,6 +336,8 @@ class McCommand extends Command
 
         if ($component) {
             $this->movePackage($component);
+        } else {
+            $this->moveLang();
         }
     }
 
@@ -350,6 +354,7 @@ class McCommand extends Command
         File::copyDirectory('app/Daydreamlab/'.$component, 'packages/'.$component);
         File::copyDirectory('app/Daydreamlab/'.$component, 'packages/'.$component);
         File::copyDirectory('app/constants', 'packages/'.$component.'/constants');
+        File::copyDirectory('app/resources/', 'packages/'.$component.'/resources');
         File::copyDirectory('database/migrations/'.$component, 'packages/'.$component.'/database/migrations');
 
         File::deleteDirectory('app/Controllers/Daydreamlab/');
@@ -358,7 +363,14 @@ class McCommand extends Command
         File::deleteDirectory('app/Daydreamlab/');
         File::deleteDirectory('app/Daydreamlab/');
         File::deleteDirectory('app/constants');
+        File::deleteDirectory('app/resources');
         File::deleteDirectory('database/migrations/'.$component);
+    }
+
+
+    public function moveLang()
+    {
+        File::copyDirectory('app/resources/', 'resources');
     }
 
 }

@@ -4,6 +4,7 @@ namespace DaydreamLab\JJAJ\Commands;
 
 use DaydreamLab\JJAJ\Helpers\CommandHelper;
 use DaydreamLab\JJAJ\Helpers\Helper;
+use Facade\Ignition\Support\Packagist\Package;
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Support\Str;
 
@@ -14,7 +15,7 @@ class ConstantCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:constant {name} {--model=}';
+    protected $signature = 'jjaj:constant {name} {--model=} {--lang}';
 
     /**
      * The console command description.
@@ -27,7 +28,11 @@ class ConstantCommand extends GeneratorCommand
 
     protected function getStub()
     {
-        return __DIR__.'/../Constant/Stubs/constant.stub';
+        if ($this->option('lang')) {
+            return __DIR__.'/../Constant/Stubs/lang.stub';
+        } else {
+            return __DIR__.'/../Constant/Stubs/constant.stub';
+        }
     }
 
 

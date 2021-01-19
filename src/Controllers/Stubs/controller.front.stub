@@ -14,6 +14,12 @@ use DummyPathRequest\Requests\DummyType\Front\DummyCheckoutPostRequest;
 
 class DummyClass extends BaseController
 {
+    protected $package = '{package}';
+
+    protected $modelName = '{modelName}';
+
+    protected $modelType = '{modelType}';
+
     public function __construct(DummyService $service)
     {
         parent::__construct($service);

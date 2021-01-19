@@ -57,7 +57,6 @@ class ServiceCommand extends GeneratorCommand
         } else {
             return __DIR__.'/../Services/Stubs/service.stub';
         }
-
     }
 
     protected function replaceScaffold(&$stub, $name)

@@ -7,6 +7,12 @@ use DummyComponentServicePath;
 
 class DummyClass extends DummyComponentBaseClass
 {
+    protected $package = '{package}';
+
+    protected $modelName = '{modelName}';
+
+    protected $modelType = '{modelType}';
+
     public function __construct(DummyComponentServiceClass $service)
     {
         parent::__construct($service);
