@@ -11,14 +11,14 @@ class ResponseHelper
         $code = config("constants.default.{$statusString}");
         $message = trans("jjaj::default.{$statusString}", $trans_params);
         if (!$code) {
-           $modelName = Str::lower($modelName);
+            $lowerPackage = Str::lower($package);
+            $lowerModelName = Str::lower($modelName);
             if ($package) {
-                $package = Str::lower($package);
-                $code = config("constants.{$package}.{$modelName}.{$statusString}");
-                $message = trans("{$package}::{$modelName}.{$statusString}", $trans_params);
+                $code = config("constants.{$lowerPackage}.{$lowerModelName}.{$statusString}");
+                $message = trans("{$lowerPackage}::{$lowerModelName}.{$statusString}", $trans_params);
             } else {
-                $code = config("constants.{$modelName}.{$statusString}");
-                $message = trans("{$modelName}.{$statusString}", $trans_params);
+                $code = config("constants.{$lowerModelName}.{$statusString}");
+                $message = trans("{$lowerModelName}.{$statusString}", $trans_params);
             }
 
             $responseStatusString = Str::upper($modelName).'_'.$statusString;
@@ -29,12 +29,20 @@ class ResponseHelper
             } else {
                 $response['status'] = $responseStatusString;
                 $response['message'] = str_replace('{$ModelName}', $modelName, $message);
-                $response['data']['items'] = $data;
+                if ($data) {
+                    $response['data']['items'] = $data;
+                } else {
+                    $response['data'] = null;
+                }
             }
         } else {
             $response['status'] = Str::upper($modelName).'_'.$statusString;
             $response['message'] = str_replace('{$ModelName}', $modelName, $message);
-            $response['data']['items'] = $data;
+            if ($data) {
+                $response['data']['items'] = $data;
+            } else {
+                $response['data'] = null;
+            }
         }
 
         return response()->json($response, $code);
