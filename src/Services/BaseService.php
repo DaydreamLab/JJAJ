@@ -17,9 +17,11 @@ class BaseService
 
     public $status = '';
 
-    public $package = null;
+    protected $package = null;
 
     protected $modelName = 'Base';
+
+    protected $modelType = 'Base';
 
     protected $eagers = [];
 

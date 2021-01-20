@@ -11,7 +11,9 @@ class ResponseHelper
         $code = config("constants.default.{$statusString}");
         $message = trans("jjaj::default.{$statusString}", $trans_params);
         if (!$code) {
+           $modelName = Str::lower($modelName);
             if ($package) {
+                $package = Str::lower($package);
                 $code = config("constants.{$package}.{$modelName}.{$statusString}");
                 $message = trans("{$package}::{$modelName}.{$statusString}", $trans_params);
             } else {
