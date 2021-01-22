@@ -14,7 +14,6 @@
     },
     "minimum-stability": "dev",
     "require": {
-//        "daydreamlab/observer": "dev-master"
         "daydreamlab/observer": "dev-develop-tusa"
     },
     "repositories" : [
