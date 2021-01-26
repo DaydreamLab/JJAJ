@@ -41,12 +41,12 @@ return [
     'DELETE_NESTED_FAIL'                    => 500,
 
     // Publish
-    'PUBLISH_SUCCESS'                       => 200,
-    'PUBLISH_FAIL'                          => 500,
+    'PUBLISHED_SUCCESS'                     => 200,
+    'PUBLISHED_FAIL'                        => 500,
 
     // Unpublished
-    'UNPUBLISH_SUCCESS'                     => 200,
-    'UNPUBLISH_FAIL'                        => 500,
+    'UNPUBLISHED_SUCCESS'                   => 200,
+    'UNPUBLISHED_FAIL'                      => 500,
 
     // Archive
     'ARCHIVE_SUCCESS'                       => 200,

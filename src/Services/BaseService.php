@@ -593,9 +593,9 @@ class BaseService
         }
 
         if ($input->get('state') == '1') {
-            $action = 'Publish';
+            $action = 'Published';
         } elseif ($input->get('state') == '0') {
-            $action = 'Unpublish';
+            $action = 'Unpublished';
         } elseif ($input->get('state') == '-1') {
             $action = 'Archive';
         } elseif ($input->get('state') == '-2') {

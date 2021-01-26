@@ -5,6 +5,7 @@ namespace DaydreamLab\JJAJ\Controllers;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Services\BaseService;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Routing\Controller;
@@ -46,6 +47,8 @@ class BaseController extends Controller
         } elseif (gettype($data) == 'boolean') {
             $response = null;
         } elseif (gettype($data) == 'array'){
+            $response['items'] = $data;
+        }  elseif ($data instanceof Model) {
             $response['items'] = $data;
         } elseif ($data instanceof Collection) {
             $response['items'] = $data;

@@ -513,7 +513,7 @@ class BaseRepository implements BaseRepositoryInterface
                 ? $query->paginate($limit)
                 : $query->get();
         }
-
+        
         return $items;
     }
 

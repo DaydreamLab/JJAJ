@@ -8,7 +8,7 @@ trait LoggedIn
 {
     protected $access_ids = [];
     
-    protected $user;
+    protected $user = null;
 
     public function getAccessIds()
     {
