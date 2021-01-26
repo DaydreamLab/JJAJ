@@ -40,17 +40,17 @@ class BaseController extends Controller
 
     public function formatResponse($data)
     {
+
         if (!$data) {
             $response = $data;
         } elseif (gettype($data) == 'boolean') {
             $response = null;
+        } elseif ($data instanceof ResourceCollection) {
+            $response = $data;
         } elseif ($data instanceof JsonResource) {
             $response['items'] = $data;
-        } elseif ($data instanceof ResourceCollection) {
-
         }
-
-
+        
         return  $response;
 
 

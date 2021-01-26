@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class BaseResourceCollection extends ResourceCollection
 {
+    
     /**
      * Transform the resource collection into an array.
      *
@@ -19,20 +20,16 @@ class BaseResourceCollection extends ResourceCollection
         $resource = $this->resource->toArray();
         unset($resource['data']);
 
-        if($this->resource instanceof \Illuminate\Pagination\LengthAwarePaginator)
-        {
+        if($this->resource instanceof \Illuminate\Pagination\LengthAwarePaginator) {
             return [
-                'items'         => $this->collection->all(),
+                'items'         => $this->collection,
                 'pagination'    => $resource,
-                'records'       => $this->collection->count()
             ];
-        }
-        else
-        {
+        } else {
             return [
-                'items'         => $this->collection->all(),
-                'records'       => $this->collection->count()
+                'items'         => $this->collection
             ];
         }
+        return  parent::toArray($request);
     }
 }

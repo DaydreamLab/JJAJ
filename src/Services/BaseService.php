@@ -296,7 +296,7 @@ class BaseService
             $this->update($data, $item);
         }
 
-        $this->status = Str::upper(Str::snake('GetItemSuccess'));
+        $this->status = 'GetItemSuccess';
         $this->response = $item->refresh();
 
         return $this->response;

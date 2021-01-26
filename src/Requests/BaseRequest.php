@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Requests;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
@@ -24,7 +25,7 @@ class BaseRequest extends FormRequest
             if (!$this->apiMethod) {
                 return true;
             } else {
-                $apis = $this->user->apis;
+                $apis = $this->user()->apis;
                 if ($this->apiMethod == 'store'. $this->modelName) {
                     $method = $this->get('id')
                         ? 'edit' . $this->modelName
@@ -34,7 +35,7 @@ class BaseRequest extends FormRequest
                     })->count();
                 } else {
                     return $apis->filter(function ($api) {
-                        return $api->title == $this->apiMethod;
+                        return $api->method == $this->apiMethod;
                     })->count();
                 }
             }

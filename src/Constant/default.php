@@ -5,7 +5,6 @@ return [
     'INVALID_INPUT'                         => 403,
     'UNDEFINED_STATUS'                      => 500,
     'UNAUTHORIZED'                          => 401,
-    'INPUT_INVALID'                         => 403,
     'INSUFFICIENT_PERMISSION'               => 403,
     'INSUFFICIENT_PERMISSION_ADMINISTRATOR' => 403,
     'INSUFFICIENT_PERMISSION_SUPER_ADMIN'   => 403,

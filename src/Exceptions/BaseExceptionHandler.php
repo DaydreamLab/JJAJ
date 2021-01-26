@@ -51,7 +51,7 @@ class BaseExceptionHandler extends ExceptionHandler
     public function render($request, Throwable $exception)
     {
         if ($exception instanceof \Illuminate\Auth\AuthenticationException) {
-            return ResponseHelper::response('USER_UNAUTHORIZED', null);
+            return ResponseHelper::response('Unauthorized', null);
         } else if($exception instanceof \League\Flysystem\FileNotFoundException) {
             return ResponseHelper::response('FILE_NOT_FOUND', null);
         } else if($exception instanceof \Intervention\Image\Exception\NotWritableException) {

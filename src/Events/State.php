@@ -32,7 +32,7 @@ class State
         $this->user     = $user;
         $this->result   = $result ? 'success' : 'fail';
         $this->type     = $type;
-        $this->item_ids = $input->ids;
+        $this->item_ids = $input->get('ids');
 
         $state = $input->state;
 
