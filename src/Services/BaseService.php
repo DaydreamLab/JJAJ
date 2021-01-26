@@ -176,7 +176,7 @@ class BaseService
         $item = $this->find($input->get('id'));
         if ($item) {
             if ($item->hasAttribute('access')) {
-                $this->canAccess($item->access, $this->access_ids);
+                $this->canAccess($item->access, $this->getAccessIds());
             }
         } else {
             $this->throwResponse('ItemNotExist', ['id' => $input->get('id')]);

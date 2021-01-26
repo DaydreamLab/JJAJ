@@ -8,6 +8,7 @@ use DaydreamLab\JJAJ\Services\BaseService;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class BaseController extends Controller
@@ -40,11 +41,14 @@ class BaseController extends Controller
 
     public function formatResponse($data)
     {
-
         if (!$data) {
             $response = $data;
         } elseif (gettype($data) == 'boolean') {
             $response = null;
+        } elseif (gettype($data) == 'array'){
+            $response['items'] = $data;
+        } elseif ($data instanceof Collection) {
+            $response['items'] = $data;
         } elseif ($data instanceof ResourceCollection) {
             $response = $data;
         } elseif ($data instanceof JsonResource) {

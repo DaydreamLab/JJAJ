@@ -72,6 +72,7 @@ return [
 
     // Get Tree
     'GET_TREE_SUCCESS'                      => 200,
+    'GET_TREE_LIST_SUCCESS'                 => 200,
 
     // Get List
     'GET_LIST_SUCCESS'                      => 200

@@ -6,16 +6,17 @@ use Illuminate\Support\Facades\Auth;
 
 trait LoggedIn
 {
+    protected $access_ids = [];
+    
+    protected $user;
+
     public function getAccessIds()
     {
         if(!$this->access_ids)
         {
-            if($this->getUser())
-            {
+            if($this->getUser()) {
                 $this->access_ids = $this->getUser()->access_ids;
-            }
-            else
-            {
+            } else {
                 $this->access_ids = config('cms.item.front.access_ids');
             }
         }
@@ -37,14 +38,10 @@ trait LoggedIn
 
     public function getViewlevels()
     {
-        if(!$this->viewlevels)
-        {
-            if($this->getUser())
-            {
+        if(!$this->viewlevels) {
+            if($this->getUser()) {
                 $this->viewlevels = $this->getUser()->viewlevels;
-            }
-            else
-            {
+            } else {
                 $this->viewlevels = config('cms.item.front.viewlevels');
             }
         }

@@ -15,18 +15,14 @@ trait NestedServiceTrait
 {
     public function addNested(Collection $input)
     {
-        $this->canAction('add');
         $item = $this->repo->addNested($input);
-        if ($item)
-        {
-
-            $item = $this->find($item->id);
-            $this->status    = Str::upper(Str::snake($this->type.'CreateNestedSuccess'));
+        if ($item) {
+            $this->addMapping($item, $input);
+            $item = $item->refresh();
+            $this->status    = 'CreateNestedSuccess';
             $this->response  = $item;
-        }
-        else
-        {
-            $this->throwResponse($this->type.'CreateNestedFail');
+        } else {
+            $this->throwResponse('CreateNestedFail');
         }
 
         return $item;
@@ -53,14 +49,12 @@ trait NestedServiceTrait
     public function modifyNested(Collection $input, $parent, $item)
     {
         $modify = $this->repo->modifyNested($input, $parent, $item);
-        if ($modify)
-        {
-            $this->status   = Str::upper(Str::snake($this->type.'UpdateNestedSuccess'));
+        if ($modify) {
+            $this->modifyMapping($item, $input);
+            $this->status   = 'UpdateNestedSuccess';
             $this->response = null;
-        }
-        else
-        {
-            $this->throwResponse($this->type.'UpdateNestedFail');
+        } else {
+            $this->throwResponse('UpdateNestedFail');
         }
 
         return $modify;
@@ -88,20 +82,19 @@ trait NestedServiceTrait
 
     public function removeNested(Collection $input)
     {
-        foreach ($input->ids as $id)
-        {
-            $item = $this->checkItem($id);
-            $this->canAction('delete', $item);
+        foreach ($input->get('ids') as $id) {
+            $item = $this->checkItem(collect(['id' => $id]));
+            $this->removeMapping($item);
             $result = $this->repo->removeNested($item);
 
             if(!$result) break;
         }
 
         if($result) {
-            $this->status =  Str::upper(Str::snake($this->type.'DeleteNestedSuccess'));
+            $this->status = 'DeleteNestedSuccess';
         }
         else{
-            $this->throwResponse($this->type.'DeleteNestedFail');
+            $this->throwResponse('DeleteNestedFail');
         }
 
         return $result;
@@ -111,6 +104,12 @@ trait NestedServiceTrait
     public function setStoreNestedDefaultInput($input, $parent)
     {
         $input = $this->setStoreDefaultInput($input);
+        
+        if ($this->repo->getModel()->hasAttribute('access') && InputHelper::null($input, 'access')) {
+            if ($parent) {
+                $input->put('access', $parent->access);
+            }
+        }
 
         if ($this->repo->getModel()->hasAttribute('path') && InputHelper::null($input, 'path'))
         {
@@ -138,19 +137,19 @@ trait NestedServiceTrait
     public function storeNested(Collection $input)
     {
         // 取得 parent
-        $parent_id = $input->has('parent_id') ? $input->get('parent_id') : 1;
+        $parent_id = $input->has('parent_id')
+            ? $input->get('parent_id')
+            : 1;
         $parent = $this->checkItem(collect(['id' => $parent_id]));
+
         // 設定初始值
         $input  = $this->setStoreNestedDefaultInput($input, $parent);
         // 檢查多語言下的 path
         $this->checkPathExist($input, $parent);
 
-        if (InputHelper::null($input, 'id'))
-        {
+        if (InputHelper::null($input, 'id')) {
             return $this->addNested($input);
-        }
-        else
-        {
+        } else {
             $input->put('locked_by', 0);
             $input->put('locked_at', null);
             $item = $this->checkItem($input->get('id'));
