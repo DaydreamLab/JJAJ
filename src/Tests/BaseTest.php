@@ -3,13 +3,22 @@
 namespace DaydreamLab\JJAJ\Tests;
 
 use DaydreamLab\JJAJ\Helpers\Helper;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Mockery;
 
 class BaseTest extends TestCase
 {
+    use WithFaker;
+
+    protected $package;
+
+    protected $modelName;
+
+    protected $modelType = 'Base';
 
     protected function setUp() :void
     {
@@ -24,15 +33,28 @@ class BaseTest extends TestCase
     }
 
 
-    public function assertHttpResponseException($funcName, $funcParams = [], $expect)
+    /**
+     * @param string $funcName
+     * @param mixed $input
+     * @param string $expect
+     */
+    public function assertHttpResponseException($funcName, $input, $expect)
     {
+        $error = false;
+        $content = null;
         try {
-            $this->service->{$funcName}(...$funcParams);
+            $this->service->{$funcName}($input);
         } catch (HttpResponseException $e) {
-
+            $error = true;
             $content = $this->getContent($e->getResponse());
-            $this->assertEquals(Str::upper(Str::snake($expect)), $content['status']);
+            $status = $this->package
+                ? $this->package . $expect
+                : $this->modelName . $expect;
         }
+
+        $error
+            ? $this->assertEquals(Str::upper(Str::snake($status)), $content['status'])
+            : $this->assertEquals($expect, $this->service->status);
     }
 
 

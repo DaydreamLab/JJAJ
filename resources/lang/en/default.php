@@ -2,15 +2,17 @@
 
 return [
     'UNDEFINED_STATUS'                      => 'Undefined status string: :status',
+    'API_ACCESS_DENY'                       => 'Insufficient permission access deny',
     'UNAUTHORIZED'                          => 'User unauthorized. Please Login first',
     'INSUFFICIENT_PERMISSION'               => 'Insufficient permission',
+    'INSUFFICIENT_PERMISSION_ADMINISTRATOR' => 'Insufficient permission administrator',
+    'INSUFFICIENT_PERMISSION_SUPER_ADMIN'   => 'Insufficient permission super admin',
     'INSUFFICIENT_PERMISSION_ACTION'        => 'Insufficient permission :model-:method',
     'INSUFFICIENT_PERMISSION_VIEW'          => 'Insufficient permission view',
-    'INPUT_INVALID'                         => 'Input invalid ',
 
     // Get
     'GET_ITEM_SUCCESS'                      => '{$ModelName} get item success',
-    'ITEM_NOT_EXIST'                        => '{$ModelName} item not exist :key :value',
+    'ITEM_NOT_EXIST'                        => '{$ModelName} item not exist',
     'IS_LOCKED'                             => '{$ModelName} is locked',
 
     // Create
@@ -57,4 +59,5 @@ return [
     'ORDERING_SUCCESS'                      => '{$ModelName} ordering success',
     'ORDERING_NESTED_SUCCESS'               => '{$ModelName} ordering nested success',
     'INVALID_ORDERING_DIFF'                 => '{$ModelName} invalid ordering diff, target ordering: :target_ordering',
+    'INVALID_INPUT'                         => 'Invalid input',
 ];

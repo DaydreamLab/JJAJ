@@ -30,16 +30,20 @@ class ResponseHelper
                 $response['status'] = $responseStatusString;
                 $response['message'] = str_replace('{$ModelName}', $modelName, $message);
                 if ($data) {
-                    $response['data']['items'] = $data;
+                    $response['data']= $data;
                 } else {
                     $response['data'] = null;
                 }
             }
         } else {
-            $response['status'] = Str::upper($modelName).'_'.$statusString;
+            if ($modelName) {
+                $response['status'] = Str::upper($modelName).'_'.$statusString;
+            } else {
+                $response['status'] = $statusString;
+            }
             $response['message'] = str_replace('{$ModelName}', $modelName, $message);
             if ($data) {
-                $response['data']['items'] = $data;
+                $response['data']= $data;
             } else {
                 $response['data'] = null;
             }

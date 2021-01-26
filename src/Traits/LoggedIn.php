@@ -26,8 +26,7 @@ trait LoggedIn
 
     public function getUser()
     {
-        if($this->user == null)
-        {
+        if ($this->user == null) {
             $this->user = Auth::guard('api')->user();
         }
 

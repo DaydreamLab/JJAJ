@@ -1,15 +1,18 @@
 <?php
 
 return [
+    'UNDEFINED_STATUS'                      => '未定義回應代碼: :status',
     'UNAUTHORIZED'                          => '使用者未認證',
-    '{$ModelName}'                          => '使用者權限不足',
-    '{$ModelName}_ACTION'                   => '使用者權限不足無法操作: :model-:method',
-    '{$ModelName}_VIEW'                     => '使用者權限不足無法觀看',
-    'INPUT_INVALID'                         => '輸入的欄位不合法 ',
+    'API_ACCESS_DENY'                       => 'API 使用權限不足',
+    'INSUFFICIENT_PERMISSION'               => '使用者權限不足',
+    'INSUFFICIENT_PERMISSION_ADMINISTRATOR' => '使用者權限不足：管理者',
+    'INSUFFICIENT_PERMISSION_SUPER_ADMIN'   => '使用者權限不足：超級管理者',
+    'INSUFFICIENT_PERMISSION_ACTION'        => '使用者權限不足無法操作: :model-:method',
+    'INSUFFICIENT_PERMISSION_VIEW'          => '使用者權限不足無法觀看',
 
     // Get
     'GET_ITEM_SUCCESS'                      => '{$ModelName} 取得項目成功',
-    'ITEM_NOT_EXIST'                        => '{$ModelName} 項目不存在 :key: :value',
+    'ITEM_NOT_EXIST'                        => '{$ModelName} 項目不存在',
     'IS_LOCKED'                             => '{$ModelName} 項目鎖定中',
 
     // Create
@@ -56,4 +59,5 @@ return [
     'ORDERING_SUCCESS'                      => '{$ModelName} 排序項目成功',
     'ORDERING_NESTED_SUCCESS'               => '{$ModelName} 排序項目成功',
     'INVALID_ORDERING_DIFF'                 => '{$ModelName} 不合法的排序: :diff',
+    'INVALID_INPUT'                         => '輸入的資料有誤',
 ];

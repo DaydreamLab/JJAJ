@@ -1,11 +1,11 @@
 <?php
+
 namespace DaydreamLab\JJAJ\Helpers;
 
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class Helper {
 
@@ -13,8 +13,7 @@ class Helper {
     {
         $args = func_get_args();
         // Print Multiple values
-        if (count($args) > 1)
-        {
+        if (count($args) > 1) {
             $prints = array();
             $i = 1;
             foreach ($args as $arg)
@@ -23,9 +22,7 @@ class Helper {
                 $i++;
             }
             echo '<pre>' . implode("\n\n", $prints) . '</pre>';
-        }
-        else
-        {
+        } else {
             // Print one value.
             echo '<pre>' . print_r($data, 1) . '</pre>';
         }

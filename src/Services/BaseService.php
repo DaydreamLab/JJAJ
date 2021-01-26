@@ -3,6 +3,7 @@
 namespace DaydreamLab\JJAJ\Services;
 
 use Carbon\Carbon;
+use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
@@ -71,13 +72,11 @@ class BaseService
 
     public function addMapping($item, $input)
     {
-        return true;
     }
 
 
     public function afterCheckItem($item)
     {
-        return true;
     }
 
 
@@ -136,10 +135,10 @@ class BaseService
         }
 
         if ($result) {
-            $this->status = Str::upper(Str::snake($this->type . 'CheckoutSuccess'));
+            $this->status = 'CheckoutSuccess';
             $this->response = null;
         } else {
-            $this->throwResponse($this->type . 'CheckoutFail');
+            $this->throwResponse('CheckoutFail');
         }
 
         return $result;
@@ -164,7 +163,7 @@ class BaseService
             }
 
             if ($same && $same->id != $input->get('id')) {
-                $this->throwResponse($this->type . 'StoreWithExistAlias');
+                $this->throwResponse('StoreWithExistAlias');
             }
         }
 
@@ -180,7 +179,7 @@ class BaseService
                 $this->canAccess($item->access, $this->access_ids);
             }
         } else {
-            $this->throwResponse($this->type . 'ItemNotExist', ['id' => $input->get('id')]);
+            $this->throwResponse('ItemNotExist', ['id' => $input->get('id')]);
         }
 
         $this->afterCheckItem($item);
@@ -191,7 +190,7 @@ class BaseService
     public function checkLocked($item)
     {
         if ($item->locked_by && $item->locked_by != $this->user->id && !$this->user->higherPermissionThan($item->locked_by)) {
-            $this->throwResponse($this->type . 'IsLocked', (object)$this->user->only('email', 'full_name', 'nickname'));
+            $this->throwResponse('IsLocked', (object)$this->user->only('email', 'full_name', 'nickname'));
         }
     }
 
@@ -297,7 +296,7 @@ class BaseService
             $this->update($data, $item);
         }
 
-        $this->status = Str::upper(Str::snake($this->type . 'GetItemSuccess'));
+        $this->status = Str::upper(Str::snake('GetItemSuccess'));
         $this->response = $item->refresh();
 
         return $this->response;
@@ -313,10 +312,10 @@ class BaseService
                 $this->update($item, $item);
             }
 
-            $this->status = Str::upper(Str::snake($this->type . 'GetItemSuccess'));
+            $this->status = 'GetItemSuccess';
             $this->response = $item;
         } else {
-            $this->throwResponse($this->type . 'ItemNotExist');
+            $this->throwResponse('ItemNotExist');
         }
 
         return $item;
@@ -330,10 +329,10 @@ class BaseService
     {
         $item = $this->search($input)->first();
         if ($item) {
-            $this->status = Str::upper(Str::snake($this->type . 'GetItemSuccess'));
+            $this->status = 'GetItemSuccess';
             $this->response = $item;
         } else {
-            $this->throwResponse($this->type . 'GetItemFail');
+            $this->throwResponse( 'GetItemFail');
         }
 
         return $item;
@@ -349,7 +348,7 @@ class BaseService
     {
         $items = $this->repo->all();
 
-        $this->status = Str::upper(Str::snake($this->type . 'GetListSuccess'));
+        $this->status = 'GetListSuccess';
         $this->response = $items;
 
         return $items;
@@ -411,10 +410,10 @@ class BaseService
         if ($update) {
 
             $this->modifyMapping($item, $input);
-            $this->status = Str::upper(Str::snake($this->type . 'UpdateSuccess'));
+            $this->status = 'UpdateSuccess';
             $this->response = $update;
         } else {
-            $this->throwResponse($this->type . 'UpdateFail');
+            $this->throwResponse( 'UpdateFail');
         }
 
         return $update;
@@ -438,16 +437,16 @@ class BaseService
         if ($this->repo->isNested()) {
             $result = $this->repo->orderingNested($input, $item);
             if ($result) {
-                $this->status = Str::upper(Str::snake($this->type . 'UpdateOrderingNestedSuccess'));
+                $this->status = 'UpdateOrderingNestedSuccess';
             } else {
-                $this->throwResponse($this->type . 'UpdateOrderingNestedFail');
+                $this->throwResponse('UpdateOrderingNestedFail');
             }
         } else {
             $result = $this->repo->ordering($input, $item);
             if ($result) {
-                $this->status = Str::upper(Str::snake($this->type . 'UpdateOrderingSuccess'));
+                $this->status = 'UpdateOrderingSuccess';
             } else {
-                $this->throwResponse($this->type . 'UpdateOrderingFail');
+                $this->throwResponse('UpdateOrderingFail');
             }
         }
 
@@ -494,9 +493,9 @@ class BaseService
         }
 
         if ($result) {
-            $this->status = Str::upper(Str::snake($this->type . 'DeleteSuccess'));
+            $this->status = 'DeleteSuccess';
         } else {
-            $this->throwResponse($this->type . 'DeleteFail');
+            $this->throwResponse('DeleteFail');
         }
         return $result;
     }
@@ -538,7 +537,7 @@ class BaseService
 
         $items = $this->repo->search($input, $paginate);
 
-        $this->status = Str::upper(Str::snake($this->type . 'SearchSuccess'));
+        $this->status = 'SearchSuccess';
         $this->response = $items;
 
         return $items;
@@ -679,15 +678,13 @@ class BaseService
             }
         }
 
-        throw new HttpResponseException(
-            ResponseHelper::genResponse(
-                $statusString,
-                $response,
-                $this->package,
-                $this->modelName,
-                $trans_params
-            )
-        );
+        throw new HttpResponseException(ResponseHelper::genResponse(
+            $statusString,
+            $response,
+            $this->package,
+            $this->modelName,
+            $trans_params
+        ));
     }
 
 
