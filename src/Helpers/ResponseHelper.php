@@ -9,7 +9,7 @@ class ResponseHelper
     public static function genResponse($statusString, $data, $package, $modelName, $trans_params = [])
     {
         $code = config("constants.default.{$statusString}");
-        $message = trans("jjaj::default.{$statusString}", $trans_params); 
+        $message = trans("jjaj::default.{$statusString}", $trans_params);
         if (!$code) {
             $lowerPackage = Str::lower($package);
             $lowerModelName = Str::lower($modelName);

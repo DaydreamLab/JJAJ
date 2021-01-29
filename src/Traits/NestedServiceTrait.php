@@ -38,7 +38,7 @@ trait NestedServiceTrait
             $same = $this->repo->findMultiLanguageItem(Helper::collect($copy));
             if ($same && $same->id != $input->get('id'))
             {
-                $this->throwResponse($this->type.'StoreNestedWithExistPath',  ['path' => $input->get('path')]);
+                $this->throwResponse('StoreNestedWithExistPath',  ['path' => $input->get('path')]);
             }
         }
 

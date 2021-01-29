@@ -23,7 +23,7 @@ return [
 
     // Update
     'STORE_WITH_EXIST_ALIAS'                => '{$ModelName} 已存在相同的別名',
-    'STORE_NESTED_WITH_EXIST_PATH'          => '{$ModelName} 已存在相同的路徑',
+    'STORE_NESTED_WITH_EXIST_PATH'          => '{$ModelName} 已存在相同的別名路徑',
     'UPDATE_SUCCESS'                        => '{$ModelName} 更新項目成功',
     'UPDATE_NESTED_SUCCESS'                 => '{$ModelName} 更新項目成功',
     'UPDATE_FAIL'                           => '{$ModelName} 更新項目失敗',

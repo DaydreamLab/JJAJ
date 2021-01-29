@@ -27,22 +27,6 @@ class BaseModel extends Model
     }
 
 
-    public function creator()
-    {
-        $creator = $this->hasOne(User::class, 'id', 'created_by');
-
-        return $creator;
-    }
-
-
-    public function getCreatorAttribute()
-    {
-        $creator = $this->creator()->first() ;
-
-        return $creator ? $creator->last_name . ' ' . $creator->first_name : '';
-    }
-
-
     public function getDepthAttribute()
     {
         return $this->ancestors->count();
@@ -54,11 +38,6 @@ class BaseModel extends Model
         return $this->limit;
     }
 
-
-    public function getLockerAttribute()
-    {
-        return $this->locker();
-    }
 
 
     public function getOrder()
@@ -104,23 +83,9 @@ class BaseModel extends Model
     }
 
 
-    public function getUpdaterAttribute()
-    {
-        $updater = $this->updater();
-        return $updater ? $updater->nickname : null;
-    }
-
-
     public function hasAttribute($attribute)
     {
         return in_array($attribute, $this->fillable);
-    }
-
-
-    public function locker()
-    {
-        $locker =  $this->hasOne(User::class, 'id', 'locked_by')->first();
-        return $locker ? $locker->nickname : null;
     }
 
 
@@ -144,12 +109,5 @@ class BaseModel extends Model
         if ($order_by && $order_by != ''){
             $this->order_by = $order_by;
         }
-    }
-
-
-    public function updater()
-    {
-        $updater =  $this->hasOne(User::class, 'id', 'updated_by')->first();
-        return $updater;
     }
 }

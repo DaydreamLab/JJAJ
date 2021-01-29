@@ -14,7 +14,6 @@ trait RecordChanger
      * 999999993: 未知或沒有設定
      * */
 
-
     public static function boot()
     {
         parent::boot();
