@@ -14,7 +14,8 @@
     },
     "minimum-stability": "dev",
     "require": {
-        "daydreamlab/observer": "dev-master"
+        "daydreamlab/observer": "dev-master",
+        "laravel/passport": "^7.0"
     },
     "repositories" : [
         {
