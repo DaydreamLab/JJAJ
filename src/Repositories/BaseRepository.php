@@ -129,7 +129,7 @@ class BaseRepository implements BaseRepositoryInterface
     /**
      * @param $id
      * @param array $eagers
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Model|null
+     *
      */
     public function find($id, $eagers = [])
     {

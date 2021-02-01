@@ -134,20 +134,31 @@ trait NestedRepositoryTrait
     }
 
 
-    public function findTargetNode($node, $difference)
+    public function findTargetNode($node, $input)
     {
-        $target         = $difference < 0 ? $node->getPrevSibling() : $node->getNextSibling();
-        $new_diff       = $difference < 0 ?  $difference + 1 : $difference - 1;
-        if (!$target)
-        {
-            return false;
-        }
-        if ($new_diff!= 0)
-        {
-            return $this->findTargetNode($target, $new_diff);
-        }
-        else {
-            return $target;
+        $diff = $input->get('index_diff');
+        $order = $input->get('order') ?: 'asc';
+
+        if ($order == 'asc') {
+            if ($diff < 0) {
+                return $node->getPrevSiblings()
+                    ->where('ordering', $node->ordering + $diff)
+                    ->first();
+            } else {
+                return $node->getNextSiblings()
+                    ->where('ordering', $node->ordering + $diff)
+                    ->first();
+            }
+        } else {
+            if ($diff < 0) {
+                return $node->getNextSiblings()
+                    ->where('ordering', $node->ordering - $diff)
+                    ->first();
+            } else {
+                return $node->getPrevSiblings()
+                    ->where('ordering', $node->ordering - $diff)
+                    ->first();
+            }
         }
     }
 
@@ -159,8 +170,7 @@ trait NestedRepositoryTrait
         {
             // 修改同層的 ordering
             $item_next_siblings = $item->getNextSiblings();
-            if (!$this->siblingsOrderingChange($item_next_siblings, 'sub'))
-            {
+            if (!$this->siblingsOrderingChange($item_next_siblings, 'sub')) {
                 return false;
             }
 
@@ -176,46 +186,75 @@ trait NestedRepositoryTrait
 
     public function orderingNested(Collection $input, $item)
     {
-        $orderingKey    = $input->has('orderingKey') ? $input->get('orderingKey') : 'ordering';
-        $input_order    = $input->get('order');
-        $origin         = $item->{$orderingKey};
+        $target_item = $this->findTargetNode($item, $input);
+        if (!$target_item)
+            return false;
 
-        $target_item    = $this->findTargetNode($item, $input->index_diff);
-        if (!$target_item) return false;
-        $item->ordering = $target_item->ordering;
+        // 這邊會有 call by reference 問題，先存起來原始值
+        $targetOrdering = $target_item->ordering;
+        if ($input->get('index_diff') < 0) {
+            if ($input->get('order') == 'asc') {
+                $siblings = $item
+                    ->getPrevSiblings()
+                    ->filter(function ($sibling) use ($item, $target_item) {
+                        return $sibling->ordering >= $target_item->ordering
+                            && $sibling->ordering < $item->ordering;
+                    });
+                if(!$item->beforeNode($target_item)->save()) {
+                    return false;
+                }
+            } else {
+                $siblings = $item
+                    ->getNextSiblings()
+                    ->filter(function ($sibling) use ($item, $target_item) {
+                        return $sibling->ordering > $item->ordering
+                            && $sibling->ordering <= $target_item->ordering;
+                    });
+                if(!$item->afterNode($target_item)->save()) {
+                    return false;
+                }
+            }
 
-        if ($input->index_diff < 0)
-        {
             if(!$item->beforeNode($target_item)->save()) {
                 return false;
             }
-            $item = $this->find($item->id);
-            $siblings   = $item->getNextSiblings();
+            $item = $item->refresh();
 
-            foreach ($siblings as $sibling)
-            {
-                if ($sibling->ordering >= $item->ordering && $sibling->ordering <= $origin)
-                {
-                    $input->get('order') == 'asc' ? $sibling->ordering++ : $sibling->ordering--;
-                    if (!$sibling->save()) return false;
+            $input->get('order') == 'asc'
+                ? $this->siblingsOrderingChange($siblings, 'add')
+                : $this->siblingsOrderingChange($siblings, 'sub');
+        } else {
+            if ($input->get('order') == 'asc') {
+                $siblings = $item
+                    ->getNextSiblings()
+                    ->filter(function ($sibling) use ($item, $target_item) {
+                        return $sibling->ordering > $item->ordering
+                            && $sibling->ordering <= $target_item->ordering;
+                    });
+                if(!$item->afterNode($target_item)->save()) {
+                    return false;
+                }
+            } else {
+                $siblings = $item
+                    ->getPrevSiblings()
+                    ->filter(function ($sibling) use ($item, $target_item) {
+                        return $sibling->ordering >= $target_item->ordering
+                            && $sibling->ordering < $item->ordering;
+                    });
+                if(!$item->beforNode($target_item)->save()) {
+                    return false;
                 }
             }
+
+            $item = $item->refresh();
+
+            $input->get('order') == 'asc'
+                ? $this->siblingsOrderingChange($siblings, 'sub')
+                : $this->siblingsOrderingChange($siblings, 'add');
         }
-        else
-        {
-            if(!$item->afterNode($target_item)->save()) {
-                return false;
-            }
-            $siblings   = $item->getPrevSiblings();
-            foreach ($siblings as $sibling)
-            {
-                if ($sibling->ordering > $origin && $sibling->ordering <= $item->ordering)
-                {
-                    $input->get('order') == 'asc' ? $sibling->ordering-- : $sibling->ordering++;
-                    if (!$sibling->save()) return false;
-                }
-            }
-        }
+
+        $item->ordering = $targetOrdering;
+        $item->save();
 
         return true;
     }

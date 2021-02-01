@@ -189,7 +189,9 @@ class BaseService
 
     public function checkLocked($item)
     {
-        if ($item->locked_by && $item->locked_by != $this->user->id && !$this->user->higherPermissionThan($item->locked_by)) {
+        if ($item->locked_by
+            && $item->locked_by != $this->user->id
+            && !$this->user->higherPermissionThan($item->locked_by)) {
             $this->throwResponse('IsLocked', (object)$this->user->only('email', 'full_name', 'nickname'));
         }
     }

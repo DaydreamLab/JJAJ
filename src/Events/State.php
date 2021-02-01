@@ -34,7 +34,7 @@ class State
         $this->type     = $type;
         $this->item_ids = $input->get('ids');
 
-        $state = $input->state;
+        $state = $input->get('state');
 
         if ($state == 0)
         {

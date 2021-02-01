@@ -28,15 +28,15 @@ class DummyClass extends BaseController
 
     public function checkout(DummyCheckoutPostRequest $request)
     {
-        $this->service->checkout($request->rulesInput());
+        $this->service->checkout($request->validated());
 
         return $this->response($this->service->status, $this->service->response);
     }
 
 
-    public function getItem($id)
+    public function getItem($request)
     {
-        $this->service->getItem($id);
+        $this->service->getItem(collect(['id' => $request->route('id')]));
 
         return $this->response($this->service->status, $this->service->response);
     }
@@ -44,7 +44,7 @@ class DummyClass extends BaseController
 
     public function ordering(DummyOrderingPostRequest $request)
     {
-        $this->service->ordering($request->rulesInput());
+        $this->service->ordering($request->validated());
 
         return $this->response($this->service->status, $this->service->response);
     }
@@ -52,7 +52,7 @@ class DummyClass extends BaseController
 
     public function remove(DummyRemovePostRequest $request)
     {
-        $this->service->remove($request->rulesInput());
+        $this->service->remove($request->validated());
 
         return $this->response($this->service->status, $this->service->response);
     }
@@ -60,7 +60,7 @@ class DummyClass extends BaseController
 
     public function state(DummyStatePostRequest $request)
     {
-        $this->service->state($request->rulesInput());
+        $this->service->state($request->validated());
 
         return $this->response($this->service->status, $this->service->response);
     }
@@ -68,7 +68,7 @@ class DummyClass extends BaseController
 
     public function store(DummyStorePostRequest $request)
     {
-        $this->service->store($request->rulesInput());
+        $this->service->store($request->validated());
 
         return $this->response($this->service->status, $this->service->response);
     }
@@ -76,7 +76,7 @@ class DummyClass extends BaseController
 
     public function search(DummySearchPostRequest $request)
     {
-        $this->service->search($request->rulesInput());
+        $this->service->search($request->validated());
 
         return $this->response($this->service->status, $this->service->response);
     }

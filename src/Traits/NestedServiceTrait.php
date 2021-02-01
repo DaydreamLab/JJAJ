@@ -152,7 +152,7 @@ trait NestedServiceTrait
         } else {
             $input->put('locked_by', 0);
             $input->put('locked_at', null);
-            $item = $this->checkItem($input->get('id'));
+            $item = $this->checkItem(collect([ 'id' => $input->get('id')]));
 
             return $this->modifyNested($input, $parent, $item);
         }

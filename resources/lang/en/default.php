@@ -35,6 +35,12 @@ return [
     'DELETE_FAIL'                           => '{$ModelName} delete fail',
     'DELETE_NESTED_FAIL'                    => '{$ModelName} delete nested fail',
 
+    //Ordering
+    'UPDATE_ORDERING_SUCCESS'               => '{$ModelName} 更新排序成功',
+    'UPDATE_ORDERING_FAIL'                  => '{$ModelName} 更新排序失敗',
+    'UPDATE_ORDERING_NESTED_SUCCESS'        => '{$ModelName} 更新排序成功',
+    'UPDATE_ORDERING_NESTED_FAIL'           => '{$ModelName} 更新排序失敗',
+
     // Trash
     'TRASH_SUCCESS'                         => '{$ModelName} trash success',
     'TRASH_FAIL'                            => '{$ModelName} trash fail',

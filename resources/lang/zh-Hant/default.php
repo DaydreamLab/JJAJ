@@ -29,6 +29,12 @@ return [
     'UPDATE_FAIL'                           => '{$ModelName} 更新項目失敗',
     'UPDATE_NESTED_FAIL'                    => '{$ModelName} 更新項目失敗',
 
+    //Ordering
+    'UPDATE_ORDERING_SUCCESS'               => '{$ModelName} 更新排序成功',
+    'UPDATE_ORDERING_FAIL'                  => '{$ModelName} 更新排序失敗',
+    'UPDATE_ORDERING_NESTED_SUCCESS'        => '{$ModelName} 更新排序成功',
+    'UPDATE_ORDERING_NESTED_FAIL'           => '{$ModelName} 更新排序失敗',
+
     // Delete
     'DELETE_SUCCESS'                        => '{$ModelName} 刪除項目成功',
     'DELETE_NESTED_SUCCESS'                 => '{$ModelName} 刪除項目成功',

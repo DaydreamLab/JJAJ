@@ -37,7 +37,7 @@ class Ordering
         $this->result   = $result ? 'success' : 'fail';
         $this->type     = $type;
         $this->item_id  = $input->get('id');
-        $this->payload  = json_encode(['index_diff' => $input->index_diff]);
+        $this->payload  = json_encode(['index_diff' => $input->get('index_diff')]);
 
         if ($input->has('orderingKey'))
         {
