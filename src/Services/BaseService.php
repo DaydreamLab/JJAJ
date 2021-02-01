@@ -308,6 +308,7 @@ class BaseService
     public function getItemByAlias(Collection $input)
     {
         $item = $this->search($input)->first();
+
         if ($item) {
             if ($item->hasAttribute('hits')) {
                 $item->hits++;
@@ -517,12 +518,12 @@ class BaseService
     {
         $special_queries = $input->get('special_queries') ?: [];
 
-        if ($this->repo->getModel()->hasAttribute('access') && $this->access_ids) {
+        if ($this->repo->getModel()->hasAttribute('access') && $this->getAccessIds()) {
             $input->put('special_queries', array_merge($special_queries,
                 [[
                     'type' => 'whereIn',
                     'key' => 'access',
-                    'value' => $this->access_ids
+                    'value' => $this->getAccessIds()
                 ]]
             ));
         }

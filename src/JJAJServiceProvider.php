@@ -4,6 +4,8 @@ namespace DaydreamLab\JJAJ;
 
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use DaydreamLab\JJAJ\Exceptions\BaseExceptionHandler;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 
 class JJAJServiceProvider extends ServiceProvider
@@ -33,6 +35,7 @@ class JJAJServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'jjaj');
+
     }
 
     /**
