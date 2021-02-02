@@ -67,6 +67,9 @@ return [
     'INVALID_ORDERING_DIFF'                 => '{$ModelName} invalid ordering diff, target ordering: :target_ordering',
     'INVALID_INPUT'                         => 'Invalid input',
 
+    // Checkout
+    'CHECKOUT_SUCCESS'                      => '{$ModelName} checkout success',
+
     // Tree
     'GET_TREE_SUCCESS'                      => '{$ModelName} get tree success',
     'GET_TREE_LIST_SUCCESS'                 => '{$ModelName} get tree list success',

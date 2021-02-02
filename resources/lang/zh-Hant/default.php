@@ -67,6 +67,9 @@ return [
     'INVALID_ORDERING_DIFF'                 => '{$ModelName} 不合法的排序: :diff',
     'INVALID_INPUT'                         => '輸入的資料有誤',
 
+    // Checkout
+    'CHECKOUT_SUCCESS'                      => '{$ModelName} 回存成功',
+
     // Tree
     'GET_TREE_SUCCESS'                      => '{$ModelName} 取得樹狀結構成功',
     'GET_TREE_LIST_SUCCESS'                 => '{$ModelName} 取得樹狀結構清單成功',

@@ -123,31 +123,6 @@ class BaseService
      * @param Collection $input
      * @return bool
      */
-    public function checkout(Collection $input)
-    {
-        $result = false;
-        foreach ($input->get('ids') as $id) {
-            $item = $this->checkItem(collect(['id' => $id]));
-
-            $result = $this->repo->checkout($item);
-
-            if (!$result) break;
-        }
-
-        if ($result) {
-            $this->status = 'CheckoutSuccess';
-            $this->response = null;
-        } else {
-            $this->throwResponse('CheckoutFail');
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param Collection $input
-     * @return bool
-     */
     public function checkAliasExist(Collection $input)
     {
         if ($this->repo->getModel()->hasAttribute('alias') && $this->repo->getModel()->getTable() != 'extrafields') {
