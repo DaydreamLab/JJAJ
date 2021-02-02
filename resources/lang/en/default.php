@@ -73,4 +73,7 @@ return [
     // Tree
     'GET_TREE_SUCCESS'                      => '{$ModelName} get tree success',
     'GET_TREE_LIST_SUCCESS'                 => '{$ModelName} get tree list success',
+
+    // Get List
+    'GET_LIST_SUCCESS'                      => '{$ModelName} get list success',
 ];
