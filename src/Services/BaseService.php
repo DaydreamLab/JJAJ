@@ -61,7 +61,7 @@ class BaseService
         if ($model) {
             $this->addMapping($model, $input);
             $this->status = 'CreateSuccess';
-            $this->response = $model->refresh();
+            $this->response = $model;
         } else {
             $this->throwResponse('CreateFail', null, $input);
         }
@@ -406,10 +406,6 @@ class BaseService
 
     public function ordering(Collection $input)
     {
-        if (!$input->has('orderingKey')) {
-            $input->put('orderingKey', 'ordering');
-        }
-
         $item = $this->checkItem($input);
 
         if ($this->repo->isNested()) {
@@ -493,7 +489,9 @@ class BaseService
     {
         $special_queries = $input->get('special_queries') ?: [];
 
-        if ($this->repo->getModel()->hasAttribute('access') && $this->getAccessIds()) {
+        if ($this->repo->getModel()->hasAttribute('access')
+            && $this->getAccessIds()
+        ) {
             $input->put('special_queries', array_merge($special_queries,
                 [[
                     'type' => 'whereIn',

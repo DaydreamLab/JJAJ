@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Repositories;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
@@ -40,6 +41,7 @@ class BaseRepository implements BaseRepositoryInterface
             $last = $this->getLatestOrdering($input);
             if ($last) {
                 $inputOrdering = $input->get('ordering');
+
                 if (!$inputOrdering) {
                     $input->put('ordering', $last->ordering + 1);
                 } else {
@@ -198,7 +200,7 @@ class BaseRepository implements BaseRepositoryInterface
     public function getLatestOrdering(Collection $input)
     {
         return $this->model
-            ->orderBy('ordering', 'desc')
+            ->orderBy($input->get('orderingKey') ?: 'ordering', 'desc')
             ->limit(1)
             ->first();
     }
@@ -386,14 +388,14 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function ordering(Collection $input, $item)
     {
-        $orderingKey = $input->get('orderingKey') ?: $this->model->getOrderBy();
-        $input_order = $input->get('order') ?: $this->model->getOrder();
+        $orderingKey = $input->get('orderingKey');
+        $input_order = $input->get('order');
         $origin = $item->{$orderingKey};
         $diff = $input->get('index_diff');
+
         $latestItem = $this->getLatestOrdering($input);
 
         if ($input_order == 'asc') {
-            $final = $origin + $diff;
             // 有最新項目（也就是不是沒資料）並且 ordering 超出界線
             if ($latestItem && ($final <= 0 || $final > $latestItem->{$orderingKey})) {
                 return false;

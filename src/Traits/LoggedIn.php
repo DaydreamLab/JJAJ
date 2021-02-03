@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Traits;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Support\Facades\Auth;
 
 trait LoggedIn
@@ -17,7 +18,7 @@ trait LoggedIn
             if($this->getUser()) {
                 $this->access_ids = $this->getUser()->access_ids;
             } else {
-                $this->access_ids = config('cms.item.front.access_ids');
+                $this->access_ids = config('daydreamlab.cms.item.front.access_ids');
             }
         }
 

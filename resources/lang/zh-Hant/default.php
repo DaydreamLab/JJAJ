@@ -46,8 +46,8 @@ return [
     'TRASH_FAIL'                            => '{$ModelName} 丟到垃圾桶失敗',
 
     // Published
-    'PUBLISHED_SUCCESS'                     => '{$ModelName} 發布項目成功',
-    'PUBLISHED_FAIL'                        => '{$ModelName} 發布項目失敗',
+    'PUBLISHED_SUCCESS'                     => '{$ModelName} 發佈項目成功',
+    'PUBLISHED_FAIL'                        => '{$ModelName} 發佈項目失敗',
     'UNPUBLISHED_SUCCESS'                   => '{$ModelName} 下架項目成功',
     'UNPUBLISHED_FAIL'                      => '{$ModelName} 下架項目失敗',
 
