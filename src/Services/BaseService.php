@@ -279,6 +279,42 @@ class BaseService
         return $item;
     }
 
+    public function checkItemByAlias($alias, $language = '', $diff = false)
+    {
+        $language = $language ?: config('global.locale');
+
+        if ($this->repo->getModel()->hasAttribute('language')) {
+            $item  = optional($this->findByChain(
+                ['alias', 'language'],
+                ['=', '='],
+                [$alias, $language]
+            ))->first();
+        } else {
+            $item = optional($this->findBy('alias', $alias))->first();
+        }
+
+        if($item)
+        {
+            if ($item->hasAttribute('access'))
+            {
+                $this->canAccess($item->access, $this->access_ids);
+            }
+
+            $this->checkAction($item, 'get', $diff);
+        }
+        else
+        {
+            throw new HttpResponseException(
+                ResponseHelper::genResponse(
+                    Str::upper(Str::snake($this->type.'ItemNotExist')),
+                    ['alias' => $alias]
+                )
+            );
+        }
+
+        return $item;
+    }
+
     public function checkLocked($item)
     {
         if ($item->locked_by && $item->locked_by != $this->user->id && !$this->user->higherPermissionThan($item->locked_by))

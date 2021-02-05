@@ -20,4 +20,22 @@ class BaseTest extends TestCase
         parent::tearDown();
         Mockery::close();
     }
+
+    protected function getContentData($response)
+    {
+        $content = $response->getContent();
+        return json_decode($content, true)['data']['items'];
+    }
+
+    protected function getStatusCode($response)
+    {
+        $content = $response->getContent();
+        return json_decode($content, true)['code'];
+    }
+
+    protected function getToken($response)
+    {
+        $items = $this->getContentData($response);
+        return $items['token'];
+    }
 }
