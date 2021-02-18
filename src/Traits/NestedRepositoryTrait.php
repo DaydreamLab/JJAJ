@@ -18,7 +18,7 @@ trait NestedRepositoryTrait
         {
             if (!InputHelper::null($input, 'ordering'))
             {
-                $selected = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->parent_id, $input->ordering])->first();
+                $selected = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->get('parent_id'), $input->get('ordering')])->first();
 
                 $new      = $this->create($input->toArray());
                 $selected ? $new->beforeNode($selected)->save() : true;
