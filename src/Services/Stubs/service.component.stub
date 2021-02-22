@@ -8,7 +8,9 @@ use Illuminate\Support\Collection;
 
 class DummyClass extends DummyComponentBaseClass
 {
-    protected $type = 'DummyModel';
+    protected $modelName = '{modelName}';
+
+    protected $modelType = 'Base';
 
     public function __construct(DummyComponentRepositoryClass $repo)
     {

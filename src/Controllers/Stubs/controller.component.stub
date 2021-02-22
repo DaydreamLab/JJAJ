@@ -7,8 +7,6 @@ use DummyComponentServicePath;
 
 class DummyClass extends DummyComponentBaseClass
 {
-    protected $package = '{package}';
-
     protected $modelName = '{modelName}';
 
     protected $modelType = '{modelType}';

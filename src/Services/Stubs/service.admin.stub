@@ -7,7 +7,7 @@ use DummyParentNamespace;
 
 class DummyClass extends DummyAdminService
 {
-    protected $type = 'DummyModel';
+    protected $modelType = 'Admin';
 
     public function __construct(DummyRepository $repo)
     {

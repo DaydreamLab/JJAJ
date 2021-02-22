@@ -65,11 +65,22 @@ class ServiceCommand extends GeneratorCommand
         $model      = substr_replace($service, '', strrpos($service, 'Service'));;
         $type       = CommandHelper::getType($name);
         $component  = $this->option('component');
+        $modelType  = $this->option('admin')
+            ? 'Admin'
+            : ($this->option('front')
+                ? 'Front'
+                : 'Base'
+            );
+        $modelName  = in_array($modelType, ['Admin', 'Front'])
+            ? substr($model, 0, -strlen($modelType))
+            : $model;
 
         if ($this->option('front')) {
             $site = 'Front';
         } elseif ($this->option('admin')) {
             $site = 'Admin';
+        } else {
+            $site = 'Base';
         }
 
         if ($component) {
@@ -80,8 +91,10 @@ class ServiceCommand extends GeneratorCommand
                 $stub  = str_replace('DummyComponentRepositoryClass', $component.'Repository' , $stub);
                 $stub  = str_replace('DummyComponentRepositoryPath', $repository_path.'\\Repositories\\'.$component.'Repository' , $stub);
             }
+            $stub = str_replace('{package}', $this->option('component'), $stub);
         } else {
             $repository_path = 'App';
+            $stub = str_replace('{package}', '', $stub);
         }
 
         if ($this->option('front') || $this->option('admin')) {
@@ -93,6 +106,7 @@ class ServiceCommand extends GeneratorCommand
             $stub  = str_replace('DummySite', $site, $stub);
         }
 
+        $stub  = str_replace('{modelName}', $modelName, $stub);
         $stub  = str_replace('DummyModel', $model , $stub);
         $stub  = str_replace('DummyType', $type , $stub);
         $stub  = str_replace('DummyRepository', $model . 'Repository' , $stub);

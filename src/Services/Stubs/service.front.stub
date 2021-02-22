@@ -7,7 +7,7 @@ use DummyParentNamespace;
 
 class DummyClass extends DummyFrontService
 {
-    protected $type = 'DummyModel';
+    protected $modelType = 'Front';
 
     public function __construct(DummyRepository $repo)
     {

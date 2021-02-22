@@ -7,6 +7,8 @@ use DummyPathModel\Models\DummyType\DummySite\DummyModel;
 
 class DummyClass extends DummyAdminRepository
 {
+    protected $modelType = 'Admin';
+
     public function __construct(DummyModel $model)
     {
         parent::__construct($model);

@@ -39,7 +39,6 @@ class BaseModel extends Model
     }
 
 
-
     public function getOrder()
     {
         return $this->order;

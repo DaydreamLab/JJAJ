@@ -32,9 +32,7 @@ class BaseService
 
     protected $search_keys = [];
 
-    protected $type;
-
-    protected $service_name = null;
+    //protected $type;
 
 
     public function __construct(BaseRepository $repo)

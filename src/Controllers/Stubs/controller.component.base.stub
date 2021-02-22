@@ -7,6 +7,8 @@ use DaydreamLab\JJAJ\Services\BaseService;
 
 abstract class DummyClass extends BaseController
 {
+    protected $package = '{package}';
+
     public function __construct(BaseService $service)
     {
         parent::__construct($service);

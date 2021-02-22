@@ -65,11 +65,23 @@ class RepositoryCommand extends GeneratorCommand
         $model      = str_replace('Repository', '', $repository);
         $type       = CommandHelper::getType($name);
         $component  = $this->option('component');
+        $modelType  = $this->option('admin')
+            ? 'Admin'
+            : ($this->option('front')
+                ? 'Front'
+                : 'Base'
+            );
+        $modelName  = in_array($modelType, ['Admin', 'Front'])
+            ? substr($model, 0, -strlen($modelType))
+            : $model;
+
 
         if ($this->option('front')) {
             $site = 'Front';
         } elseif ($this->option('admin')) {
             $site = 'Admin';
+        } else {
+            $site = 'Base';
         }
 
         if ($component) {
@@ -78,12 +90,14 @@ class RepositoryCommand extends GeneratorCommand
             $stub  = str_replace('DummyComponentBasePath', $component_path.'\\Repositories\\'.$component.'Repository' , $stub);
 
             if (!$this->option('componentBase')) {
-                $stub  = str_replace('DummyComponentModelClass', $model , $stub);
-                $stub  = str_replace('DummyComponentModelPath', $component_path.'\\Models\\'.$model.'\\'.$model, $stub);
+                $stub  = str_replace('DummyComponentModelClass', $model, $stub);
+                $stub  = str_replace('DummyComponentModelPath', $component_path.'\\Models\\'.$type. '\\'.$model, $stub);
             }
+            $stub = str_replace('{package}', $this->option('component'), $stub);
         }
         else {
             $component_path = 'App';
+            $stub = str_replace('{package}', '', $stub);
         }
 
 
@@ -97,6 +111,8 @@ class RepositoryCommand extends GeneratorCommand
             $stub  = str_replace('DummySite', $site, $stub);
         }
 
+        $stub = str_replace('{modelName}', $modelName, $stub);
+        $stub = str_replace('{modelType}', $modelType, $stub);
         $stub  = str_replace('DummyType', $type , $stub);
         $stub  = str_replace('DummyModel', $model, $stub);
         $stub  = str_replace('DummyPathModel', $component_path, $stub);

@@ -121,11 +121,11 @@ class McCommand extends Command
                 File::makeDirectory('database/migrations/'.$component);
             }
 
-            $this->call('jjaj:migration', [
-                'name'          => 'create_'.$table.'_table',
-                '--path'        => 'database/migrations/'.$component,
-                '--create'      => $table
-            ]);
+//            $this->call('jjaj:migration', [
+//                'name'          => 'create_'.$table.'_table',
+//                '--path'        => 'database/migrations/'.$component,
+//                '--create'      => $table
+//            ]);
         }
         else {
             $this->call('jjaj:migration', [
@@ -192,9 +192,9 @@ class McCommand extends Command
 
         }
 
-        $this->call('jjaj:constant', ['name' => 'constants/'.Str::lower($type), '--model' => $name]);
-        $this->call('jjaj:constant', ['name' => 'resources/lang/en/'.Str::lower($type), '--model' => $name, '--lang']);
-        $this->call('jjaj:constant', ['name' => 'resources/lang/zh-Hant/'.Str::lower($type), '--model' => $name, '--lang']);
+        $this->call('jjaj:constant', ['name' => 'constants/'.Str::lower($name), '--model' => $name]);
+        $this->call('jjaj:constant', ['name' => 'resources/lang/en/'.Str::lower($name), '--model' => $name, '--lang']);
+        $this->call('jjaj:constant', ['name' => 'resources/lang/zh-Hant/'.Str::lower($name), '--model' => $name, '--lang']);
 
         if ($this->option('front')) {
             $this->call('jjaj:controller', [

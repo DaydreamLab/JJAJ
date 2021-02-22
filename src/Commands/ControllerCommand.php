@@ -69,6 +69,15 @@ class ControllerCommand extends ControllerMakeCommand
         $controller = str_replace($this->getNamespace($name).'\\', '', $name);
         $model      = str_replace('Controller', '', $controller);
         $type       = CommandHelper::getType($name);
+        $modelType  = $this->option('admin')
+            ? 'Admin'
+            : ($this->option('front')
+                ? 'Front'
+                : 'Base'
+            );
+        $modelName  = in_array($modelType, ['Admin', 'Front'])
+            ? substr($model, 0, -strlen($modelType))
+            : $model;
         $component  = $this->option('component');
 
         if ($component) {
@@ -81,8 +90,7 @@ class ControllerCommand extends ControllerMakeCommand
 
         if ($this->option('front')) {
             $site = 'Front';
-        }
-        elseif ($this->option('admin')) {
+        } elseif ($this->option('admin')) {
             $site = 'Admin';
         } else {
             $site = 'Base';
@@ -107,8 +115,8 @@ class ControllerCommand extends ControllerMakeCommand
             $stub = str_replace('{package}', '', $stub);
         }
 
-        $stub = str_replace('{modelName}', $model, $stub);
-        $stub = str_replace('{modelType}', $site, $stub);
+        $stub = str_replace('{modelName}', $modelName, $stub);
+        $stub = str_replace('{modelType}', $modelType, $stub);
         $stub  = str_replace('DummyType', $type , $stub);
         $stub  = str_replace('DummyService', $model.'Service', $stub);
         $stub  = str_replace('DummyPathService', $service_path, $stub);
