@@ -284,6 +284,8 @@ class BaseRepository implements BaseRepositoryInterface
                     } else {
                         $query = $query->where($item);
                     }
+                } elseif($key == 'whereIn') {
+                    $query = $query->whereIn($item['key'], $item['value']);
                 } elseif ($key == 'whereHas') {
                     foreach ($item as $q) {
                         $query = $query->whereHas($q['relation'], $q['callback']);
@@ -396,6 +398,7 @@ class BaseRepository implements BaseRepositoryInterface
         $latestItem = $this->getLatestOrdering($input);
 
         if ($input_order == 'asc') {
+            $final = $origin + $diff;
             // 有最新項目（也就是不是沒資料）並且 ordering 超出界線
             if ($latestItem && ($final <= 0 || $final > $latestItem->{$orderingKey})) {
                 return false;
@@ -431,6 +434,8 @@ class BaseRepository implements BaseRepositoryInterface
     public function paginate($items, $perPage = 25, $page = null, $options = [])
     {
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+
+        $perPage = $perPage ?: 1000000;
 
         $items = $items instanceof Collection ? $items : Collection::make($items);
 
@@ -481,6 +486,7 @@ class BaseRepository implements BaseRepositoryInterface
         $order = InputHelper::getCollectionKey($input, 'order', $this->model->getOrder());
         $state = InputHelper::getCollectionKey($input, 'state', [0, 1]);
         $language = InputHelper::getCollectionKey($input, 'language', '');
+
         $query = $this->getQuery($input);
 
         if ($this->model->hasAttribute('state')
@@ -509,14 +515,14 @@ class BaseRepository implements BaseRepositoryInterface
 
         if ($limit == 0) {
             $items = $paginate
-                ? $query->paginate(-1)
+                ? $query->paginate(1000000)
                 : $query->get();
         } else {
             $items = $paginate
                 ? $query->paginate($limit)
                 : $query->get();
         }
-        
+
         return $items;
     }
 

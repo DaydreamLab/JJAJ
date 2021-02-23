@@ -342,9 +342,11 @@ class BaseService
 
     public function getServiceName()
     {
-        if (!$this->service_name) {
+        if (property_exists($this, 'service_name')) {
             $str = explode('\\', get_class($this));
             $this->service_name = end($str);
+        } else {
+            return get_class($this);
         }
 
         return $this->service_name;

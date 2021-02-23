@@ -48,8 +48,12 @@ class BaseTest extends TestCase
             $error = true;
             $content = $this->getContent($e->getResponse());
             $status = $this->package
-                ? $this->package . $expect
-                : $this->modelName . $expect;
+                ? (
+                    $this->modelName
+                    ? Str::lower($this->modelName) . $expect
+                    : $this->package . $expect
+                )
+                : Str::lower($this->modelName) . $expect;
         }
 
         $error
