@@ -32,6 +32,7 @@ class BaseService
 
     protected $search_keys = [];
 
+    protected $service_name = null;
     //protected $type;
 
 
