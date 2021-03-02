@@ -131,8 +131,10 @@ class ResponseHelper
             $response['records']    = count($items);
         }
         elseif(Str::contains(get_class($data),'ResourceCollection')) {
+            $response['items']      = $data->resource;
+            $response['records']    = count($data->resource);
 
-            return $data;
+            return $response;
         }
         elseif (gettype($data) == 'object' && isset($data->collection) && get_class($data->collection) == 'Illuminate\Support\Collection')
         {
