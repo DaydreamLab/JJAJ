@@ -723,8 +723,7 @@ class BaseService
 
         if (InputHelper::null($input, 'id')) {
             return $this->add($input);
-        }
-        else {
+        } else {
             return $this->modify($input);
         }
     }

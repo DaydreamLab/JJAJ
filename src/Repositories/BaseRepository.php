@@ -363,11 +363,19 @@ class BaseRepository implements BaseRepositoryInterface
 //                                $query = $query->whereIn('category_id', $item);
 //                            }
 //                            else
-                            {
+
+                            if ($key == 'withCount') {
+                                foreach ($item as $withCount) {
+                                    $query = $query->withCount($withCount);
+                                }
+                            } elseif ($key == 'having') {
+                                foreach ($item as $having) {
+                                    $query = $query->having($having['key'], $having['operator'],$having['value']);
+                                }
+                            } else {
                                 $query = $query->where("$key", '=', $item);
                             }
                         }
-
                     }
                 }
             }
@@ -505,6 +513,7 @@ class BaseRepository implements BaseRepositoryInterface
     public function search(Collection $input, $paginate = true)
     {
         $order_by   = InputHelper::getCollectionKey($input, 'order_by', $this->model->getOrderBy());
+
         if(!$this->model->hasAttribute($order_by) && !in_array($order_by, $this->order_by_ignore_keys)) {
             throw new HttpResponseException(ResponseHelper::genResponse('INPUT_INVALID', ['order_by' => $order_by]));
         }
