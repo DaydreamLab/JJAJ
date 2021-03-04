@@ -13,8 +13,7 @@ trait LoggedIn
 
     public function getAccessIds()
     {
-        if(!$this->access_ids)
-        {
+        if(!$this->access_ids) {
             if($this->getUser()) {
                 $this->access_ids = $this->getUser()->access_ids;
             } else {
@@ -36,21 +35,6 @@ trait LoggedIn
     }
 
 
-
-    public function getViewlevels()
-    {
-        if(!$this->viewlevels) {
-            if($this->getUser()) {
-                $this->viewlevels = $this->getUser()->viewlevels;
-            } else {
-                $this->viewlevels = config('cms.item.front.viewlevels');
-            }
-        }
-
-        return $this->viewlevels;
-    }
-
-
     public function setAccessIds($access_ids)
     {
         $this->access_ids = $access_ids;
@@ -58,22 +42,15 @@ trait LoggedIn
 
 
 
-    public function setLoggedIn($user, $access_ids = null, $viewlevels = null)
+    public function setLoggedIn($user, $access_ids = null)
     {
         $this->user = $user;
-        $this->access_ids = $this->access_ids ?: $this->getUser()->access_ids;
-        $this->viewlevels = $this->viewlevels ?: $this->getUser()->viewlevels;
+        $this->access_ids = $access_ids ?: $this->getUser()->access_ids;
     }
 
 
     public function setUser($user)
     {
         $this->user = $user;
-    }
-
-
-    public function setViewlevels($viewlevels)
-    {
-        $this->viewlevels = $viewlevels;
     }
 }

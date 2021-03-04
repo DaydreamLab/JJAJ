@@ -79,6 +79,11 @@ class BaseService
     }
 
 
+    public function beforeRemove($item)
+    {
+    }
+
+
     public function canAction($method, $item = null)
     {
         if ($this->isSite() || config('app.seeding')) return true;
@@ -450,11 +455,11 @@ class BaseService
         $result = false;
         foreach ($input->get('ids') as $id) {
             $item = $this->checkItem(collect(['id' => $id]));
-
+            $this->beforeRemove($item);
             $result_relations = $this->removeMapping($item);
             // 若有排序的欄位則要調整 ordering 大於刪除項目的值
             if ($this->repo->getModel()->hasAttribute('ordering')) {
-                $delete_siblings = $this->repo->findDeleteSiblings($item->ordering, $item);
+                $delete_siblings = $this->repo->findDeleteSiblings($item->ordering);
                 foreach ($delete_siblings as $delete_sibling) {
                     $delete_sibling->ordering--;
                     $this->update($delete_sibling, $delete_sibling);

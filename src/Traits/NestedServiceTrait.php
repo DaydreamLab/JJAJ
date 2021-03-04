@@ -2,14 +2,9 @@
 
 namespace DaydreamLab\JJAJ\Traits;
 
-use DaydreamLab\Ec\Models\Product\Admin\ProductAdmin;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
-use DaydreamLab\JJAJ\Helpers\ResponseHelper;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 
 trait NestedServiceTrait
 {
@@ -103,13 +98,13 @@ trait NestedServiceTrait
 
     public function setStoreNestedDefaultInput($input, $parent)
     {
-        $input = $this->setStoreDefaultInput($input);
-        
         if ($this->repo->getModel()->hasAttribute('access') && InputHelper::null($input, 'access')) {
             if ($parent) {
                 $input->put('access', $parent->access);
             }
         }
+
+        $input = $this->setStoreDefaultInput($input);
 
         if ($this->repo->getModel()->hasAttribute('path') && InputHelper::null($input, 'path'))
         {
@@ -140,6 +135,7 @@ trait NestedServiceTrait
         $parent_id = $input->has('parent_id')
             ? $input->get('parent_id')
             : 1;
+
         $parent = $this->checkItem(collect(['id' => $parent_id]));
 
         // 設定初始值
@@ -148,6 +144,7 @@ trait NestedServiceTrait
         $this->checkPathExist($input, $parent);
 
         if (InputHelper::null($input, 'id')) {
+            $input->put('parent', $parent);
             return $this->addNested($input);
         } else {
             $input->put('locked_by', 0);

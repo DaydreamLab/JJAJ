@@ -199,8 +199,17 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function getLatestOrdering(Collection $input)
     {
+        // 這邊根據排序方向，要反著取才有辦法拿到最新的那個item
+        if ($orderDir = $input->get('order')) {
+            $orderDir = $orderDir == 'asc'
+                ? 'desc'
+                : 'asc';
+        } else {
+            $orderDir = 'desc';
+        }
+
         return $this->model
-            ->orderBy($input->get('orderingKey') ?: 'ordering', 'desc')
+            ->orderBy('ordering', $orderDir)
             ->limit(1)
             ->first();
     }
@@ -390,20 +399,20 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function ordering(Collection $input, $item)
     {
-        $orderingKey = $input->get('orderingKey');
+        $orderingKey = 'ordering';
         $input_order = $input->get('order');
-        $origin = $item->{$orderingKey};
+        $origin = $item->ordering;
         $diff = $input->get('index_diff');
 
         $latestItem = $this->getLatestOrdering($input);
-
         if ($input_order == 'asc') {
             $final = $origin + $diff;
             // 有最新項目（也就是不是沒資料）並且 ordering 超出界線
-            if ($latestItem && ($final <= 0 || $final > $latestItem->{$orderingKey})) {
+            if ($latestItem && ($final <= 0 || $final > $latestItem->ordering)) {
                 return false;
             }
-            $item->{$orderingKey} = $final;
+
+            $item->ordering = $final;
             $update_items = $this->getOrderingUpdateItems($input, $orderingKey, $origin, $item->{$orderingKey}, $input->get('extraRules') ?: []);
             if ($update_items->count()) {
                 $update_items->each(function ($update_item) use ($orderingKey, $input_order, $diff) {
@@ -413,6 +422,7 @@ class BaseRepository implements BaseRepositoryInterface
             }
         } else {
             $final = $origin - $diff;
+            echo $final;
             // 有最新項目（也就是不是沒資料）並且 ordering 超出界線
             if ($latestItem && ($final <= 0 || $final > $latestItem->{$orderingKey})) {
                 return false;
