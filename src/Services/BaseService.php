@@ -111,12 +111,20 @@ class BaseService
     }
 
 
-    public function canAccess($item_access, $user_access_ids)
+    public function canAccess($item_access)
     {
-        if (config('app.seeding')) return true;
-        $user_access_ids = $user_access_ids ? $user_access_ids : [];
-        if (!in_array($item_access, $user_access_ids)) {
-            $this->throwResponse('InsufficientPermissionView');
+        if (config('app.seeding'))  {
+            return true;
+        }
+
+        $user = $this->getUser();
+        if ($user) {
+            $userAccessIds = $user->getAccessIds();
+            if (!in_array($item_access, $userAccessIds)) {
+                $this->throwResponse('InsufficientPermissionView');
+            }
+        } else {
+            $this->throwResponse('Unauthorized');
         }
 
         return true;
@@ -155,7 +163,7 @@ class BaseService
         $item = $this->find($input->get('id'));
         if ($item) {
             if ($item->hasAttribute('access')) {
-                $this->canAccess($item->access, $this->getAccessIds());
+                $this->canAccess($item->access);
             }
         } else {
             $this->throwResponse('ItemNotExist', ['id' => $input->get('id')]);
@@ -496,13 +504,13 @@ class BaseService
         $special_queries = $input->get('special_queries') ?: [];
 
         if ($this->repo->getModel()->hasAttribute('access')
-            && $this->getAccessIds()
+            && $this->getUser()->getAccessIds()
         ) {
             $input->put('special_queries', array_merge($special_queries,
                 [[
                     'type' => 'whereIn',
                     'key' => 'access',
-                    'value' => $this->getAccessIds()
+                    'value' => $this->getUser()->getAccessIds()
                 ]]
             ));
         }
@@ -659,7 +667,7 @@ class BaseService
                 $response = $temp;
             }
         }
-
+        Helper::show($statusString, $response);
         throw new HttpResponseException(ResponseHelper::genResponse(
             $statusString,
             $response,

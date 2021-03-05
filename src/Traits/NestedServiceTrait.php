@@ -10,12 +10,13 @@ trait NestedServiceTrait
 {
     public function addNested(Collection $input)
     {
+        $input->forget('parent');
         $item = $this->repo->addNested($input);
         if ($item) {
             $this->addMapping($item, $input);
             $item = $item->refresh();
             $this->status    = 'CreateNestedSuccess';
-            $this->response  = $item;
+            $this->response  = $item->refresh();
         } else {
             $this->throwResponse('CreateNestedFail');
         }
@@ -128,6 +129,7 @@ trait NestedServiceTrait
 
         return $input;
     }
+
 
     public function storeNested(Collection $input)
     {
