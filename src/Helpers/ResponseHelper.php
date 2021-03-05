@@ -105,13 +105,13 @@ class ResponseHelper
             //$response['items']      = array_values($temp['data']);
             if(isset($temp['data']['data']))
             {
-                $response['items']      = $temp['data']['data'];
+                $response['items']      = array_values($temp['data']['data']);
                 unset($temp['data']['data']);
                 $response['pagination'] = $temp['data'];
             }
             elseif (isset($temp['data']))
             {
-                $response['items']      = $temp['data'];
+                $response['items']      = array_values($temp['data']);
                 unset($temp['data']);
                 $response['pagination'] = $temp;
             }
