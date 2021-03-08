@@ -10,7 +10,6 @@ trait NestedServiceTrait
 {
     public function addNested(Collection $input)
     {
-        $input->forget('parent');
         $item = $this->repo->addNested($input);
         if ($item) {
             $this->addMapping($item, $input);
@@ -146,7 +145,6 @@ trait NestedServiceTrait
         $this->checkPathExist($input, $parent);
 
         if (InputHelper::null($input, 'id')) {
-            $input->put('parent', $parent);
             return $this->addNested($input);
         } else {
             $input->put('locked_by', 0);

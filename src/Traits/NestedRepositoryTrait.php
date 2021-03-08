@@ -4,11 +4,7 @@ namespace DaydreamLab\JJAJ\Traits;
 
 use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
-use DaydreamLab\JJAJ\Helpers\ResponseHelper;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
-
 
 trait NestedRepositoryTrait
 {
@@ -19,7 +15,6 @@ trait NestedRepositoryTrait
             if (!InputHelper::null($input, 'ordering'))
             {
                 $selected = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->get('parent_id'), $input->get('ordering')])->first();
-
                 $new      = $this->create($input->toArray());
                 $selected ? $new->beforeNode($selected)->save() : true;
 
