@@ -119,7 +119,7 @@ class BaseService
 
         $user = $this->getUser();
         if ($user) {
-            $userAccessIds = $user->getAccessIds();
+            $userAccessIds = $user->accessIds;
             if (!in_array($item_access, $userAccessIds)) {
                 $this->throwResponse('InsufficientPermissionView');
             }
@@ -504,13 +504,13 @@ class BaseService
         $special_queries = $input->get('special_queries') ?: [];
 
         if ($this->repo->getModel()->hasAttribute('access')
-            && $this->getUser()->getAccessIds()
+            && $this->getUser()->accessIds
         ) {
             $input->put('special_queries', array_merge($special_queries,
                 [[
                     'type' => 'whereIn',
                     'key' => 'access',
-                    'value' => $this->getUser()->getAccessIds()
+                    'value' => $this->getUser()->accessIds
                 ]]
             ));
         }
