@@ -365,9 +365,7 @@ class BaseRepository implements BaseRepositoryInterface
 //                            else
 
                             if ($key == 'withCount') {
-                                foreach ($item as $withCount) {
-                                    $query = $query->withCount($withCount);
-                                }
+                                $query = $query->withCount($item);
                             } elseif ($key == 'has') {
                                 foreach ($item as $having) {
                                     $query = $query->having($having['key'], $having['operator'],$having['value']);
