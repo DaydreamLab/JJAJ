@@ -667,7 +667,7 @@ class BaseService
                 $response = $temp;
             }
         }
-        Helper::show($statusString, $response);
+
         throw new HttpResponseException(ResponseHelper::genResponse(
             $statusString,
             $response,
