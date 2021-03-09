@@ -503,14 +503,16 @@ class BaseService
     {
         $special_queries = $input->get('special_queries') ?: [];
 
-        if ($this->repo->getModel()->hasAttribute('access')
-            && $this->getUser()->accessIds
-        ) {
+        if ($this->repo->getModel()->hasAttribute('access')) {
+            $accessIds = $this->getUser()
+                ? $this->getUser()->accessIds
+                : (config('daydreamlab.cms.item.front.access_ids') ?: [1]);
+
             $input->put('special_queries', array_merge($special_queries,
                 [[
                     'type' => 'whereIn',
                     'key' => 'access',
-                    'value' => $this->getUser()->accessIds
+                    'value' => $accessIds
                 ]]
             ));
         }

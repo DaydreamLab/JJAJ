@@ -2,7 +2,7 @@
 
 return [
     'UNDEFINED_STATUS'                      => 'Undefined status string: :status',
-    'API_ACCESS_DENY'                       => 'Insufficient permission access deny',
+    'API_ACCESS_DENY'                       => 'Insufficient permission Idaccess deny',
     'UNAUTHORIZED'                          => 'User unauthorized. Please Login first',
     'INSUFFICIENT_PERMISSION'               => 'Insufficient permission',
     'INSUFFICIENT_PERMISSION_ADMINISTRATOR' => 'Insufficient permission administrator',
