@@ -284,6 +284,14 @@ class BaseRepository implements BaseRepositoryInterface
                                 $query = $query->where('_lft', '>', $tag->_lft)
                                                 ->where('_rgt', '>', $tag->_rgt);
                             }
+                            else if ($key == 'content_type')
+                            {
+                                if (is_array($item)) {
+                                    $query = $query->whereIn('content_type', $item);
+                                } else {
+                                    $query = $query->where('content_type', $item);
+                                }
+                            }
                             else
                             {
                                 $query = $query->where("$key", '=', $item);
