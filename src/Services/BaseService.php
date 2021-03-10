@@ -676,7 +676,7 @@ class BaseService
 
         $special_queries = $input->get('special_queries') ?: [];
 
-        if ($this->repo->getModel()->hasAttribute('access'))
+        if ($this->modelHasAttribute('access'))
         {
             $input->put('special_queries', array_merge($special_queries ,
                 [[
@@ -877,6 +877,15 @@ class BaseService
         }
 
         return true;
+    }
+
+    /**
+     * Check model has the attribute
+     * @param string $attribute
+     * @return bool
+     */
+    protected function modelHasAttribute(string $attribute) {
+        return $this->repo->getModel()->hasAttribute($attribute);
     }
 
 }
