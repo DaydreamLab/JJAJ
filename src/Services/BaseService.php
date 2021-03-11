@@ -283,7 +283,7 @@ class BaseService
     {
         $language = $language ?: config('global.locale');
 
-        if ($this->repo->getModel()->hasAttribute('language')) {
+        if ($this->modelHasAttribute('language')) {
             $item  = optional($this->findByChain(
                 ['alias', 'language'],
                 ['=', '='],
