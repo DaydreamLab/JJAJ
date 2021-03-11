@@ -77,7 +77,7 @@ class BaseRepository implements BaseRepositoryInterface
                 $input->put('ordering', 1);
             }
         }
-Helper::show($input->toArray());
+
         $input = $input->only($this->model->getFillable());
         $item = $this->create($input->toArray());
 
