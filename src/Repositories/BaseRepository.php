@@ -368,9 +368,9 @@ Helper::show($input->toArray());
                                 foreach ($item as $withCount) {
                                     $query = $query->withCount($withCount);
                                 }
-                            } elseif ($key == 'having') {
-                                foreach ($item as $having) {
-                                    $query = $query->having($having['key'], $having['operator'],$having['value']);
+                            } elseif ($key == 'has') {
+                                foreach ($item as $has) {
+                                    $query = $query->has($has['key'], $has['operator'],$has['value']);
                                 }
                             } else {
                                 $query = $query->where("$key", '=', $item);
