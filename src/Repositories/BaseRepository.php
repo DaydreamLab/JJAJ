@@ -77,7 +77,7 @@ class BaseRepository implements BaseRepositoryInterface
                 $input->put('ordering', 1);
             }
         }
-
+Helper::show($input->toArray());
         $input = $input->only($this->model->getFillable());
         $item = $this->create($input->toArray());
 
@@ -193,7 +193,7 @@ class BaseRepository implements BaseRepositoryInterface
     public function getLatestOrdering(Collection $input)
     {
         return $this->model
-            ->orderBy($this->model->getOrderBy(), $this->model->getOrder())
+            ->orderBy($this->model->getOrderBy(), $this->model->getOrder() == 'asc' ? 'desc' : 'asc')
             ->limit(1)
             ->first();
     }
