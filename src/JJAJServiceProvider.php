@@ -10,7 +10,6 @@ class JJAJServiceProvider extends ServiceProvider
 {
     protected $commands = [
         'DaydreamLab\JJAJ\Commands\ClearCommand',
-
         'DaydreamLab\JJAJ\Commands\ControllerCommand',
         'DaydreamLab\JJAJ\Commands\ConstantCommand',
         'DaydreamLab\JJAJ\Commands\DeleteCommand',
@@ -23,6 +22,7 @@ class JJAJServiceProvider extends ServiceProvider
         'DaydreamLab\JJAJ\Commands\OptimizeCommand',
         'DaydreamLab\JJAJ\Commands\ServiceCommand',
         'DaydreamLab\JJAJ\Commands\TestCommand',
+        'DaydreamLab\JJAJ\Commands\MysqlDumpCommand',
     ];
 
     /**
