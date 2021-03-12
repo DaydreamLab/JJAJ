@@ -25,10 +25,10 @@ class MysqlDumpCommand extends Command
     {
         $ds = DIRECTORY_SEPARATOR;
 
-        $host = env('DB_HOST');
-        $username = env('DB_USERNAME');
-        $password = env('DB_PASSWORD');
-        $database = env('DB_DATABASE');
+        $host = config('database.connections.mysql.host');
+        $username = config('database.connections.mysql.username');
+        $password = config('database.connections.mysql.password');
+        $database = config('database.connections.mysql.database');
 
         $ts = time();
 
