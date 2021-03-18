@@ -220,16 +220,22 @@ class BaseRepository implements BaseRepositoryInterface
             {
                 if ($key == 'search' && !InputHelper::null($input, 'search'))
                 {
-                    $query = $query->where(function ($query) use ($item, $input) {
+                    if ($this->model instanceof \DaydreamLab\Cms\Models\Item\Front\ItemFront) {
+                        // model ItemFront有中定義scopeSearch, 用於全文檢索
+                        $query->search($input->get('search'));
+                    } else {
+                        $query = $query->where(function ($query) use ($item, $input) {
 
-                        $search_keys = $input->get('search_keys');
+                            $search_keys = $input->get('search_keys');
 
-                        foreach ($search_keys as $search_key)
-                        {
-                            $query->orWhere($search_key, 'LIKE', '%%'.$item.'%%');
-                        }
+                            foreach ($search_keys as $search_key)
+                            {
+                                $query->orWhere($search_key, 'LIKE', '%%'.$item.'%%');
+                            }
 
-                    });
+                        });
+                    }
+
                 }
                 elseif ($key == 'special_queries')
                 {
@@ -509,7 +515,6 @@ class BaseRepository implements BaseRepositoryInterface
                 $query = $query->where('language', $language);
             }
         }
-
 
         if ($this->isNested()) //重組出樹狀
         {
