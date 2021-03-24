@@ -220,7 +220,10 @@ class BaseRepository implements BaseRepositoryInterface
             {
                 if ($key == 'search' && !InputHelper::null($input, 'search'))
                 {
-                    if ($this->model instanceof \DaydreamLab\Cms\Models\Item\Front\ItemFront) {
+                    if (
+                        $this->model instanceof \DaydreamLab\Cms\Models\Item\Front\ItemFront
+                        && config('cms.use_word_segmentation')
+                    ) {
                         // model ItemFront有中定義scopeSearch, 用於全文檢索
                         $query->search($input->get('search'));
                     } else {
