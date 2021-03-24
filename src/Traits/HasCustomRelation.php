@@ -6,7 +6,7 @@ use DaydreamLab\JJAJ\Helpers\Helper;
 
 trait HasCustomRelation
 {
-    private static $custom_relations = [];
+    protected static $custom_relations = [];
 
 
     public function __call($name, $arguments)
