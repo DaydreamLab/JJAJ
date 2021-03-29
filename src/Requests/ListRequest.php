@@ -11,6 +11,7 @@ class ListRequest extends BaseRequest
     {
         return [
             'search'        => 'nullable|string',
+            'page'          => 'nullable|integer',
             'limit'         => 'nullable|integer',
             'order_by'      => 'nullable|string',
             'order'      => [
