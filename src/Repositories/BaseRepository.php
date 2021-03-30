@@ -220,6 +220,7 @@ class BaseRepository implements BaseRepositoryInterface
             {
                 if ($key == 'search' && !InputHelper::null($input, 'search'))
                 {
+                    // 處理進行全站文章搜尋並使用分詞系統, 會使用全文索引查找進行處理
                     if (
                         $this->model instanceof \DaydreamLab\Cms\Models\Item\Front\ItemFront
                         && config('cms.use_word_segmentation')
