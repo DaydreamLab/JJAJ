@@ -269,7 +269,6 @@ class BaseRepository implements BaseRepositoryInterface
                         {
                             if(array_key_exists('type', $q))
                             {
-
                                 $query = $query->{$q['type']}($q['key'], $q['value']);
                             }
                             else
@@ -293,7 +292,11 @@ class BaseRepository implements BaseRepositoryInterface
                     {
                         foreach ($item as $q)
                         {
-                            $query = $query->where($q['key'], $q['operator'], $q['value']);
+                            if (isset($q['callback'])) {
+                                $query = $query->where($q['callback']);
+                            } else {
+                                $query = $query->where($q['key'], $q['operator'], $q['value']);
+                            }
                         }
                     }
                     elseif ($item instanceof Closure) {
@@ -302,6 +305,23 @@ class BaseRepository implements BaseRepositoryInterface
                     else
                     {
                         $query = $query->where($item);
+                    }
+                }
+                elseif ($key == 'orWhere')
+                {
+                    if(gettype($item) == 'array')
+                    {
+                        foreach ($item as $q)
+                        {
+                            $query = $query->orWhere($q['key'], $q['operator'], $q['value']);
+                        }
+                    }
+                    elseif ($item instanceof Closure) {
+                        $query = $query->orWhere($item);
+                    }
+                    else
+                    {
+                        $query = $query->orWhere($item);
                     }
                 }
                 elseif ($key == 'whereHas')

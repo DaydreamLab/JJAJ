@@ -2,8 +2,10 @@
 
 namespace DaydreamLab\JJAJ;
 
+use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use DaydreamLab\JJAJ\Exceptions\BaseExceptionHandler;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
 class JJAJServiceProvider extends ServiceProvider
