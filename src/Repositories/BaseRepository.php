@@ -527,10 +527,18 @@ class BaseRepository implements BaseRepositoryInterface
         }
         else
         {
-            $query = $query->orderBy($order_by, $order);
-            if ($this->model->hasAttribute('publish_up'))
-            {
-                $query = $query->orderBy('publish_up', 'desc');
+            # 額外欄位的start_date 和 end_date
+            if ($order_by === 'start_date' || $order_by === 'end_date') {
+                $index = $order_by === 'start_date'
+                    ? 1
+                    : 2;
+                $query = $query->orderByRaw("JSON_EXTRACT(extrafields, '$[$index].value') $order");
+            } else {
+                $query = $query->orderBy($order_by, $order);
+                if ($this->model->hasAttribute('publish_up'))
+                {
+                    $query = $query->orderBy('publish_up', 'desc');
+                }
             }
         }
 
