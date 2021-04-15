@@ -223,7 +223,7 @@ class BaseRepository implements BaseRepositoryInterface
                     // 處理進行全站文章搜尋並使用分詞系統, 會使用全文索引查找進行處理
                     if (
                         $this->model instanceof \DaydreamLab\Cms\Models\Item\Front\ItemFront
-                        && config('cms.use_word_segmentation')
+                        && config('cms.item.use_word_segmentation')
                     ) {
                         // model ItemFront有中定義scopeSearch, 用於全文檢索
                         $query->search($input->get('search'));
