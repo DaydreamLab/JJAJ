@@ -48,7 +48,7 @@ class ResponseHelper
                 $response['data'] = null;
             }
         }
-
+        $response['code'] = $code;
         return response()->json($response, $code);
     }
 
