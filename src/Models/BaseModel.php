@@ -27,6 +27,7 @@ class BaseModel extends Model
     }
 
 
+
     public function getDepthAttribute()
     {
         return $this->ancestors->count();
@@ -48,6 +49,12 @@ class BaseModel extends Model
     public function getOrderBy()
     {
         return $this->order_by;
+    }
+
+
+    public function getPrimaryKey()
+    {
+        return $this->primaryKey;
     }
 
 

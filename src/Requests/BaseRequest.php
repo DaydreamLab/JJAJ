@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Requests;
 
+use DaydreamLab\JJAJ\Database\QueryCapsule;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -16,6 +17,15 @@ class BaseRequest extends FormRequest
     protected $modelName;
 
     protected $package;
+
+    protected $q;
+
+
+    public function __construct(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null)
+    {
+        parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
+        $this->q = new QueryCapsule();
+    }
 
     public function authorize()
     {
@@ -65,13 +75,18 @@ class BaseRequest extends FormRequest
         }
     }
 
+
     public function user($guard = 'api')
     {
         return parent::user($guard);
     }
 
+
     public function validated()
     {
-        return collect(parent::validated());
+        $validated = parent::validated();
+        $validated['q'] = $this->q;
+
+        return collect($validated);
     }
 }

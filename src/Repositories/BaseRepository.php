@@ -2,34 +2,27 @@
 
 namespace DaydreamLab\JJAJ\Repositories;
 
-use DaydreamLab\JJAJ\Helpers\Helper;
-use DaydreamLab\JJAJ\Helpers\InputHelper;
-use DaydreamLab\JJAJ\Helpers\ResponseHelper;
+use DaydreamLab\JJAJ\Database\QueryCapsule;
+use DaydreamLab\JJAJ\Exceptions\InternalServerErrorException;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\Interfaces\BaseRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Closure;
+use DaydreamLab\JJAJ\Exceptions\NotFoundException;
 
 class BaseRepository implements BaseRepositoryInterface
 {
-
     protected $model;
 
     protected $package = null;
 
     protected $modelName = 'Base';
 
-    protected $ignore_keys = ['limit', 'order_by', 'order', 'state', 'search_keys'];
 
-    protected $order_by_ignore_keys = ['index', 'id', 'created_at', 'updated_at'];
-
-
-    public function __construct(Model $model)
+    public function __construct(BaseModel $model)
     {
         $this->model = $model;
     }
@@ -69,8 +62,13 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        $input = $input->only($this->model->getFillable());
+        $fillableData = $this->model->getFillable();
+        $input = $input->only($fillableData);
         $item = $this->create($input->toArray());
+        if(!$item) {
+            throw new InternalServerErrorException('CreateFail', $fillableData);
+        }
+
 
         return $item;
     }
@@ -86,19 +84,19 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function checkout($item, $user)
+    public function restore($item, $user)
     {
-        if ($item->locked_by == 0
-            || $item->locked_by == $user->id
-            || $user->higherPermissionThan($item->locked_by)) {
+        $result =  $this->update($item, [
+            'lock_by' => null,
+            'lock_at' => null,
+        ]);
 
-            $item->locked_by = 0;
-            $item->locked_at = null;
-
-            return $this->update($item, $item);
-        } else {
-            return false;
+        if (!$result) {
+            $pk = $this->model->getPrimaryKey();
+            throw new InternalServerErrorException('RestoreFail', ['pk' => $pk]);
         }
+
+        return $result;
     }
 
 
@@ -116,56 +114,42 @@ class BaseRepository implements BaseRepositoryInterface
     /**
      * @param $id
      * @param null|Model $model
-     * @return boolean
+     * @return bool
      */
-    public function delete($id, $model = null)
+    public function delete($model)
     {
-        if ($model === null) {
-            $model = $this->model->find($id);
-            return $model ? $model->delete() : false;
-        } else {
-            return $model->delete();
+        $result = $model->delete();
+        if (!$result) {
+            throw new InternalServerErrorException('DeleteFail');
         }
+
+        return $result;
     }
 
 
-    /**
-     * @param $id
-     * @param array $eagers
-     *
-     */
-    public function find($id, $eagers = [])
+    public function find($value, QueryCapsule $q = null)
     {
-        return count($eagers)
-            ? $this->model->with($eagers)->find($id)
-            : $this->model->find($id);
-    }
+        $q = $q ?? new QueryCapsule();
+        $primaryKey = $this->model->getPrimaryKey();
+        $q->where($primaryKey, $value);
 
-
-    public function findBy($field, $operator, $value, $eagers = [])
-    {
-        return count($eagers)
-            ? $this->model->with($eagers)->where($field, $operator, $value)->get()
-            : $this->model->where($field, $operator, $value)->get();
-    }
-
-
-    public function findBySpecial($type, $key, $value, $eagers = [])
-    {
-        return count($eagers)
-            ? $this->model->with($eagers)->{$type}($key, $value)->get()
-            : $this->model->{$type}($key, $value)->get();
-    }
-
-
-    public function findByChain($fields, $operators, $values, $eagers = [])
-    {
-        $model = count($eagers) ? $this->model->with($eagers) : $this->model;
-
-        foreach ($fields as $key => $field) {
-            $model = $model->where($field, $operators[$key], $values[$key]);
+        $result = $q->exec($this->model);
+        if (!$result->count()) {
+            throw new NotFoundException('ItemNotExist', [$primaryKey => $value]);
         }
-        return $model->get();
+
+        return $result->first();
+    }
+
+
+    public function findBy($field, $operator, $value, QueryCapsule $q = null)
+    {
+        $q = $q ?? new QueryCapsule();
+        $q->where($field, $operator, $value);
+
+        $result = $q->exec($this->model);
+
+        return $result;
     }
 
 
@@ -250,102 +234,6 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function getQuery(Collection $input)
-    {
-        $query = $this->model;
-        foreach ($input->toArray() as $key => $item) {
-            if (!in_array($key, $this->ignore_keys)) {
-                if ($key == 'search' && !InputHelper::null($input, 'search')) {
-                    $query = $query->where(function ($query) use ($item, $input) {
-                        $search_keys = $input->get('search_keys');
-
-                        foreach ($search_keys as $search_key) {
-                            $query->orWhere($search_key, 'LIKE', '%%' . $item . '%%');
-                        }
-
-                    });
-                } elseif ($key == 'special_queries') {
-                    foreach ($item as $q) {
-                        if (count($q) == 2) {
-                            foreach ($q['callback'] as $c) {
-                                $query = $query->{$c['type']}($c['key'], $c['operator'], $c['value']);
-                            }
-                        } elseif (count($q) == 3) {
-                            if (array_key_exists('type', $q)) {
-
-                                $query = $query->{$q['type']}($q['key'], $q['value']);
-                            } else {
-                                $query = $query->where($q['key'], $q['operator'], $q['value']);
-                            }
-                        } elseif (count($q) == 4) {
-                            $query = $query->{$q['type']}($q['key'], $q['operator'], $q['value']);
-                        }
-                    }
-                } elseif ($key == 'without_root') {
-                    $query = $query->where('title', '!=', 'ROOT');
-                } elseif ($key == 'where') {
-                    if (gettype($item) == 'array') {
-                        foreach ($item as $q) {
-                            $query = $query->where($q['key'], $q['operator'], $q['value']);
-                        }
-                    } elseif ($item instanceof Closure) {
-                        $query = $query->where($item);
-                    } else {
-                        $query = $query->where($item);
-                    }
-                } elseif($key == 'whereIn') {
-                    $query = $query->whereIn($item['key'], $item['value']);
-                } elseif ($key == 'whereHas') {
-                    foreach ($item as $q) {
-                        $query = $query->whereHas($q['relation'], $q['callback']);
-                    }
-                } elseif ($key == 'orWhereHas') {
-                    foreach ($item as $q) {
-                        $query = $query->orWhereHas($q['relation'], $q['callback']);
-                    }
-                } elseif ($key == 'eagers') {
-                    foreach ($input->get('eagers') as $eager_key => $eager) {
-                        $query = $query->with($eager);
-                    }
-                } elseif ($key == 'loads') {
-                    foreach ($input->get('loads') as $load) {
-                        $query = $query->load($load);
-                    }
-                } else {
-                    if ($item != null) {
-                        // 需要重寫這段
-                        if ($this->isNested()) {
-                            if ($key == 'id') {
-                                $category = $this->find($input->get('id'));
-                                $query = $query->where('_lft', '>=', $category->_lft)
-                                    ->where('_rgt', '<=', $category->_rgt);
-                            } else if ($key == 'tag_id') {
-                                $tag = $this->find($input->get('tag_id'));
-                                $query = $query->where('_lft', '>', $tag->_lft)
-                                    ->where('_rgt', '>', $tag->_rgt);
-                            } else {
-                                $query = $query->where("$key", '=', $item);
-                            }
-                        } else {
-//                            if ($key == 'category_id')
-//                            {
-//                                $query = $query->whereIn('category_id', $item);
-//                            }
-//                            else
-                            {
-                                $query = $query->where("$key", '=', $item);
-                            }
-                        }
-
-                    }
-                }
-            }
-        }
-
-        return $query;
-    }
-
-
     public function isNested()
     {
         $trait = 'Kalnoy\Nestedset\NodeTrait';
@@ -391,9 +279,9 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function getRelation($model, $relation)
+    public function getFillableInput(Collection $input)
     {
-        return $model->getRelationValue($relation);
+        return $input->only($this->model->getFillable())->all();
     }
 
 
@@ -441,6 +329,17 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    public function modify($model, $data)
+    {
+        $fillable = $this->getFillableInput($data);
+        $result = $this->update($model, $fillable);;
+        if (!$result) {
+            throw new InternalServerErrorException('UpdateFail', $data);
+        }
+        return $result;
+    }
+
+
     public function paginate($items, $perPage = 25, $page = null, $options = [])
     {
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
@@ -474,66 +373,21 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    /**
-     * @param Collection $input
-     * @param bool $paginate
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Collection|static[]
-     */
-    public function search(Collection $input, $paginate = true)
+    public function search(Collection $data)
     {
-        $order_by = InputHelper::getCollectionKey($input, 'order_by', $this->model->getOrderBy());
-        if (!$this->model->hasAttribute($order_by)
-            && !in_array($order_by, $this->order_by_ignore_keys)) {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse('INPUT_INVALID', [
-                    'order_by' => $order_by],
-                    $this->package,
-                    $this->modelName
-                )
-            );
-        }
-        $limit = (int)InputHelper::getCollectionKey($input, 'limit', $this->model->getLimit());
-        $order = InputHelper::getCollectionKey($input, 'order', $this->model->getOrder());
-        $state = InputHelper::getCollectionKey($input, 'state', [0, 1]);
-        $language = InputHelper::getCollectionKey($input, 'language', '');
-
-        $query = $this->getQuery($input);
-
-        if ($this->model->hasAttribute('state')
-            && $this->model->getTable() != 'users') {
-            if (is_array($state)) {
-                $query = $query->whereIn('state', $state);
-            } else {
-                $query = $query->where('state', '=', $state);
-            }
+        if (!$data->has('limit')) {
+            $data->put('limit', $this->model->getPerPage());
         }
 
-        if ($this->model->hasAttribute('language')) {
-            if ($language != '') {
-                $query = $query->where('language', $language);
-            }
-        }
+        $q = $data->has('q')
+            ? $data->get('q')
+            : new QueryCapsule();
 
-        if ($this->isNested()) { //重組出樹狀
-            $query = $query->orderBy('_lft', $order);
-        } else {
-            $query = $query->orderBy($order_by, $order);
-            if ($this->model->hasAttribute('publish_up')) {
-                $query = $query->orderBy('publish_up', 'desc');
-            }
-        }
+        $q->getQuery($data->except('q'));
 
-        if ($limit == 0) {
-            $items = $paginate
-                ? $query->paginate(1000000)
-                : $query->get();
-        } else {
-            $items = $paginate
-                ? $query->paginate($limit)
-                : $query->get();
-        }
+        $result = $q->exec($this->model);
 
-        return $items;
+        return $result;
     }
 
 
@@ -541,51 +395,22 @@ class BaseRepository implements BaseRepositoryInterface
      * @param $item
      * @param $state
      * @param string $key
-     * @return boolean
+     * @return bool
      */
     public function state($item, $state, $key = 'state')
     {
-        $item->{$key} = $state;
-
-        return $item->save();
-    }
-
-
-    public function unlock($item)
-    {
-        $item->lock_by = 0;
-        $item->lock_at = null;
-
-        return $item->save();
-    }
-
-
-    public function update($item, $model = null)
-    {
-        if ($model !== null) {
-            if ($item != $model) {
-                foreach ($item as $key => $value) {
-                    if ($model->hasAttribute($key)) {
-                        $model->{$key} = $value;
-                    }
-                }
-            }
-
-            return $model->save();
-        } else {
-            return $this->model->find($item['id'])->update($item);
+        $result =  $this->update($item, [$key => $state]);
+        if (!$result) {
+            $pk = $this->model->getPrimaryKey();
+            throw new InternalServerErrorException('StateFail', [$pk => $item->{$pk}]);
         }
+
+        return $result;
     }
 
 
-    public function whereHas($relation, Closure $closure)
+    public function update($item, array $data)
     {
-        return $this->model->whereHas($relation, $closure);
-    }
-
-
-    public function with($relations)
-    {
-        return $this->model->with($relations);
+        return $item->update($data);
     }
 }

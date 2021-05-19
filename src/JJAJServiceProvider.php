@@ -6,6 +6,7 @@ use Illuminate\Contracts\Debug\ExceptionHandler;
 use DaydreamLab\JJAJ\Exceptions\BaseExceptionHandler;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 
 class JJAJServiceProvider extends ServiceProvider
@@ -34,8 +35,11 @@ class JJAJServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'jjaj');
+        if (File::exists(__DIR__ .'/helpers.php')) {
+            require_once __DIR__ .'/helpers.php';
+        }
 
+        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'jjaj');
     }
 
     /**

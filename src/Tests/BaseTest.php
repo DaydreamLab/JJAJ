@@ -38,27 +38,16 @@ class BaseTest extends TestCase
      * @param mixed $input
      * @param string $expect
      */
-    public function assertHttpResponseException($funcName, $input, $expect)
+    public function assertException($funcName, $input, $expect)
     {
-        $error = false;
-        $content = null;
+        $status  = null;
         try {
             $this->service->{$funcName}($input);
-        } catch (HttpResponseException $e) {
-            $error = true;
-            $content = $this->getContent($e->getResponse());
-            $status = $this->package
-                ? (
-                    $this->modelName
-                    ? Str::lower($this->modelName) . $expect
-                    : $this->package . $expect
-                )
-                : Str::lower($this->modelName) . $expect;
+        } catch (\Throwable $t) {
+            $status = $t->status;
         }
 
-        $error
-            ? $this->assertEquals(Str::upper(Str::snake($status)), $content['status'])
-            : $this->assertEquals($expect, $this->service->status);
+        $this->assertEquals($expect, $status);
     }
 
 

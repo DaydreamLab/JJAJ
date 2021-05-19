@@ -16,8 +16,6 @@ trait NestedServiceTrait
             $item = $item->refresh();
             $this->status    = 'CreateNestedSuccess';
             $this->response  = $item->refresh();
-        } else {
-            $this->throwResponse('CreateNestedFail');
         }
 
         return $item;
@@ -85,11 +83,8 @@ trait NestedServiceTrait
             if(!$result) break;
         }
 
-        if($result) {
+        if(!$result) {
             $this->status = 'DeleteNestedSuccess';
-        }
-        else{
-            $this->throwResponse('DeleteNestedFail');
         }
 
         return $result;

@@ -2,7 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Traits;
 
-use DaydreamLab\JJAJ\Helpers\Helper;
+use DaydreamLab\JJAJ\Database\QueryCapsule;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use Illuminate\Support\Collection;
 
@@ -10,10 +10,11 @@ trait NestedRepositoryTrait
 {
     public function addNested(Collection $input)
     {
-        if (!InputHelper::null($input, 'parent_id'))
-        {
-            if (!InputHelper::null($input, 'ordering'))
-            {
+        if (!InputHelper::null($input, 'parent_id')) {
+            if (!InputHelper::null($input, 'ordering')) {
+                $q = $input->get('q') ?: new QueryCapsule();
+                $q->where('parent_id', $input->get('parent_id'))
+                    ->where('ordering', $input->get('ordering'));
                 $selected = $this->findByChain(['parent_id', 'ordering'], ['=', '='], [$input->get('parent_id'), $input->get('ordering')])->first();
                 $new      = $this->create($input->toArray());
                 $selected ? $new->beforeNode($selected)->save() : true;
@@ -44,45 +45,23 @@ trait NestedRepositoryTrait
         }
         else
         {
-            if ($this->model->hasAttribute('extension'))
-            {
-                if($input->get('extension') != '')
-                {
+            if ($this->model->hasAttribute('extension')) {
+                if($input->get('extension') != '') {
                     $parent = $this->findByChain(['title', 'extension'],['=', '='],['ROOT', $input->get('extension')])->first();
-                }
-                else
-                {
+                } else {
                     $parent = $this->find(1);
                 }
-            }
-            else
-            {
-                // 這邊是拿來擴充 nestedSet 的(例如：Dddream 的 product category)
-                if ($this->model->hasAttribute('merchant_id'))
-                {
-                    $parent = $this->find($input->get('parent_id'));
-                    if(!$parent)
-                    {
-                        return $this->create($input->toArray());
-                    }
-                }
-                else
-                {
-                    $parent = $this->findBy('title', '=', 'ROOT')->first();
-                }
+            } else {
+                $parent = $this->findBy('title', '=', 'ROOT')->first();
             }
 
             $children =  $parent->children()->get();
 
-            if ($children->count())
-            {
+            if ($children->count()) {
                 $input->put('ordering', $children->last()->ordering + 1);
-            }
-            else
-            {
+            } else {
                 $input->put('ordering', 1);
             }
-
 
             $new = $this->create($input->toArray());
 

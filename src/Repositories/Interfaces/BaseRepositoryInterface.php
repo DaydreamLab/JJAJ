@@ -19,9 +19,9 @@ interface BaseRepositoryInterface {
     public function findBy($field, $operator, $value);
 
 
-    public function delete($id, Model $model = null);
+    public function delete(Model $model);
 
 
-    public function update(array $item);
+//    public function update(array $item);
 
 }

@@ -30,6 +30,5 @@ class BaseResourceCollection extends ResourceCollection
                 'items'         => $this->collection
             ];
         }
-        return  parent::toArray($request);
     }
 }

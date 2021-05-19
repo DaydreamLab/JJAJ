@@ -50,22 +50,22 @@ class BaseExceptionHandler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        if ($exception instanceof \Illuminate\Auth\AuthenticationException) {
-            return ResponseHelper::response('Unauthorized', null);
-        } else if($exception instanceof \League\Flysystem\FileNotFoundException) {
-            return ResponseHelper::response('FILE_NOT_FOUND', null);
-        } else if($exception instanceof \Intervention\Image\Exception\NotWritableException) {
-            return ResponseHelper::response('FILE_PATH_CANT_BE_WRITE', null);
-        } else if($exception instanceof \League\Flysystem\RootViolationException) {
-            return ResponseHelper::response('FILE_ROOT_CANT_BE_DELETE', null);
-        } elseif ($exception instanceof AuthorizationException) {
-            return ResponseHelper::genResponse(
-                Str::upper(Str::snake('ApiAccessDeny')),
-                null,
-                '',
-                ''
-            );
-        }
+//        if ($exception instanceof \Illuminate\Auth\AuthenticationException) {
+//            return ResponseHelper::response('Unauthorized', null);
+//        } else if($exception instanceof \League\Flysystem\FileNotFoundException) {
+//            return ResponseHelper::response('FILE_NOT_FOUND', null);
+//        } else if($exception instanceof \Intervention\Image\Exception\NotWritableException) {
+//            return ResponseHelper::response('FILE_PATH_CANT_BE_WRITE', null);
+//        } else if($exception instanceof \League\Flysystem\RootViolationException) {
+//            return ResponseHelper::response('FILE_ROOT_CANT_BE_DELETE', null);
+//        } elseif ($exception instanceof AuthorizationException) {
+//            return ResponseHelper::genResponse(
+//                Str::upper(Str::snake('ApiAccessDeny')),
+//                null,
+//                '',
+//                ''
+//            );
+//        }
 
         return parent::render($request, $exception);
     }

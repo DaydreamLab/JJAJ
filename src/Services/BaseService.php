@@ -3,7 +3,11 @@
 namespace DaydreamLab\JJAJ\Services;
 
 use Carbon\Carbon;
-use DaydreamLab\JJAJ\Helpers\Helper;
+
+use DaydreamLab\JJAJ\Database\QueryCapsule;
+use DaydreamLab\JJAJ\Exceptions\ForbiddenException;
+use DaydreamLab\JJAJ\Exceptions\NotFoundException;
+use DaydreamLab\JJAJ\Exceptions\UnauthorizedException;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
@@ -24,17 +28,9 @@ class BaseService
 
     protected $modelType = 'Base';
 
-    protected $eagers = [];
-
-    protected $loads = [];
-
     protected $repo;
 
-    protected $search_keys = [];
-
     protected $service_name = null;
-    //protected $type;
-
 
     public function __construct(BaseRepository $repo)
     {
@@ -57,13 +53,10 @@ class BaseService
     public function add(Collection $input)
     {
         $model = $this->repo->add($input);
-        if ($model) {
-            $this->addMapping($model, $input);
-            $this->status = 'CreateSuccess';
-            $this->response = $model;
-        } else {
-            $this->throwResponse('CreateFail', null, $input);
-        }
+        $this->addMapping($model, $input);
+
+        $this->status = 'CreateSuccess';
+        $this->response = $model;
 
         return $model;
     }
@@ -103,11 +96,10 @@ class BaseService
             }
         }
 
-        $this->throwResponse('InsufficientPermission',
-            null,
-            null,
-            ['method' => $method, 'model' => $this->modelName]
-        );
+        throw new UnauthorizedException('InsufficientPermission', [
+            'method' => $method,
+            'model' => $this->modelName
+        ]);
     }
 
 
@@ -137,20 +129,19 @@ class BaseService
      */
     public function checkAliasExist(Collection $input)
     {
-        if ($this->repo->getModel()->hasAttribute('alias') && $this->repo->getModel()->getTable() != 'extrafields') {
+        if ($this->repo->getModel()->hasAttribute('alias')
+            && $this->repo->getModel()->getTable() != 'extrafields'
+        ) {
             $same = null;
+            $q = $input->get('q') ?: new QueryCapsule();
+            $q->where('alias', $input->get('alias'));
             if ($this->repo->getModel()->hasAttribute('language')) {
-                if (InputHelper::null($input, 'language')) {
-                    $same = $this->findByChain(['alias', 'language'], ['=', '='], [$input->get('alias'), config('daydreamlab.global.locale')])->first();
-                } else {
-                    $same = $this->findByChain(['alias', 'language'], ['=', '='], [$input->get('alias'), $input->get('language')])->first();
-                }
-            } else {
-                $same = $this->findBy('alias', '=', $input->get('alias'))->first();
+                $q->where('language', $input->get('language') ?: config('app.locale'));
             }
+            $same = $this->search(collect(['q' => $q]))->first();
 
             if ($same && $same->id != $input->get('id')) {
-                $this->throwResponse('StoreWithExistAlias');
+                throw new ForbiddenException('StoreWithExistAlias', ['alias' => $same->alias]);
             }
         }
 
@@ -166,7 +157,7 @@ class BaseService
                 $this->canAccess($item->access);
             }
         } else {
-            $this->throwResponse('ItemNotExist', ['id' => $input->get('id')]);
+            throw new NotFoundException('ItemNotExist', ['id' => $input->get('id')]);
         }
 
         $this->afterCheckItem($item);
@@ -179,7 +170,7 @@ class BaseService
         if ($item->locked_by
             && $item->locked_by != $this->user->id
             && !$this->user->higherPermissionThan($item->locked_by)) {
-            $this->throwResponse('IsLocked', (object)$this->user->only('email', 'full_name', 'nickname'));
+            throw new ForbiddenException('IsLocked', $this->user->only('email', 'full_name', 'nickname')->all());
         }
     }
 
@@ -206,9 +197,9 @@ class BaseService
      * @param $id
      * @return BaseModel | bool
      */
-    public function find($id)
+    public function find($id, QueryCapsule $q = null)
     {
-        return $this->repo->find($id, $this->eagers);
+        return $this->repo->find($id, $q);
     }
 
     /**
@@ -228,9 +219,9 @@ class BaseService
      * @param $value
      * @return Collection
      */
-    public function findBy($filed, $operator, $value)
+    public function findBy($filed, $operator, $value, QueryCapsule $q = null)
     {
-        return $this->repo->findBy($filed, $operator, $value, $this->eagers);
+        return $this->repo->findBy($filed, $operator, $value, $q);
     }
 
     /**
@@ -239,10 +230,10 @@ class BaseService
      * @param $value
      * @return Collection
      */
-    public function findByChain($fields, $operators, $values)
-    {
-        return $this->repo->findByChain($fields, $operators, $values, $this->eagers);
-    }
+//    public function findByChain($fields, $operators, $values)
+//    {
+//        return $this->repo->findByChain($fields, $operators, $values, $this->eagers);
+//    }
 
     /**
      * @param $filed
@@ -250,10 +241,10 @@ class BaseService
      * @param $value
      * @return Collection
      */
-    public function findBySpecial($type, $key, $value)
-    {
-        return $this->repo->findBySpecial($type, $key, $value, $this->eagers);
-    }
+//    public function findBySpecial($type, $key, $value)
+//    {
+//        return $this->repo->findBySpecial($type, $key, $value, $this->eagers);
+//    }
 
     /**
      * @param $parent_id
@@ -397,16 +388,10 @@ class BaseService
     {
         $item = $this->checkItem($input);
 
-        $update = $this->update($input->toArray(), $item);
-
-        if ($update) {
-
-            $this->modifyMapping($item, $input);
-            $this->status = 'UpdateSuccess';
-            $this->response = $update;
-        } else {
-            $this->throwResponse( 'UpdateFail');
-        }
+        $update = $this->repo->modify($item, $input);
+        $this->modifyMapping($item, $input);
+        $this->status = 'UpdateSuccess';
+        $this->response = $update;
 
         return $update;
     }
@@ -474,7 +459,7 @@ class BaseService
                 }
             }
 
-            $result = $this->repo->delete($id, $item);
+            $result = $this->repo->delete($item);
             if (!$result || !$result_relations) {
                 break;
             }
@@ -482,9 +467,8 @@ class BaseService
 
         if ($result) {
             $this->status = 'DeleteSuccess';
-        } else {
-            $this->throwResponse('DeleteFail');
         }
+
         return $result;
     }
 
@@ -501,33 +485,15 @@ class BaseService
      */
     public function search(Collection $input)
     {
-        $special_queries = $input->get('special_queries') ?: [];
-
         if ($this->repo->getModel()->hasAttribute('access')) {
             $accessIds = $this->getUser()
                 ? $this->getUser()->accessIds
                 : (config('daydreamlab.cms.item.front.access_ids') ?: [1]);
 
-            $input->put('special_queries', array_merge($special_queries,
-                [[
-                    'type' => 'whereIn',
-                    'key' => 'access',
-                    'value' => $accessIds
-                ]]
-            ));
+            $input->put('q', $input->get('q')->whereIn('access', $accessIds));
         }
 
-        $input->put('search_keys', $this->search_keys);
-        $input->put('eagers', $this->eagers);
-        $input->put('loads', $this->loads);
-
-        // 處理搜尋結果是否要分頁
-
-        $paginate = $input->has('paginate') ? $input->get('paginate') : true;
-
-        $input->forget('paginate');
-
-        $items = $this->repo->search($input, $paginate);
+        $items = $this->repo->search($input);
 
         $this->status = 'SearchSuccess';
         $this->response = $items;
@@ -581,7 +547,6 @@ class BaseService
             $item = $this->checkItem($input->except('ids'));
 
             $result = $this->repo->state($item, $input->get('state'));
-            if (!$result) break;
         }
 
         if ($input->get('state') == '1') {
@@ -680,31 +645,24 @@ class BaseService
     }
 
 
-    public function unlock($id)
+
+    public function restore($id, QueryCapsule $q = null)
     {
         $item = $this->find($id);
-        if (!$item) {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    'ItemNotExist',
-                    ['id' => $id],
-                    $this->package,
-                    $this->modelName
-                )
-            );
+        $user = $this->getUser();
+        if ($item->locked_by
+            || $item->locked_by == $user->id
+            || $user->higherPermissionThan($item->locked_by)) {
+            return $this->repo->restore($item, $user);
         }
+
+        return true;
     }
 
 
-    public function update($data, $model = null)
-    {
-        $result = $this->repo->update($data, $model);
-        if (!$result) {
-            $this->throwResponse('UpdateFail');
-        } else {
-            $this->status = 'UpdateSuccess';
-        }
 
-        return $result ;
+    public function update($model, $data)
+    {
+        return $this->repo->modify($model, $data);
     }
 }
