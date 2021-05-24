@@ -6,7 +6,7 @@ use Carbon\Carbon;
 
 trait FormatDateTime
 {
-    public function getDateTimeString($dateTime, $tz, $format = null)
+    public function getDateTimeString($dateTime, $tz = 'Asia/Taipei', $format = 'Y-m-d H:i:s')
     {
         return  $dateTime
             ? ($format
@@ -17,7 +17,7 @@ trait FormatDateTime
     }
 
 
-    public function parse($dateTime, $tz)
+    public function parse($dateTime, $tz = 'Asia/Taipei')
     {
         return Carbon::parse($dateTime, config('app.timezone'))->tz($tz);
     }

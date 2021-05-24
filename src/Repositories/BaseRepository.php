@@ -4,6 +4,7 @@ namespace DaydreamLab\JJAJ\Repositories;
 
 use DaydreamLab\JJAJ\Database\QueryCapsule;
 use DaydreamLab\JJAJ\Exceptions\InternalServerErrorException;
+use DaydreamLab\JJAJ\Exceptions\OutOfBoundException;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\Interfaces\BaseRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use DaydreamLab\JJAJ\Exceptions\NotFoundException;
+use function Webmozart\Assert\Tests\StaticAnalysis\null;
 
 class BaseRepository implements BaseRepositoryInterface
 {
@@ -19,7 +21,7 @@ class BaseRepository implements BaseRepositoryInterface
 
     protected $package = null;
 
-    protected $modelName = 'Base';
+    protected $modelName = '';
 
 
     public function __construct(BaseModel $model)
@@ -64,9 +66,11 @@ class BaseRepository implements BaseRepositoryInterface
 
         $fillableData = $this->model->getFillable();
         $input = $input->only($fillableData);
+
         $item = $this->create($input->toArray());
+
         if(!$item) {
-            throw new InternalServerErrorException('CreateFail', $fillableData);
+            throw new InternalServerErrorException('CreateFail', $fillableData, null, $this->modelName);
         }
 
 
@@ -93,7 +97,7 @@ class BaseRepository implements BaseRepositoryInterface
 
         if (!$result) {
             $pk = $this->model->getPrimaryKey();
-            throw new InternalServerErrorException('RestoreFail', ['pk' => $pk]);
+            throw new InternalServerErrorException('RestoreFail', ['pk' => $pk], null, $this->modelName);
         }
 
         return $result;
@@ -120,7 +124,7 @@ class BaseRepository implements BaseRepositoryInterface
     {
         $result = $model->delete();
         if (!$result) {
-            throw new InternalServerErrorException('DeleteFail');
+            throw new InternalServerErrorException('DeleteFail', null,null, $this->modelName);
         }
 
         return $result;
@@ -135,7 +139,7 @@ class BaseRepository implements BaseRepositoryInterface
 
         $result = $q->exec($this->model);
         if (!$result->count()) {
-            throw new NotFoundException('ItemNotExist', [$primaryKey => $value]);
+            throw new NotFoundException('ItemNotExist', [$primaryKey => $value], null, $this->modelName);
         }
 
         return $result->first();
@@ -210,27 +214,24 @@ class BaseRepository implements BaseRepositoryInterface
     {
         $keys = [$orderingKey, $orderingKey];
 
+        $q = new QueryCapsule();
         if ($origin > $final) {
-            $operators = ['>=', '<'];
-            $values = [$final, $origin];
+            $q->where($orderingKey, '>=', $final)
+                ->where($orderingKey, '<', $origin);
         } else {
-            $operators = ['>', '<='];
-            $values = [$origin, $final];
+            $q->where($orderingKey, '>', $origin)
+                ->where($orderingKey, '<=', $final);
         }
 
         if ($this->model->hasAttribute('category_id')) {
-            $keys[] = 'category_id';
-            $operators[] = '=';
-            $values[] = $input->get('category_id');
+            $q->where('category_id', $input->get('category_id'));
         }
 
         foreach ($extraRules as $extraRule) {
-            $keys[] = $extraRule[0];
-            $operators[] = $extraRule[1];
-            $values[] = $extraRule[2];
+            $q->where(...$extraRule);
         }
 
-        return $this->findByChain($keys, $operators, $values);
+        return $this->search(collect(['q' => $q]));
     }
 
 
@@ -288,16 +289,16 @@ class BaseRepository implements BaseRepositoryInterface
     public function ordering(Collection $input, $item)
     {
         $orderingKey = 'ordering';
-        $input_order = $input->get('order');
+        $input_order = $input->get('order') ?: 'asc';
         $origin = $item->ordering;
-        $diff = $input->get('index_diff');
+        $diff = $input->get('index_diff') ?: $input->get('indexDiff');
 
         $latestItem = $this->getLatestOrdering($input);
         if ($input_order == 'asc') {
             $final = $origin + $diff;
             // 有最新項目（也就是不是沒資料）並且 ordering 超出界線
             if ($latestItem && ($final <= 0 || $final > $latestItem->ordering)) {
-                return false;
+                throw new OutOfBoundException('OrderingOutOfBound', ['indexDiff' => (int)$diff], null, $this->modelName);
             }
 
             $item->ordering = $final;
@@ -310,10 +311,9 @@ class BaseRepository implements BaseRepositoryInterface
             }
         } else {
             $final = $origin - $diff;
-            echo $final;
             // 有最新項目（也就是不是沒資料）並且 ordering 超出界線
             if ($latestItem && ($final <= 0 || $final > $latestItem->{$orderingKey})) {
-                return false;
+                throw new OutOfBoundException('OrderingOutOfBound', ['indexDiff' => (int)$diff], null, $this->modelName);
             }
             $item->{$orderingKey} = $origin - $diff;
             $update_items = $this->getOrderingUpdateItems($input, $orderingKey, $origin, $item->{$orderingKey}, $input->get('extraRules') ?: []);
@@ -334,7 +334,7 @@ class BaseRepository implements BaseRepositoryInterface
         $fillable = $this->getFillableInput($data);
         $result = $this->update($model, $fillable);;
         if (!$result) {
-            throw new InternalServerErrorException('UpdateFail', $data);
+            throw new InternalServerErrorException('UpdateFail', $data, null, $this->modelName);
         }
         return $result;
     }
@@ -402,7 +402,7 @@ class BaseRepository implements BaseRepositoryInterface
         $result =  $this->update($item, [$key => $state]);
         if (!$result) {
             $pk = $this->model->getPrimaryKey();
-            throw new InternalServerErrorException('StateFail', [$pk => $item->{$pk}]);
+            throw new InternalServerErrorException('StateFail', [$pk => $item->{$pk}], null, $this->modelName);
         }
 
         return $result;

@@ -35,4 +35,12 @@ class DummyClass extends AdminRequest
             'description'   => 'nullable|string',
         ];
     }
+
+
+    public function validated()
+    {
+        $validated = parent::validated();
+
+        return $validated;
+    }
 }

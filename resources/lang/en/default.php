@@ -36,6 +36,7 @@ return [
 
     'ORDERING_SUCCESS'                      => '{$ModelName} ordering success',
     'ORDERING_NESTED_SUCCESS'               => '{$ModelName} ordering nested success',
+    'ORDERING_OUT_OF_BOUND'                 => '{$ModelName} ordering out of bound',
 
     'PUBLISHED_SUCCESS'                     => '{$ModelName} published success',
     'PUBLISHED_FAIL'                        => '{$ModelName} published fail',

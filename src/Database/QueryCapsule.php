@@ -113,11 +113,12 @@ class QueryCapsule
 
     public function getQuery(Collection $input)
     {
+        $searchKeys = $input->get('searchKeys') ?: [];
         $input = $input->except(['searchKeys']);
         foreach ($input as $key => $value) {
             if ($key == 'search') {
-                foreach ($input->get('searchKeys') as $searchKey) {
-                    $this->orWhere($searchKey, 'LIKE', "%$searchKey%");
+                foreach ($searchKeys as $searchKey) {
+                    $this->orWhere($searchKey, 'LIKE', "%$value%");
                 }
             } elseif ($key == 'limit') {
                 $this->limit = $value;

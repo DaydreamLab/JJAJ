@@ -110,7 +110,7 @@ trait NestedRepositoryTrait
 
     public function findTargetNode($node, $input)
     {
-        $diff = $input->get('index_diff');
+        $diff = $input->get('index_diff') ?: $input->get('indexDiff');
         $order = $input->get('order') ?: 'asc';
 
         if ($order == 'asc') {
@@ -165,8 +165,9 @@ trait NestedRepositoryTrait
             return false;
 
         // 這邊會有 call by reference 問題，先存起來原始值
+        $diff = $input->get('index_diff') ?: $input->get('indexDiff');
         $targetOrdering = $target_item->ordering;
-        if ($input->get('index_diff') < 0) {
+        if ($diff< 0) {
             if ($input->get('order') == 'asc') {
                 $siblings = $item
                     ->getPrevSiblings()

@@ -7,6 +7,8 @@ use Illuminate\Validation\Rule;
 
 class ListRequest extends BaseRequest
 {
+    protected $searchKeys = ['title', 'introtext', 'description'];
+
     public function rules()
     {
         return [
@@ -32,7 +34,7 @@ class ListRequest extends BaseRequest
         $validated = parent::validated();
 
         if (!$validated->get('searchKeys')) {
-            $validated->put('searchKeys', ['title']);
+            $validated->put('searchKeys', $this->searchKeys);
         }
 
         if (!$validated->get('paginate')) {

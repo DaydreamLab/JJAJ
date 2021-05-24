@@ -36,6 +36,7 @@ return [
     'ORDERING_FAIL'                         => 500,
     'ORDERING_NESTED_SUCCESS'               => 200,
     'ORDERING_NESTED_FAIL'                  => 500,
+    'ORDERING_OUT_OF_BOUND'                 => 403,
 
     'PUBLISHED_SUCCESS'                     => 200,
     'PUBLISHED_FAIL'                        => 500,

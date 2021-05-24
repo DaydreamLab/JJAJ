@@ -13,7 +13,6 @@ class JJAJServiceProvider extends ServiceProvider
 {
     protected $commands = [
         'DaydreamLab\JJAJ\Commands\ClearCommand',
-
         'DaydreamLab\JJAJ\Commands\ControllerCommand',
         'DaydreamLab\JJAJ\Commands\ConstantCommand',
         'DaydreamLab\JJAJ\Commands\DeleteCommand',
@@ -38,7 +37,7 @@ class JJAJServiceProvider extends ServiceProvider
         if (File::exists(__DIR__ .'/helpers.php')) {
             require_once __DIR__ .'/helpers.php';
         }
-
+        $this->publishes([__DIR__ . '/constants' => config_path('constants')], 'jjaj-configs');
         $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'jjaj');
     }
 

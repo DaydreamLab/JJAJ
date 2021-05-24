@@ -12,6 +12,7 @@ use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
+use DaydreamLab\JJAJ\Traits\ApiJsonResponse;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -113,10 +114,10 @@ class BaseService
         if ($user) {
             $userAccessIds = $user->accessIds;
             if (!in_array($item_access, $userAccessIds)) {
-                $this->throwResponse('InsufficientPermissionView');
+                throw new UnauthorizedException('InsufficientPermissionView', null, null, $this->modelName);
             }
         } else {
-            $this->throwResponse('Unauthorized');
+            throw new UnauthorizedException('Unauthorized', null, null, $this->modelName);
         }
 
         return true;
@@ -151,13 +152,10 @@ class BaseService
 
     public function checkItem($input)
     {
-        $item = $this->find($input->get('id'));
-        if ($item) {
-            if ($item->hasAttribute('access')) {
-                $this->canAccess($item->access);
-            }
-        } else {
-            throw new NotFoundException('ItemNotExist', ['id' => $input->get('id')]);
+        $item = $this->find($input->get('id'), $input->get('q'));
+
+        if ($item->hasAttribute('access')) {
+            $this->canAccess($item->access);
         }
 
         $this->afterCheckItem($item);
@@ -192,6 +190,7 @@ class BaseService
     {
         return $this->repo->delete($id);
     }
+
 
     /**
      * @param $id
@@ -285,19 +284,14 @@ class BaseService
 
     public function getItemByAlias(Collection $input)
     {
-        $item = $this->search($input)->first();
-
-        if ($item) {
-            if ($item->hasAttribute('hits')) {
-                $item->hits++;
-                $this->update($item, $item);
-            }
-
-            $this->status = 'GetItemSuccess';
-            $this->response = $item;
-        } else {
-            $this->throwResponse('ItemNotExist');
+        $item = $this->repo->findBy('alias', '=', $input->get('alias'));
+        if ($item->hasAttribute('hits')) {
+            $item->hits++;
+            $this->update($item, $item);
         }
+
+        $this->status = 'GetItemSuccess';
+        $this->response = $item;
 
         return $item;
     }
@@ -390,6 +384,7 @@ class BaseService
 
         $update = $this->repo->modify($item, $input);
         $this->modifyMapping($item, $input);
+
         $this->status = 'UpdateSuccess';
         $this->response = $update;
 
@@ -409,18 +404,10 @@ class BaseService
 
         if ($this->repo->isNested()) {
             $result = $this->repo->orderingNested($input, $item);
-            if ($result) {
-                $this->status = 'UpdateOrderingNestedSuccess';
-            } else {
-                $this->throwResponse('UpdateOrderingNestedFail');
-            }
+            $this->status = 'OrderingNestedSuccess';
         } else {
             $result = $this->repo->ordering($input, $item);
-            if ($result) {
-                $this->status = 'UpdateOrderingSuccess';
-            } else {
-                $this->throwResponse('UpdateOrderingFail');
-            }
+            $this->status = 'OrderingSuccess';
         }
 
         return $result;
@@ -645,7 +632,6 @@ class BaseService
     }
 
 
-
     public function restore($id, QueryCapsule $q = null)
     {
         $item = $this->find($id);
@@ -658,7 +644,6 @@ class BaseService
 
         return true;
     }
-
 
 
     public function update($model, $data)

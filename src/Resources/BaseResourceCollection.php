@@ -3,11 +3,13 @@
 namespace DaydreamLab\JJAJ\Resources;
 
 use DaydreamLab\JJAJ\Helpers\Helper;
+use DaydreamLab\JJAJ\Traits\AuthApiUser;
+use DaydreamLab\JJAJ\Traits\FormatDateTime;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class BaseResourceCollection extends ResourceCollection
 {
-    
+    use FormatDateTime, AuthApiUser;
     /**
      * Transform the resource collection into an array.
      *

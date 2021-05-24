@@ -4,6 +4,8 @@ namespace DaydreamLab\JJAJ\Requests;
 
 use DaydreamLab\JJAJ\Database\QueryCapsule;
 use DaydreamLab\JJAJ\Helpers\Helper;
+use DaydreamLab\JJAJ\Traits\ApiJsonResponse;
+use DaydreamLab\JJAJ\Traits\CloudflareIp;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
@@ -12,6 +14,8 @@ use Illuminate\Support\Str;
 
 class BaseRequest extends FormRequest
 {
+    use CloudflareIp, ApiJsonResponse;
+
     protected $apiMethod = null;
 
     protected $modelName;
@@ -35,13 +39,14 @@ class BaseRequest extends FormRequest
             if (!$this->apiMethod) {
                 return true;
             } else {
+                $assetId = $this->get('assetId');
                 $apis = $this->user()->apis;
                 if ($this->apiMethod == 'store'. $this->modelName) {
                     $method = $this->get('id')
                         ? 'edit' . $this->modelName
                         : 'add' . $this->modelName;
-                    return $apis->filter(function ($api) use ($method) {
-                        return $api->method == $method;
+                    return $apis->filter(function ($api) use ($method, $assetId) {
+                        return $api->method == $method && $api->assetId == $assetId;
                     })->count();
                 } else {
                     return $apis->filter(function ($api) {
@@ -56,22 +61,9 @@ class BaseRequest extends FormRequest
     protected function failedValidation(Validator $validator)
     {
         if (config('app.debug')) {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake('InvalidInput')),
-                    $validator->errors(),
-                    $this->package,
-                    $this->modelName
-                ));
-        }
-        else {
-            throw new HttpResponseException(
-                ResponseHelper::genResponse(
-                    Str::upper(Str::snake('InvalidInput')),
-                    null,
-                    $this->package,
-                    $this->modelName
-                ));
+            throw new HttpResponseException($this->response('InvalidInput', $validator->errors()));
+        } else {
+            throw new HttpResponseException($this->response('InvalidInput', null));
         }
     }
 
@@ -79,6 +71,14 @@ class BaseRequest extends FormRequest
     public function user($guard = 'api')
     {
         return parent::user($guard);
+    }
+
+
+    public function rules()
+    {
+        return [
+            'assetId' => 'required|integer'
+        ];
     }
 
 

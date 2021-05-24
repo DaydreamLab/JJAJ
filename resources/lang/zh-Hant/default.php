@@ -36,6 +36,8 @@ return [
     'ORDERING_NESTED_SUCCESS'               => '{$ModelName} 排序項目成功',
     'ORDERING_FAIL'                         => '{$ModelName} 排序項目失敗',
     'ORDERING_NESTED_ORDERING_FAIL'         => '{$ModelName} 排序項目失敗',
+    'ORDERING_OUT_OFF_BOUND'                => '{$ModelName} 排序項目超過範圍',
+
 
     'PUBLISHED_SUCCESS'                     => '{$ModelName} 發佈項目成功',
     'PUBLISHED_FAIL'                        => '{$ModelName} 發佈項目失敗',
