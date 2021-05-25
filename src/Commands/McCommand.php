@@ -23,7 +23,7 @@ class McCommand extends Command
      */
     protected $description = 'Create model, controller implement service/repository design pattern';
 
-    
+
     /**
      * Create a new command instance.
      *
@@ -44,7 +44,7 @@ class McCommand extends Command
         $name       = ucfirst($this->argument('name'));
         $type       = ucfirst(explode('_', Str::snake($name))[0]);
         $table      = CommandHelper::convertTableName($name);
-       
+
         $component  = $this->option('component');
         if ($component) {
             $component_namespace = 'DaydreamLab/'. $component;
@@ -193,8 +193,8 @@ class McCommand extends Command
         }
 
         $this->call('jjaj:constant', ['name' => 'constants/'.Str::lower($name), '--model' => $name]);
-        $this->call('jjaj:constant', ['name' => 'resources/lang/en/'.Str::lower($name), '--model' => $name, '--lang']);
-        $this->call('jjaj:constant', ['name' => 'resources/lang/zh-Hant/'.Str::lower($name), '--model' => $name, '--lang']);
+        $this->call('jjaj:constant', ['name' => 'Resources/lang/en/'.Str::lower($name), '--model' => $name, '--lang']);
+        $this->call('jjaj:constant', ['name' => 'Resources/lang/zh-Hant/'.Str::lower($name), '--model' => $name, '--lang']);
 
         if ($this->option('front')) {
             $this->call('jjaj:controller', [
@@ -353,7 +353,7 @@ class McCommand extends Command
         File::copyDirectory('app/Daydreamlab/'.$component, 'packages/'.$component);
         File::copyDirectory('app/Daydreamlab/'.$component, 'packages/'.$component);
         File::copyDirectory('app/constants', 'packages/'.$component.'/constants');
-        File::copyDirectory('app/resources/', 'packages/'.$component.'/resources');
+        File::copyDirectory('app/Resources/', 'packages/'.$component.'/Resources');
         File::copyDirectory('database/migrations/'.$component, 'packages/'.$component.'/database/migrations');
 
         File::deleteDirectory('app/Controllers/Daydreamlab/');
@@ -362,13 +362,13 @@ class McCommand extends Command
         File::deleteDirectory('app/Daydreamlab/');
         File::deleteDirectory('app/Daydreamlab/');
         File::deleteDirectory('app/constants');
-        File::deleteDirectory('app/resources');
+        File::deleteDirectory('app/Resources');
         File::deleteDirectory('database/migrations/'.$component);
     }
 
 
     public function moveLang()
     {
-        File::copyDirectory('app/resources/', 'resources');
+        File::copyDirectory('app/Resources/', 'Resources');
     }
 }

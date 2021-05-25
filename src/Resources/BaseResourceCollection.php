@@ -37,7 +37,6 @@ class BaseResourceCollection extends ResourceCollection
                 'pagination'    => $resource,
             ];
         } else {
-
             return $this->wrapItems
                 ? [ 'items'  => $this->collection]
                 : $this->collection;

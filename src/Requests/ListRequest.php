@@ -37,9 +37,10 @@ class ListRequest extends BaseRequest
             $validated->put('searchKeys', $this->searchKeys);
         }
 
-        if (!$validated->get('paginate')) {
-            $validated->put('paginate', 1);
-        }
+        $paginate = $validated->get('paginate');
+        $paginate === 0 || $paginate === '0'
+            ? $validated->put('paginate', 0)
+            : $validated->put('paginate', 1);
 
         if ($orderBy = $validated->get('orderBy')) {
             $validated->put('order_by', $orderBy);

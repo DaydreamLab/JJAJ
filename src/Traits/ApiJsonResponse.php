@@ -14,7 +14,7 @@ use Throwable;
 
 trait ApiJsonResponse
 {
-    public function formatResponse($data)
+    public function formatResponse($data, $resource, $wrapItems)
     {
         if (!$data) {
             $response = $data;
@@ -23,14 +23,22 @@ trait ApiJsonResponse
         } elseif (gettype($data) == 'array'){
             $response['items'] = $data;
         }  elseif ($data instanceof Model) {
-            $response['items'] = $data;
+            $response['items'] = $resource
+                ? new $resource($data)
+                : $data;
         } elseif ($data instanceof Collection) {
-            $response['items'] = $data;
-        } elseif ($data instanceof ResourceCollection) {
-            $response = $data;
-        } elseif ($data instanceof JsonResource) {
-            $response['items'] = $data;
-        } elseif ($data instanceof MessageBag) {
+            $response =  $resource
+                ? new $resource($data, $wrapItems)
+                : $data;
+        } elseif ($data instanceof LengthAwarePaginator) {
+            $response =  new $resource($data);
+        }
+//        elseif ($data instanceof ResourceCollection) {
+//            $response = $data;
+//        } elseif ($data instanceof JsonResource) {
+//            $response['items'] = $data;
+//        }
+        elseif ($data instanceof MessageBag) {
             $response['items'] = $data;
         } else {
         }
@@ -59,13 +67,13 @@ trait ApiJsonResponse
     }
 
 
-    public function response($status, $response, $trans_params = [])
+    public function response($status, $response, $trans_params = [], $resource = null, $wrapItems = true)
     {
         $statusString   = Str::upper(Str::snake($status));
         $package        = isset($this->package) ? $this->package : null;
         $modelName      = isset($this->modelName) ? $this->modelName : null;
         $error          = isset($this->error) ? $this->error : false;
-        $data           = $this->formatResponse($response);
+        $data           = $this->formatResponse($response, $resource, $wrapItems);
         $r              = [];
 
         $code = config("constants.default.{$statusString}");
