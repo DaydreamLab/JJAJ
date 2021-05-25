@@ -7,7 +7,7 @@ use Illuminate\Validation\Rule;
 
 class ListRequest extends BaseRequest
 {
-    protected $searchKeys = ['title', 'introtext', 'description'];
+    protected $searchKeys = ['title', 'description'];
 
     public function rules()
     {

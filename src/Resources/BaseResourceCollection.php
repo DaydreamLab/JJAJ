@@ -10,6 +10,15 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 class BaseResourceCollection extends ResourceCollection
 {
     use FormatDateTime, AuthApiUser;
+
+    protected $wrapItems;
+
+    public function __construct($resource, $wrapItems = true)
+    {
+        parent::__construct($resource);
+        $this->wrapItems = $wrapItems;
+    }
+
     /**
      * Transform the resource collection into an array.
      *
@@ -28,9 +37,10 @@ class BaseResourceCollection extends ResourceCollection
                 'pagination'    => $resource,
             ];
         } else {
-            return [
-                'items'         => $this->collection
-            ];
+
+            return $this->wrapItems
+                ? [ 'items'  => $this->collection]
+                : $this->collection;
         }
     }
 }

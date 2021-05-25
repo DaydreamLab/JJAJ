@@ -41,18 +41,16 @@ class BaseRequest extends FormRequest
             } else {
                 $assetId = $this->get('assetId');
                 $apis = $this->user()->apis;
+                $method = $this->apiMethod;
                 if ($this->apiMethod == 'store'. $this->modelName) {
                     $method = $this->get('id')
                         ? 'edit' . $this->modelName
                         : 'add' . $this->modelName;
-                    return $apis->filter(function ($api) use ($method, $assetId) {
-                        return $api->method == $method && $api->assetId == $assetId;
-                    })->count();
-                } else {
-                    return $apis->filter(function ($api) {
-                        return $api->method == $this->apiMethod;
-                    })->count();
                 }
+
+                return $apis->filter(function ($api) use ($method, $assetId) {
+                    return $api->method == $method && $api->assetId == $assetId;
+                })->count();
             }
         }
     }
@@ -86,7 +84,9 @@ class BaseRequest extends FormRequest
     {
         $validated = parent::validated();
         $validated['q'] = $this->q;
+        $validated = collect($validated);
+        $validated->forget('assetId');
 
-        return collect($validated);
+        return $validated;
     }
 }
