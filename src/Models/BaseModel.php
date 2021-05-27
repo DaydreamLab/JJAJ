@@ -3,29 +3,27 @@
 namespace DaydreamLab\JJAJ\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class BaseModel extends Model
 {
     protected $limit = 25;
 
-    /*
-     * true: should search language
-     * false: shouldn't search language
-     */
-    protected $language = false;
-
     protected $order_by = 'id';
 
     protected $order = 'desc';
-
-    protected $state = true;
 
 
     public static function boot()
     {
         parent::boot();
-    }
 
+        static::creating(function ($item) {
+            if ($item->hasAttribute('alias') && !$item->alias) {
+                $item->alias = Str::lower(Str::random(10));
+            }
+        });
+    }
 
 
     public function getDepthAttribute()

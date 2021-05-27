@@ -10,45 +10,102 @@ class QueryCapsule
 
     public $has = [];
 
+    public $having = [];
+
+    public $limit = null;
+
     public $load = [];
+
+    public $max = null;
+
+    public $paginate = false;
 
     public $select = [];
 
+    public $orderBy = null;
+
+    public $order = null;
+
     public $orWhere = [];
 
-    public $where = [];
+    public $orWhereHas = [];
 
     public $with = [];
 
     public $withCount = [];
 
+    public $where = [];
+
     public $whereHas = [];
 
     public $whereIn = [];
 
-    public $orWhereHas = [];
+    public $whereNull = [];
 
-    public $limit = null;
+    public $whereNotNull = [];
 
-    public $paginate = false;
 
     public function exec($model)
     {
         $q = $model;
 
+        if (count($this->extraRelations)) {
+            foreach ($this->extraRelations as $k => $extraRelation) {
+                $q = $q->{$extraRelation}();
+            }
+        }
+
+        if (count($this->has)) {
+            foreach ($this->has as $has) {
+                $q = $q->has(...$has);
+            }
+        }
+
+        if (count($this->load)) {
+            foreach ($this->load as $load) {
+                $q = $q->load(...$load);
+            }
+        }
+
+        if (count($this->having)) {
+            foreach ($this->has as $has) {
+                $q = $q->having(...$has);
+            }
+        }
+
+
+        if (count($this->orWhere)) {
+            foreach ($this->orWhere as $orWhere) {
+                $q = $q->orWhere(...$orWhere);
+            }
+        }
+
+        if (count($this->orWhereHas)) {
+            foreach ($this->orWhereHas as $orWhereHas) {
+                $q = $q->orWhereHas(...$orWhereHas);
+            }
+        }
+
         if (count($this->select)) {
             $q = $q->select($this->select);
+        }
+
+
+        if (count($this->with)) {
+            foreach ($this->with as $with) {
+                $q = $q->with(...$with);
+            }
+        }
+
+        if (count($this->withCount)) {
+            foreach ($this->withCount as $withCount) {
+                $q = $q->withCount(...$withCount);
+            }
         }
 
         if (count($this->where)) {
             foreach ($this->where as $where) {
                 $q = $q->where(...$where);
-            }
-        }
-
-        if (count($this->orWhere)) {
-            foreach ($this->orWhere as $orWhere) {
-                $q = $q->orWhere(...$orWhere);
             }
         }
 
@@ -64,40 +121,25 @@ class QueryCapsule
             }
         }
 
-        if (count($this->orWhereHas)) {
-            foreach ($this->orWhereHas as $orWhereHas) {
-                $q = $q->orWhereHas(...$orWhereHas);
+        if (count($this->whereNull)) {
+            foreach ($this->whereNull as $whereNull) {
+                $q = $q->whereNull($whereNull);
             }
         }
 
-        if (count($this->with)) {
-            foreach ($this->with as $with) {
-                $q = $q->with(...$with);
+        if (count($this->whereNotNull)) {
+            foreach ($this->whereNotNull as $whereNotNull) {
+                $q = $q->whereNotNull($whereNotNull);
             }
         }
 
-        if (count($this->load)) {
-            foreach ($this->load as $load) {
-                $q = $q->load(...$load);
-            }
+        if (!$this->orderBy) {
+            $q = $q->orderBy($model->getOrderBy(), !$this->order ? $model->getOrder() : $this->order);
         }
 
-        if (count($this->withCount)) {
-            foreach ($this->withCount as $withCount) {
-                $q = $q->withCount(...$withCount);
-            }
-        }
 
-        if (count($this->has)) {
-            foreach ($this->has as $has) {
-                $q = $q->has(...$has);
-            }
-        }
-
-        if (count($this->extraRelations)) {
-            foreach ($this->extraRelations as $k => $extraRelation) {
-                $q = $q->{$extraRelation}();
-            }
+        if ($this->max) {
+            return $q->max($this->max);
         }
 
         if ($this->paginate) {
@@ -110,6 +152,7 @@ class QueryCapsule
                 : $q->get();
         }
     }
+
 
     public function getQuery(Collection $input)
     {
@@ -135,9 +178,46 @@ class QueryCapsule
     }
 
 
+    public function having(...$data) : QueryCapsule
+    {
+        $this->having[] = $data;
+
+        return $this;
+    }
+
+
+    public function limit($limit)
+    {
+        $this->limit = $limit;
+
+        return $this;
+    }
+
+
     public function load(...$data) : QueryCapsule
     {
         $this->load[] = $data;
+
+        return $this;
+    }
+
+
+    public function max($data)
+    {
+        $this->max = $data;
+
+        return $this;
+    }
+
+
+    public function orderBy($orderBy, $order) {
+        if ($orderBy) {
+            $this->orderBy = $orderBy;
+        }
+
+        if ($order) {
+            $this->order = $order;
+        }
 
         return $this;
     }
@@ -183,6 +263,15 @@ class QueryCapsule
     }
 
 
+
+    public function whereHas(...$data) : QueryCapsule
+    {
+        $this->whereHas[] = $data;
+
+        return $this;
+    }
+
+
     public function whereIn(...$data) : QueryCapsule
     {
         $this->whereIn[] = $data;
@@ -191,9 +280,17 @@ class QueryCapsule
     }
 
 
-    public function whereHas(...$data) : QueryCapsule
+    public function whereNull($data) : QueryCapsule
     {
-        $this->whereHas[] = $data;
+        $this->whereNull[] = $data;
+
+        return $this;
+    }
+
+
+    public function whereNotNull($data) : QueryCapsule
+    {
+        $this->whereNotNull[] = $data;
 
         return $this;
     }

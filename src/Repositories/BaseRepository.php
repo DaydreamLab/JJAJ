@@ -88,22 +88,6 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function restore($item, $user)
-    {
-        $result =  $this->update($item, [
-            'lock_by' => null,
-            'lock_at' => null,
-        ]);
-
-        if (!$result) {
-            $pk = $this->model->getPrimaryKey();
-            throw new InternalServerErrorException('RestoreFail', ['pk' => $pk], null, $this->modelName);
-        }
-
-        return $result;
-    }
-
-
     /**
      * 建立資料
      * @param array $data
@@ -137,12 +121,7 @@ class BaseRepository implements BaseRepositoryInterface
         $primaryKey = $this->model->getPrimaryKey();
         $q->where($primaryKey, $value);
 
-        $result = $q->exec($this->model);
-        if (!$result->count()) {
-            throw new NotFoundException('ItemNotExist', [$primaryKey => $value], null, $this->modelName);
-        }
-
-        return $result->first();
+        return $q->exec($this->model)->first();
     }
 
 

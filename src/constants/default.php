@@ -16,6 +16,9 @@ return [
     'DELETE_NESTED_SUCCESS'                 => 200,
     'DELETE_NESTED_FAIL'                    => 500,
 
+    'FEATURED_SUCCESS'                      => 200,
+    'FEATURED_FAIL'                         => 500,
+
     'GET_ITEM_SUCCESS'                      => 200,
     'GET_LIST_SUCCESS'                      => 200,
     'GET_TREE_SUCCESS'                      => 200,
@@ -27,9 +30,10 @@ return [
     'IS_LOCKED'                             => 403,
     'IS_PRESERVED'                          => 403,
     'INSUFFICIENT_PERMISSION'               => 403,
+    'INSUFFICIENT_PERMISSION_ACTION'        => 403,
     'INSUFFICIENT_PERMISSION_ADMINISTRATOR' => 403,
     'INSUFFICIENT_PERMISSION_SUPER_ADMIN'   => 403,
-    'INSUFFICIENT_PERMISSION_ACTION'        => 403,
+    'INSUFFICIENT_PERMISSION_RESTORE'       => 403,
     'INSUFFICIENT_PERMISSION_VIEW'          => 403,
 
     'ORDERING_SUCCESS'                      => 200,
@@ -54,6 +58,8 @@ return [
 
     'UNDEFINED_STATUS'                      => 500,
     'UNAUTHORIZED'                          => 401,
+    'UNFEATURED_SUCCESS'                    => 200,
+    'UNFEATURED_FAIL'                       => 500,
     'UPDATE_SUCCESS'                        => 200,
     'UPDATE_FAIL'                           => 500,
     'UPDATE_NESTED_SUCCESS'                 => 200,

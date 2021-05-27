@@ -6,6 +6,7 @@ use Carbon\Carbon;
 
 use DaydreamLab\JJAJ\Database\QueryCapsule;
 use DaydreamLab\JJAJ\Exceptions\ForbiddenException;
+use DaydreamLab\JJAJ\Exceptions\InternalServerErrorException;
 use DaydreamLab\JJAJ\Exceptions\NotFoundException;
 use DaydreamLab\JJAJ\Exceptions\UnauthorizedException;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
@@ -13,12 +14,15 @@ use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
 use DaydreamLab\JJAJ\Traits\ApiJsonResponse;
+use DaydreamLab\JJAJ\Traits\FormatDateTime;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class BaseService
 {
+    use FormatDateTime;
+
     public $response = null;
 
     public $status = '';
@@ -70,37 +74,12 @@ class BaseService
 
     public function afterCheckItem($item)
     {
+
     }
 
 
     public function beforeRemove($item)
     {
-    }
-
-
-    public function canAction($method, $item = null)
-    {
-        if ($this->isSite() || config('app.seeding')) return true;
-
-        // 這邊為了特化 dddream 使用所以特化成這樣（利用有沒有item）
-        if ($item) {
-            foreach ($this->user->groups as $group) {
-                if ($group->canAction($this->getServiceName(), $method, $item)) {
-                    return true;
-                }
-            }
-        } else {
-            foreach ($this->user->groups as $group) {
-                if (in_array($method, $group->accessResource['apis'])) {
-                    return true;
-                }
-            }
-        }
-
-        throw new UnauthorizedException('InsufficientPermission', [
-            'method' => $method,
-            'model' => $this->modelName
-        ]);
     }
 
 
@@ -131,13 +110,14 @@ class BaseService
     public function checkAliasExist(Collection $input)
     {
         if ($this->repo->getModel()->hasAttribute('alias')
+            && $input->get('alias')
             && $this->repo->getModel()->getTable() != 'extrafields'
         ) {
             $same = null;
             $q = $input->get('q') ?: new QueryCapsule();
-            $q->where('alias', $input->get('alias'));
+            $q = $q->where('alias', $input->get('alias'));
             if ($this->repo->getModel()->hasAttribute('language')) {
-                $q->where('language', $input->get('language') ?: config('app.locale'));
+                $q = $q->where('language', $input->get('language') ?: config('app.locale'));
             }
             $same = $this->search(collect(['q' => $q]))->first();
 
@@ -153,6 +133,12 @@ class BaseService
     public function checkItem($input)
     {
         $item = $this->find($input->get('id'), $input->get('q'));
+        if (!$item) {
+            throw new NotFoundException('ItemNotExist', [
+                $this->repo->getModel()->getPrimaryKey() => $input->get('id')
+            ], null, $this->modelName);
+        }
+
 
         if ($item->hasAttribute('access')) {
             $this->canAccess($item->access);
@@ -163,13 +149,22 @@ class BaseService
         return $item;
     }
 
+
     public function checkLocked($item)
     {
+        $user = $this->getUser();
         if ($item->locked_by
             && $item->locked_by != $this->user->id
-            && !$this->user->higherPermissionThan($item->locked_by)) {
-            throw new ForbiddenException('IsLocked', $this->user->only('email', 'full_name', 'nickname')->all());
+            && $user
+            && !$user->higherPermissionThan($item->locker)
+        ) {
+            throw new ForbiddenException('InsufficientPermissionRestore', [
+                'lockerName' => $item->lockerName,
+                'locked_at' => $this->getDateTimeString($item->locked_at, $this->getUser()->timezone)
+            ], null, $this->modelName);
         }
+
+        return true;
     }
 
 
@@ -192,6 +187,28 @@ class BaseService
     }
 
 
+    public function featured(Collection $input)
+    {
+        $result = false;
+        foreach ($input->get('ids') as $id) {
+            $item = $this->checkItem(collect(['id' => $id]));
+            $result =  $this->repo->update($item, ['featured' => $input->get('featured')]);
+            if(!$result) break;
+        }
+
+        $action = $input->get('featured') == 0
+            ? 'Unfeatured'
+            : 'Featured';
+        if ($result) {
+            $this->status   = $action.'Success';
+        } else {
+            throw new InternalServerErrorException($action.'Fail', null, null, $this->modelName);
+        }
+
+        return $result;
+    }
+
+
     /**
      * @param $id
      * @return BaseModel | bool
@@ -199,16 +216,6 @@ class BaseService
     public function find($id, QueryCapsule $q = null)
     {
         return $this->repo->find($id, $q);
-    }
-
-    /**
-     * @param $items
-     * @param $limit
-     * @return $this|\Illuminate\Pagination\LengthAwarePaginator
-     */
-    public function filterItems($items, $limit)
-    {
-        return $this->repo->paginate($items, $limit);
     }
 
 
@@ -265,14 +272,13 @@ class BaseService
     {
         $item = $this->checkItem($input);
 
-        $this->checkLocked($item);
-
-        if ($item->hasAttribute('locked_by')) {
-            $data = [
-                'locked_by' => $this->user->id,
+        $canLock = $this->checkLocked($item);
+        if ($canLock && $item->hasAttribute('locked_by')) {
+            $data = collect([
+                'locked_by' => $this->getUser()->id,
                 'locked_at' => Carbon::now()->toDateTimeString()
-            ];
-            $this->update($data, $item);
+            ]);
+            $this->update($item, $data);
         }
 
         $this->status = 'GetItemSuccess';
@@ -349,28 +355,6 @@ class BaseService
         }
 
         return $this->service_name;
-    }
-
-
-    public function hook($input, $status, $response)
-    {
-        if ($input
-            && ((gettype($input) == 'array' && array_key_exists('log', $input))
-                || (gettype($input) == 'object' && property_exists($input, 'log')))
-        ) {
-            $log = $input->log;
-            $log->status = $status;
-            $log->response = $response;
-            $log->save();
-        }
-
-        return true;
-    }
-
-
-    public function isSite()
-    {
-        return !strrpos($this->type, 'Admin');
     }
 
 
@@ -492,14 +476,7 @@ class BaseService
     public function setStoreDefaultInput(Collection $input)
     {
         if ($this->repo->getModel()->hasAttribute('alias')) {
-            if (InputHelper::null($input, 'alias')) {
-                $encode = urlencode($input->get('title'));
-                $alias = Str::lower(Str::random(20));
-            } else {
-                $alias = $input->get('alias');
-            }
-
-            $input->put('alias', Str::lower($alias));
+            $input->put('alias', Str::lower($input->get('alias')));
         }
 
         if ($this->repo->getModel()->hasAttribute('state') && $input->get('state') === null) {
@@ -507,7 +484,7 @@ class BaseService
         }
 
         if ($this->repo->getModel()->hasAttribute('access') && InputHelper::null($input, 'access')) {
-            $input->put('access', 1);
+            $input->put('access', config('daydreamlab.cms.default_viewlevel_id'));
         }
 
         if ($this->repo->getModel()->hasAttribute('language') && InputHelper::null($input, 'language')) {
@@ -520,6 +497,11 @@ class BaseService
 
         if ($this->repo->getModel()->hasAttribute('extrafields') && InputHelper::null($input, 'extrafields')) {
             $input->put('extrafields', []);
+            $search = '';
+            foreach ($input->get('extrafields') as $extrafield) {
+                $search .= $extrafield['value'] . ' ';
+            }
+            $input->put('extrafields_search', $search);
         }
 
         return $input;
@@ -595,55 +577,41 @@ class BaseService
         return $str;
     }
 
-
-    public function throwResponse($status, $response = null, $input = null, $trans_params = [])
-    {
-        $statusString = Str::upper(Str::snake($status));
-        $this->hook($input, $statusString, $response);
-
-        if (config('app.debug')) {
-            $bt = debug_backtrace();
-            $trace = array_shift($bt);
-            if (gettype($response) == 'array') {
-                $response['debug']['file'] = $trace['file'];
-                $response['debug']['line'] = $trace['line'];
-                $response['debug']['function'] = $trace['function'];
-            } elseif (gettype($response) == 'object') {
-                $temp['file'] = $trace['file'];
-                $temp['line'] = $trace['line'];
-                $temp['function'] = $trace['function'];
-                $response->debug = $temp;
-            } elseif (gettype($response) == 'string') {
-                $temp['file'] = $trace['file'];
-                $temp['line'] = $trace['line'];
-                $temp['function'] = $trace['function'];
-                $temp['response'] = $response;
-                $response = $temp;
-            }
-        }
-
-        throw new HttpResponseException(ResponseHelper::genResponse(
-            $statusString,
-            $response,
-            $this->package,
-            $this->modelName,
-            $trans_params
-        ));
-    }
-
-
-    public function restore($id, QueryCapsule $q = null)
-    {
-        $item = $this->find($id);
-        $user = $this->getUser();
-        if ($item->locked_by
-            || $item->locked_by == $user->id
-            || $user->higherPermissionThan($item->locked_by)) {
-            return $this->repo->restore($item, $user);
-        }
-
-        return true;
-    }
+//
+//    public function throwResponse($status, $response = null, $input = null, $trans_params = [])
+//    {
+//        $statusString = Str::upper(Str::snake($status));
+//        $this->hook($input, $statusString, $response);
+//
+//        if (config('app.debug')) {
+//            $bt = debug_backtrace();
+//            $trace = array_shift($bt);
+//            if (gettype($response) == 'array') {
+//                $response['debug']['file'] = $trace['file'];
+//                $response['debug']['line'] = $trace['line'];
+//                $response['debug']['function'] = $trace['function'];
+//            } elseif (gettype($response) == 'object') {
+//                $temp['file'] = $trace['file'];
+//                $temp['line'] = $trace['line'];
+//                $temp['function'] = $trace['function'];
+//                $response->debug = $temp;
+//            } elseif (gettype($response) == 'string') {
+//                $temp['file'] = $trace['file'];
+//                $temp['line'] = $trace['line'];
+//                $temp['function'] = $trace['function'];
+//                $temp['response'] = $response;
+//                $response = $temp;
+//            }
+//        }
+//
+//        throw new HttpResponseException(ResponseHelper::genResponse(
+//            $statusString,
+//            $response,
+//            $this->package,
+//            $this->modelName,
+//            $trans_params
+//        ));
+//    }
 
 
     public function update($model, $data)

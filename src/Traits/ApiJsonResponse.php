@@ -22,7 +22,11 @@ trait ApiJsonResponse
             $response = null;
         } elseif (gettype($data) == 'array'){
             $response['items'] = $data;
-        }  elseif ($data instanceof Model) {
+        }  elseif ($data instanceof \stdClass){
+            $response['items'] = $resource
+                ? new $resource($data)
+                : $data;
+        } elseif ($data instanceof Model) {
             $response['items'] = $resource
                 ? new $resource($data)
                 : $data;

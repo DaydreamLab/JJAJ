@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'API_ACCESS_DENY'                       => 'Insufficient permission Idaccess deny',
+    'API_ACCESS_DENY'                       => 'Insufficient permission API access deny',
     'ARCHIVE_SUCCESS'                       => '{$ModelName} archive success',
     'ARCHIVE_FAIL'                          => '{$ModelName} archive fail',
 
@@ -18,6 +18,9 @@ return [
     'DELETE_FAIL'                           => '{$ModelName} delete fail',
     'DELETE_NESTED_FAIL'                    => '{$ModelName} delete nested fail',
 
+    'FEATURED_SUCCESS'                      => '{$ModelName} featured success',
+    'FEATURED_FAIL'                         => '{$ModelName} featured fail',
+
     'GET_ITEM_SUCCESS'                      => '{$ModelName} get item success',
     'GET_LIST_SUCCESS'                      => '{$ModelName} get list success',
     'GET_TREE_SUCCESS'                      => '{$ModelName} get tree success',
@@ -29,9 +32,10 @@ return [
     'IS_LOCKED'                             => '{$ModelName} is locked',
     'IS_PRESERVED'                          => '{$ModelName} is preserved',
     'INSUFFICIENT_PERMISSION'               => 'Insufficient permission',
+    'INSUFFICIENT_PERMISSION_ACTION'        => 'Insufficient permission :model-:method',
     'INSUFFICIENT_PERMISSION_ADMINISTRATOR' => 'Insufficient permission administrator',
     'INSUFFICIENT_PERMISSION_SUPER_ADMIN'   => 'Insufficient permission super admin',
-    'INSUFFICIENT_PERMISSION_ACTION'        => 'Insufficient permission :model-:method',
+    'INSUFFICIENT_PERMISSION_RESTORE'       => 'Insufficient permission restore',
     'INSUFFICIENT_PERMISSION_VIEW'          => 'Insufficient permission view',
 
     'ORDERING_SUCCESS'                      => '{$ModelName} ordering success',
@@ -54,6 +58,8 @@ return [
 
     'UNDEFINED_STATUS'                      => 'Undefined status string: :status',
     'UNAUTHORIZED'                          => 'Unauthorized',
+    'UNFEATURED_SUCCESS'                    => '{$ModelName} unfeatured success',
+    'UNFEATURED_FAIL'                       => '{$ModelName} unfeatured fail',
     'UPDATE_SUCCESS'                        => '{$ModelName} update success',
     'UPDATE_NESTED_SUCCESS'                 => '{$ModelName} update nested success',
     'UPDATE_FAIL'                           => '{$ModelName} update fail',
