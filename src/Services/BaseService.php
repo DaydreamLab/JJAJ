@@ -13,15 +13,17 @@ use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
+use DaydreamLab\JJAJ\Traits\ActionHook;
 use DaydreamLab\JJAJ\Traits\ApiJsonResponse;
 use DaydreamLab\JJAJ\Traits\FormatDateTime;
+use DaydreamLab\JJAJ\Traits\Mapping;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class BaseService
 {
-    use FormatDateTime;
+    use FormatDateTime, Mapping, ActionHook;
 
     public $response = null;
 
@@ -57,8 +59,10 @@ class BaseService
      */
     public function add(Collection $input)
     {
+        $this->beforeAdd($input);
         $model = $this->repo->add($input);
         $this->addMapping($model, $input);
+        $this->afterAdd($input, $model);
 
         $this->status = 'CreateSuccess';
         $this->response = $model;
@@ -66,21 +70,6 @@ class BaseService
         return $model;
     }
 
-
-    public function addMapping($item, $input)
-    {
-    }
-
-
-    public function afterCheckItem($item)
-    {
-
-    }
-
-
-    public function beforeRemove($item)
-    {
-    }
 
 
     public function canAccess($item_access)
@@ -144,7 +133,7 @@ class BaseService
             $this->canAccess($item->access);
         }
 
-        $this->afterCheckItem($item);
+        $this->afterCheckItem($input, $item);
 
         return $item;
     }
@@ -186,13 +175,41 @@ class BaseService
         return $this->repo->delete($id);
     }
 
-
+    /**
+     * @param Collection $input
+     * @return null
+     * @throws InternalServerErrorException
+     * @throws NotFoundException
+     */
     public function featured(Collection $input)
     {
         $result = false;
+
         foreach ($input->get('ids') as $id) {
             $item = $this->checkItem(collect(['id' => $id]));
-            $result =  $this->repo->update($item, ['featured' => $input->get('featured')]);
+            $maxFeaturedOrdering = null;
+            $q = new QueryCapsule();
+            $updateData = [];
+            if ($input->get('featured') == 1) {
+                if (!$item->featured_ordering) {
+                    $q = $q->where('featured', 1)
+                        ->max('featured_ordering');
+                    $maxFeaturedOrdering = $this->search(collect(['q' => $q]));
+                    $updateData['featured_ordering'] = $maxFeaturedOrdering + 1;
+                }
+            } else {
+                $updateData['featured_ordering'] = null;
+                $q = $q->where('featured_ordering', '>', $item->featured_ordering);
+                $siblings = $this->search(collect(['q' => $q]));
+                $siblings->each(function ($sibling) {
+                    $sibling->featured_ordering--;
+                    $sibling->save();
+                });
+            }
+
+            $updateData['featured'] = $input->get('featured');
+
+            $result =  $this->repo->update($item, $updateData);
             if(!$result) break;
         }
 
@@ -201,11 +218,12 @@ class BaseService
             : 'Featured';
         if ($result) {
             $this->status   = $action.'Success';
+            $this->response = null;
         } else {
             throw new InternalServerErrorException($action.'Fail', null, null, $this->modelName);
         }
 
-        return $result;
+        return $this->response;
     }
 
 
@@ -228,39 +246,6 @@ class BaseService
     public function findBy($filed, $operator, $value, QueryCapsule $q = null)
     {
         return $this->repo->findBy($filed, $operator, $value, $q);
-    }
-
-    /**
-     * @param $filed
-     * @param $operator
-     * @param $value
-     * @return Collection
-     */
-//    public function findByChain($fields, $operators, $values)
-//    {
-//        return $this->repo->findByChain($fields, $operators, $values, $this->eagers);
-//    }
-
-    /**
-     * @param $filed
-     * @param $operator
-     * @param $value
-     * @return Collection
-     */
-//    public function findBySpecial($type, $key, $value)
-//    {
-//        return $this->repo->findBySpecial($type, $key, $value, $this->eagers);
-//    }
-
-    /**
-     * @param $parent_id
-     * @param $origin
-     * @param $modified
-     * @return Collection
-     */
-    public function findOrderingInterval($parent_id, $origin, $modified)
-    {
-        return $this->repo->findOrderingInterval($parent_id, $origin, $modified);
     }
 
 
@@ -376,26 +361,25 @@ class BaseService
     }
 
 
-    public function modifyMapping($item, $input)
+
+    public function modifyNested(Collection $input, $parent, $item)
     {
-        return true;
-    }
-
-
-    public function ordering(Collection $input)
-    {
-        $item = $this->checkItem($input);
-
-        if ($this->repo->isNested()) {
-            $result = $this->repo->orderingNested($input, $item);
-            $this->status = 'OrderingNestedSuccess';
-        } else {
-            $result = $this->repo->ordering($input, $item);
-            $this->status = 'OrderingSuccess';
+        if (!$input->get('alias')) {
+            $input->put('alias', $item->alias);
         }
 
-        return $result;
+        $modify = $this->repo->modifyNested($input, $parent, $item);
+        if ($modify) {
+            $this->modifyMapping($item, $input);
+            $this->status   = 'UpdateNestedSuccess';
+            $this->response = $item->refresh();
+        } else {
+            throw new InternalServerErrorException('UpdateNestedFail', null, [], $this->modelName);
+        }
+
+        return $this->response;
     }
+
 
 
     public function paginationFormat($items)
@@ -420,18 +404,18 @@ class BaseService
         foreach ($input->get('ids') as $id) {
             $item = $this->checkItem(collect(['id' => $id]));
             $this->beforeRemove($item);
-            $result_relations = $this->removeMapping($item);
+            $this->removeMapping($item);
             // 若有排序的欄位則要調整 ordering 大於刪除項目的值
-            if ($this->repo->getModel()->hasAttribute('ordering')) {
-                $delete_siblings = $this->repo->findDeleteSiblings($item->ordering);
-                foreach ($delete_siblings as $delete_sibling) {
-                    $delete_sibling->ordering--;
-                    $this->update($delete_sibling, $delete_sibling);
-                }
+            if ($this->getModel()->hasAttribute('ordering')) {
+                 $this->repo->handleDeleteOrdering($item, 'ordering');
+            }
+
+            if ($this->getModel()->hasAttribute('featured') && $item->featured == 1) {
+                $this->repo->handleDeleteOrdering($item->featured_ordering, 'featured_ordering');
             }
 
             $result = $this->repo->delete($item);
-            if (!$result || !$result_relations) {
+            if (!$result) {
                 break;
             }
         }
@@ -444,9 +428,26 @@ class BaseService
     }
 
 
-    public function removeMapping($item)
+    public function removeNested(Collection $input)
     {
-        return true;
+        $result = false;
+        foreach ($input->get('ids') as $id) {
+            $item = $this->checkItem(collect(['id' => $id]));
+            $this->removeMapping($item);
+            $this->repo->handleDeleteNestedOrdering($item);
+            $result = $this->repo->delete($item);
+            if(!$result) {
+                break;
+            }
+        }
+
+        if($result) {
+            $this->status = 'DeleteNestedSuccess';
+        } else {
+            throw new InternalServerErrorException('DeleteNestedFail', null, null, $this->modelName);
+        }
+
+        return $result;
     }
 
 
@@ -567,6 +568,38 @@ class BaseService
     }
 
 
+    /**
+     * 儲存槽狀結構項目
+     * @param Collection $input
+     * @return mixed
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     */
+    public function storeNested(Collection $input)
+    {
+        $parent_id = $input->get('parent_id');
+        $parent = $parent_id ? $this->repo->find($parent_id) : null;
+
+        // 設定初始值
+        if ($this->repo->getModel()->hasAttribute('access') && InputHelper::null($input, 'access')) {
+            $input->put('access', $parent ? $parent->access : config('daydreamlab.cms.default_viewlevel_id'));
+        }
+        $input  = $this->setStoreNestedDefaultInput($input, $parent);
+        // 檢查多語言下的 path
+        $this->checkPathExist($input, $parent);
+
+        if (InputHelper::null($input, 'id')) {
+            return $this->addNested($input);
+        } else {
+            $item = $this->checkItem(collect([ 'id' => $input->get('id')]));
+            $this->checkLocked($item);
+            $input->put('locked_by', null);
+            $input->put('locked_at', null);
+            return $this->modifyNested($input, $parent, $item);
+        }
+    }
+
+
     public function traverseTitle(&$categories, $prefix = '-', &$str = '')
     {
         $categories = $categories->sortBy('order');
@@ -576,42 +609,6 @@ class BaseService
         }
         return $str;
     }
-
-//
-//    public function throwResponse($status, $response = null, $input = null, $trans_params = [])
-//    {
-//        $statusString = Str::upper(Str::snake($status));
-//        $this->hook($input, $statusString, $response);
-//
-//        if (config('app.debug')) {
-//            $bt = debug_backtrace();
-//            $trace = array_shift($bt);
-//            if (gettype($response) == 'array') {
-//                $response['debug']['file'] = $trace['file'];
-//                $response['debug']['line'] = $trace['line'];
-//                $response['debug']['function'] = $trace['function'];
-//            } elseif (gettype($response) == 'object') {
-//                $temp['file'] = $trace['file'];
-//                $temp['line'] = $trace['line'];
-//                $temp['function'] = $trace['function'];
-//                $response->debug = $temp;
-//            } elseif (gettype($response) == 'string') {
-//                $temp['file'] = $trace['file'];
-//                $temp['line'] = $trace['line'];
-//                $temp['function'] = $trace['function'];
-//                $temp['response'] = $response;
-//                $response = $temp;
-//            }
-//        }
-//
-//        throw new HttpResponseException(ResponseHelper::genResponse(
-//            $statusString,
-//            $response,
-//            $this->package,
-//            $this->modelName,
-//            $trans_params
-//        ));
-//    }
 
 
     public function update($model, $data)
