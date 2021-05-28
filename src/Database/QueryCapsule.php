@@ -18,6 +18,8 @@ class QueryCapsule
 
     public $max = null;
 
+    public $page = 1;
+
     public $paginate = false;
 
     public $select = [];
@@ -167,6 +169,8 @@ class QueryCapsule
                 $this->limit = $value;
             } elseif ($key == 'paginate') {
                 $this->paginate = $value;
+            } elseif ($key = 'page') {
+                $this->page = $value;
             } elseif ($key == 'q') {
                 #do nothing
             } elseif ($key == 'extraRelations') {
@@ -236,6 +240,14 @@ class QueryCapsule
         $this->orWhereHas[] = $data;
 
         return $this;
+    }
+
+
+    public function page($data)
+    {
+        $this->page = $data;
+
+        return $data;
     }
 
 

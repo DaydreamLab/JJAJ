@@ -65,9 +65,9 @@ class BaseService
         $this->afterAdd($input, $model);
 
         $this->status = 'CreateSuccess';
-        $this->response = $model;
+        $this->response = $model->refresh();
 
-        return $model;
+        return  $this->response;
     }
 
 
@@ -154,6 +154,26 @@ class BaseService
         }
 
         return true;
+    }
+
+
+    /**
+     * 檢查槽狀結構路徑是否重複
+     * @param Collection $input
+     * @param $parent
+     * @return false
+     * @throws ForbiddenException
+     */
+    public function checkPathExist(Collection $input, $parent)
+    {
+        if($this->repo->getModel()->hasAttribute('path') && $input->get('alias') && $this->repo->getModel()->getTable() != 'assets') {
+            $same = $this->repo->findMultiLanguageItem($input);
+            if ($same && $same->id != $input->get('id')) {
+                throw new ForbiddenException('StoreNestedWithExistPath',  ['path' => $input->get('path')], null, $this->modelName);
+            }
+        }
+
+        return false;
     }
 
 
@@ -381,6 +401,19 @@ class BaseService
     }
 
 
+    public function ordering(Collection $input)
+    {
+        return $this->modify($input);
+    }
+
+
+    public function orderingNested(Collection $input)
+    {
+        $item = $this->checkItem($input);
+
+        return $this->modifyNested($input, $item->parent, $item);
+    }
+
 
     public function paginationFormat($items)
     {
@@ -403,7 +436,7 @@ class BaseService
         $result = false;
         foreach ($input->get('ids') as $id) {
             $item = $this->checkItem(collect(['id' => $id]));
-            $this->beforeRemove($item);
+            $this->beforeRemove($input, $item);
             $this->removeMapping($item);
             // 若有排序的欄位則要調整 ordering 大於刪除項目的值
             if ($this->getModel()->hasAttribute('ordering')) {
@@ -584,18 +617,18 @@ class BaseService
         if ($this->repo->getModel()->hasAttribute('access') && InputHelper::null($input, 'access')) {
             $input->put('access', $parent ? $parent->access : config('daydreamlab.cms.default_viewlevel_id'));
         }
-        $input  = $this->setStoreNestedDefaultInput($input, $parent);
+        $input  = $this->setStoreDefaultInput($input);
         // 檢查多語言下的 path
         $this->checkPathExist($input, $parent);
 
         if (InputHelper::null($input, 'id')) {
-            return $this->addNested($input);
+            return $this->repo->addNested($input);
         } else {
             $item = $this->checkItem(collect([ 'id' => $input->get('id')]));
             $this->checkLocked($item);
             $input->put('locked_by', null);
             $input->put('locked_at', null);
-            return $this->modifyNested($input, $parent, $item);
+            return $this->repo->modifyNested($input, $parent, $item);
         }
     }
 

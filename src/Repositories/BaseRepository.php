@@ -152,26 +152,6 @@ class BaseRepository implements BaseRepositoryInterface
 
 
     /**
-     * 檢查槽狀結構路徑是否重複
-     * @param Collection $input
-     * @param $parent
-     * @return false
-     * @throws ForbiddenException
-     */
-    public function checkPathExist(Collection $input, $parent)
-    {
-        if($this->repo->getModel()->hasAttribute('path') && $input->get('alias') && $this->repo->getModel()->getTable() != 'assets') {
-            $same = $this->repo->findMultiLanguageItem($input);
-            if ($same && $same->id != $input->get('id')) {
-                throw new ForbiddenException('StoreNestedWithExistPath',  ['path' => $input->get('path')], null, $this->modelName);
-            }
-        }
-
-        return false;
-    }
-
-
-    /**
      * 建立資料
      * @param array $data
      * @return mixed
@@ -240,18 +220,24 @@ class BaseRepository implements BaseRepositoryInterface
      * @param null $parent
      * @return mixed
      */
-    public function findModifyOrderingTargetNode($input, $parent = null)
+    public function findModifyOrderingTargetNode($input, $node = null)
     {
         $q = new QueryCapsule();
-        if ($parent) {
-            $q = $q->where('parent_id', $parent->id);
+        if (!$input->get('parentId')) {
+            $q = $q->where('parent_id', null);
+        } elseif ($node->parent_id == $input->get('parentId')) {
+            $q = $q->where('parent_id', $node->parent_id);
+        } else {
+            $q = $q->where('parent_id', $input->get('parentId'));
         }
 
-        if ($input->get('ordering') === 0 || $input->get('ordering') === '0') {
-            $q = $q->limit(1)
-                ->orderBy('ordering', 'asc');
-        } elseif ($input->get('ordering')) {
-            $q = $q->where('ordering', $input->get('ordering'));
+        if ($input->get('ordering') !== null) {
+            if ($input->get('ordering')) {
+                $q = $q->where('ordering', $input->get('ordering'));
+            } else {
+                $q = $q->limit(1)
+                    ->orderBy('ordering', 'asc');
+            }
         } else {
             $q = $q->limit(1)
                 ->orderBy('ordering', 'desc');
@@ -340,6 +326,9 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+
+
+
     /**
      * 處理刪除項目時排序問題
      * - 該排序後面的所有項目排序-1
@@ -349,14 +338,13 @@ class BaseRepository implements BaseRepositoryInterface
     public function handleDeleteOrdering($ordering, $key)
     {
         $q = new QueryCapsule();
-
         $q = $q->where($key, '>', $ordering);
 
         $updateItems = $this->search(collect(['q' => $q]));
         $updateItems->each(function ($item) use ($key) {
             $item->{$key}--;
             $item->save();
-            if ($item->save()) {
+            if (!$item->save()) {
                 throw new InternalServerErrorException('OrderingFail', null, null, $this->modelName);
             }
         });
@@ -378,7 +366,56 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    /**
+     * 處理修改項目時，非槽狀結構的排序問題
+     * @param Collection $input
+     * @param $node
+     * @param $key
+     */
+    public function handleModifyOrdering(Collection &$input, $node, $key)
+    {
+        $inputOrdering = $input->get($key) === null
+            ? 99999999
+            : ($input->get($key) <=  0
+                ? 0
+                : $input->get($key));
 
+        $ordering = $node->{$key};
+        $q = new QueryCapsule();
+        if ($ordering > $inputOrdering) {
+            $q = $q->where($key, '>', $inputOrdering)
+                ->where($key, '<', $ordering);
+            $updateItems = $this->search(collect(['q' => $q]));
+            $updateItems->each(function ($item) use ($key) {
+                $item->{$key}++;
+                $item->save();
+            });
+        } else {
+            $q = $q->where($key, '>', $ordering)
+                ->where($key, '<=', $inputOrdering);
+            $updateItems = $this->search(collect(['q' => $q]));
+            $updateItems->each(function ($item) use ($key) {
+                $item->{$key}--;
+                $item->save();
+            });
+        }
+
+        $q = new QueryCapsule();
+        $q->whereNotNull($key);
+        $allItems = $this->search(collect(['q' => $q]));
+        if ($inputOrdering > $allItems->count()) {
+            $input->put($key, $allItems->count());
+        }
+    }
+
+
+    /**
+     * 處理槽狀結構下，下個同層排序問題
+     * @param $item
+     * @param $action
+     * @return bool
+     * @throws InternalServerErrorException
+     */
     public function handleNextSiblingsOrdering($item, $action)
     {
         $item->getNextSiblings()->each(function ($sibling) use ($action) {
@@ -444,32 +481,14 @@ class BaseRepository implements BaseRepositoryInterface
     public function modify($model, Collection $data)
     {
         if ($model->hasAttribute('ordering') && $model->ordering != $data->get('ordering')) {
-            $q = new QueryCapsule();
-            if ($model->ordering > $data->get('ordering')) {
-                $q = $q->where('ordering', '>', $data->get('ordering'))
-                    ->where('ordering', '<', $model->ordering);
-                $updateItems = $this->search(collect(['q' => $q]));
-                $updateItems->each(function ($item) {
-                   $item->ordering++;
-                   $item->save();
-                });
-            } else {
-                $q = $q->where('ordering', '>', $model->ordering)
-                    ->where('ordering', '<=', $data->get('ordering'));
-                $updateItems = $this->search(collect(['q' => $q]));
-                $updateItems->each(function ($item) {
-                    $item->ordering--;
-                    $item->save();
-                });
-            }
-            $data->put('ordering', $data->get('ordering') + 1);
+            $this->handleModifyOrdering($data, $model, 'ordering');
         }
 
         if ($model->hasAttribute('featured')) {
+            $q = new QueryCapsule();
             if ($model->featured == 0 && $data->get('featured') == 1) {
-                $this->handleOrdering($data, 'featured_ordering');
+                $this->handleAddOrdering($data, 'featured_ordering');
             } elseif ($model->featured == 1 && $data->get('featured') == 0) {
-                $q = new QueryCapsule();
                 $q = $q->where('featured_ordering', '>', $model->featured_ordering);
                 $updateItems = $this->search(collect(['q' => $q]));
                 $updateItems->each(function ($item) {
@@ -477,6 +496,9 @@ class BaseRepository implements BaseRepositoryInterface
                     $item->save();
                 });
                 $data->put('featured_ordering', null);
+            } elseif ($model->featured == 1 && $data->get('featured') == 1 && $model->featured_ordering != $data->get('featured_ordering')) {
+                $this->handleModifyOrdering($data,$model, 'featured_ordering');
+                $data->put('featured_ordering', $data->get('featured_ordering') + 1);
             }
         }
 
@@ -500,36 +522,49 @@ class BaseRepository implements BaseRepositoryInterface
     public function modifyNested(Collection $input, $parent, $item)
     {
         // 如果更換了 parent
-        if ($item->parent_id != $input->get('parent_id') && $this->model->hasAttribute('ordering')) {
+        $inputParentId = $input->get('parentId') ?: $input->get('parent_id');
+        if ($item->parent_id != $inputParentId && $this->model->hasAttribute('ordering')) {
             $this->handleNextSiblingsOrdering($item, 'sub');
         }
 
         $targetNode = $this->model->hasAttribute('ordering')
-            ? $this->findModifyOrderingTargetNode($input, $parent)
+            ? $this->findModifyOrderingTargetNode($input, $item)
             : null;
         if ($targetNode) {
+            show($targetNode->id);
             $item->parent_id = $targetNode->parent ? $targetNode->parent_id : null;
             if (in_array($input->get('ordering'), [0, '0'])) {
                 $item->beforeNode($targetNode);
-                $input->put('ordering', $input->get('ordering') + 1);
+                $input->put('ordering', $input->get('ordering')+1);
             } else {
                 $item->afterNode($targetNode);
-                $input->put('ordering', $targetNode->ordering + 1);
+                $input->put('ordering', $targetNode->ordering);
             }
         } else {
             if ($this->model->hasAttribute('ordering')) {
                 if ($parent) {
-                    $input->put('ordering', $parent->children->count());
+                    if ($input->get('ordering') !== null) {
+                        if (in_array($input->get('ordering'), [0, '0'])) {
+                            $item->beforeNode($targetNode);
+                            $input->put('ordering', $input->get('ordering')+1);
+                        } else {
+                            $item->afterNode($targetNode);
+                            $input->put('ordering', $targetNode->ordering);
+                        }
+                    } else {
+                        $parent->appendNode($item);
+                        $input->put('ordering', $parent->children->count());
+                    }
                 } else {
                     $q = new QueryCapsule();
                     $q = $q->whereNull('parent_id');
                     $input->put('ordering', $this->search(collect(['q' => $q]))->count() + 1);
+                    $input->put('parent_id', null);
                 }
             }
         }
-
+        $this->handleModifyOrdering($input, $item, 'ordering');
         $result = $this->update($item, $this->getFillableInput($input));
-        $this->handleNextSiblingsOrdering($item->refresh(), 'add');
         if (!$result) {
             throw new InternalServerErrorException('UpdateNestedFail', [], null, $this->modelName);
         }
