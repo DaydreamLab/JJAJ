@@ -58,7 +58,7 @@ class BaseRequest extends FormRequest
             throw new HttpResponseException(
                 ResponseHelper::genResponse(
                     Str::upper(Str::snake('InvalidInput')),
-                    null,
+                    $validator->errors(),
                     $this->package,
                     $this->modelName
                 ));
