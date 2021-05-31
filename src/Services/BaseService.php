@@ -72,6 +72,21 @@ class BaseService
 
 
 
+    public function addNested(Collection $input)
+    {
+        $this->beforeAdd($input);
+        $model = $this->repo->addNested($input);
+        $this->addMapping($model, $input);
+        $this->afterAdd($input, $model);
+
+        $this->status = 'CreateNestedSuccess';
+        $this->response = $model->refresh();
+
+        return $model;
+    }
+
+
+
     public function canAccess($item_access)
     {
         if (config('app.seeding'))  {
@@ -160,16 +175,60 @@ class BaseService
     /**
      * 檢查槽狀結構路徑是否重複
      * @param Collection $input
-     * @param $parent
+     * @param $item
      * @return false
      * @throws ForbiddenException
      */
-    public function checkPathExist(Collection $input, $parent)
+    public function checkPathExist(Collection $input, $item = null)
     {
-        if($this->repo->getModel()->hasAttribute('path') && $input->get('alias') && $this->repo->getModel()->getTable() != 'assets') {
-            $same = $this->repo->findMultiLanguageItem($input);
+        if($this->getModel()->hasAttribute('path') && $this->getModel()->hasAttribute('alias')) {
+            if (!$input->get('alias')) {
+                $input->put('alias', $item->alias);
+            }
+            $alias = $input->get('alias');
+
+            # 要多檢查更換parent 狀態下，多語言的路徑狀況
+            if ($item && $item->parent_id == $input->get('parent_id')) {
+                $path = $item->parent->path . '/' . $input->get('alias');
+            } elseif ($item && $item->parent_id != $input->get('parent_id')) {
+                $newParent = $this->repo->find($input->get('parent_id'));
+                $path = $newParent ? $newParent->path . '/' . $alias : '/' . $alias;
+            } else {
+                $path = '/' . $alias;
+            }
+
+            $language_options = ['*'];
+            $language = $input->get('language') ? $input->get('language') : config('daydreamlab.global.locale');
+            if ($language != '*') {
+                $language_options[] = $language;
+            }
+            $q = new QueryCapsule();
+
+            if ($this->getModel()->hasAttribute('language') && $input->get('language')) {
+                $q = $q->whereIn('language', $language_options);
+            }
+
+            if ($this->getModel()->hasAttribute('host')  && $input->get('host')) {
+                $q = $q->where('host', $input->get('host'));
+            }
+
+            if ($input->get('extension')  && $input->get('extension')) {
+                $q = $q->where('extension', $input->get('extension'));
+            }
+
+            if ($input->get('content_type')  && $input->get('content_type')) {
+                $q = $q->where('content_type', $input->get('content_type'));
+            }
+
+            $q = $q->where('path', $path);
+
+            $same = $this->search(collect(['q' => $q]))->first();
+
             if ($same && $same->id != $input->get('id')) {
-                throw new ForbiddenException('StoreNestedWithExistPath',  ['path' => $input->get('path')], null, $this->modelName);
+                throw new ForbiddenException('StoreNestedWithExistPath',  [
+                    'path' => $path,
+                    'alias' => $alias
+                ], null, $this->modelName);
             }
         }
 
@@ -218,13 +277,17 @@ class BaseService
                     $updateData['featured_ordering'] = $maxFeaturedOrdering + 1;
                 }
             } else {
-                $updateData['featured_ordering'] = null;
-                $q = $q->where('featured_ordering', '>', $item->featured_ordering);
-                $siblings = $this->search(collect(['q' => $q]));
-                $siblings->each(function ($sibling) {
-                    $sibling->featured_ordering--;
-                    $sibling->save();
-                });
+                # 避免重複下架已下架項目
+                if ($item->featured_ordering) {
+                    $updateData['featured_ordering'] = null;
+                    $q = $q->where('featured_ordering', '>', $item->featured_ordering);
+
+                    $siblings = $this->search(collect(['q' => $q]));
+                    $siblings->each(function ($sibling) {
+                        $sibling->featured_ordering--;
+                        $sibling->save();
+                    });
+                }
             }
 
             $updateData['featured'] = $input->get('featured');
@@ -279,11 +342,11 @@ class BaseService
 
         $canLock = $this->checkLocked($item);
         if ($canLock && $item->hasAttribute('locked_by')) {
-            $data = collect([
+            $data = [
                 'locked_by' => $this->getUser()->id,
                 'locked_at' => Carbon::now()->toDateTimeString()
-            ]);
-            $this->update($item, $data);
+            ];
+            $this->repo->update($item, $data);
         }
 
         $this->status = 'GetItemSuccess';
@@ -373,6 +436,10 @@ class BaseService
 
         $update = $this->repo->modify($item, $input);
         $this->modifyMapping($item, $input);
+
+        if ($this->getModel()->hasAttribute('locked_by')) {
+            $this->repo->restore($item, $this->getUser());
+        }
 
         $this->status = 'UpdateSuccess';
         $this->response = $update;
@@ -479,6 +546,25 @@ class BaseService
         } else {
             throw new InternalServerErrorException('DeleteNestedFail', null, null, $this->modelName);
         }
+
+        return $result;
+    }
+
+
+    /**
+     * @param Collection $input
+     * @return bool
+     */
+    public function restore(Collection $input)
+    {
+        $result = false;
+        foreach ($input->get('ids') as $id) {
+            $item = $this->checkItem(collect(['id' => $id]));
+            $result = $this->repo->restore($item, $this->getUser());
+        }
+
+        $this->status = 'RestoreSuccess';
+        $this->response = null;
 
         return $result;
     }
@@ -618,17 +704,16 @@ class BaseService
             $input->put('access', $parent ? $parent->access : config('daydreamlab.cms.default_viewlevel_id'));
         }
         $input  = $this->setStoreDefaultInput($input);
-        // 檢查多語言下的 path
-        $this->checkPathExist($input, $parent);
 
         if (InputHelper::null($input, 'id')) {
-            return $this->repo->addNested($input);
+            $this->checkPathExist($input);
+            return $this->addNested($input);
         } else {
             $item = $this->checkItem(collect([ 'id' => $input->get('id')]));
             $this->checkLocked($item);
-            $input->put('locked_by', null);
-            $input->put('locked_at', null);
-            return $this->repo->modifyNested($input, $parent, $item);
+            $this->checkPathExist($input, $item);
+            return $this->modifyNested($input, $parent, $item);
+
         }
     }
 

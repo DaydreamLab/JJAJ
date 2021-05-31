@@ -111,15 +111,9 @@ class BaseRepository implements BaseRepositoryInterface
                     $q = $q->where('title', 'ROOT')
                         ->where('extension', $input->get('extension'));
                     $parent = $this->search(collect(['q' => $q]))->first();
-                    if (!$parent) {
-                        throw new ForbiddenException('InvalidInput', [
-                            'extension' => $input->get('extension'),
-                            'parent_id' => null
-                        ], null, $this->modelName);
-                    }
                     $newNode = $this->create($input->toArray());
 
-                    return $parent->appendNode($newNode) ? $newNode : false;
+                    return $parent ? $parent->appendNode($newNode) : $newNode;
                 } else {
                     throw new ForbiddenException('InvalidInput', [
                         'extension' => null,
@@ -271,6 +265,7 @@ class BaseRepository implements BaseRepositoryInterface
                 ? $query->where('path', $input->get('path'))
                 : $query;
         } else {
+
             if ($this->getModel()->hasAttribute('language')) {
                 $query = $query
                     ->whereIn('language', $language_options);
@@ -282,7 +277,10 @@ class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        return $query->first();
+        startLog();
+        $a =  $query->first();
+        showLog();
+        return  $a;
     }
 
 
@@ -523,15 +521,16 @@ class BaseRepository implements BaseRepositoryInterface
     {
         // 如果更換了 parent
         $inputParentId = $input->get('parentId') ?: $input->get('parent_id');
-        if ($item->parent_id != $inputParentId && $this->model->hasAttribute('ordering')) {
-            $this->handleNextSiblingsOrdering($item, 'sub');
+        if ($item->parent_id != $inputParentId) {
+            if ( $this->model->hasAttribute('ordering')) {
+                $this->handleNextSiblingsOrdering($item, 'sub');
+            }
         }
 
         $targetNode = $this->model->hasAttribute('ordering')
             ? $this->findModifyOrderingTargetNode($input, $item)
             : null;
         if ($targetNode) {
-            show($targetNode->id);
             $item->parent_id = $targetNode->parent ? $targetNode->parent_id : null;
             if (in_array($input->get('ordering'), [0, '0'])) {
                 $item->beforeNode($targetNode);
@@ -604,6 +603,27 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
         return $paginate;
+    }
+
+
+    public function restore($item, $user)
+    {
+        if ($item->locked_by == 0
+            || $item->locked_by == $user->id
+            || $user->higherPermissionThan($item->locker)
+        ) {
+            $data = [
+                'locked_by' => null,
+                'locked_at' => null
+            ];
+            return $this->update($item, $data);
+        } else {
+            throw new InternalServerErrorException('InsufficientPermissionRestore', [
+                'item_id'   => $item->id,
+                'lockerName' => $item->lockerName,
+                'locked_at' => $this->getDateTimeString($item->locked_at, $this->getUser()->timezone)
+            ], null, $this->modelName);
+        }
     }
 
 
