@@ -10,14 +10,11 @@ use DaydreamLab\JJAJ\Exceptions\InternalServerErrorException;
 use DaydreamLab\JJAJ\Exceptions\NotFoundException;
 use DaydreamLab\JJAJ\Exceptions\UnauthorizedException;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
-use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
 use DaydreamLab\JJAJ\Traits\ActionHook;
-use DaydreamLab\JJAJ\Traits\ApiJsonResponse;
 use DaydreamLab\JJAJ\Traits\FormatDateTime;
 use DaydreamLab\JJAJ\Traits\Mapping;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -32,8 +29,6 @@ class BaseService
     protected $package = null;
 
     protected $modelName = 'Base';
-
-    protected $modelType = 'Base';
 
     protected $repo;
 
@@ -74,8 +69,11 @@ class BaseService
 
     public function addNested(Collection $input)
     {
+        $this->checkPathExist($input);
         $this->beforeAdd($input);
+
         $model = $this->repo->addNested($input);
+
         $this->addMapping($model, $input);
         $this->afterAdd($input, $model);
 
@@ -143,7 +141,6 @@ class BaseService
             ], null, $this->modelName);
         }
 
-
         if ($item->hasAttribute('access')) {
             $this->canAccess($item->access);
         }
@@ -181,20 +178,31 @@ class BaseService
      */
     public function checkPathExist(Collection $input, $item = null)
     {
+        $inputParentId = $input->get('parentId') ?: $input->get('parent_id');
+
         if($this->getModel()->hasAttribute('path') && $this->getModel()->hasAttribute('alias')) {
-            if (!$input->get('alias')) {
+            if (!$input->get('alias') && $item) {
                 $input->put('alias', $item->alias);
+            } elseif (!$input->get('alias') && !$item) {
+                $input->put('alias', Str::lower(Str::random(8)));
             }
             $alias = $input->get('alias');
 
             # 要多檢查更換parent 狀態下，多語言的路徑狀況
-            if ($item && $item->parent_id == $input->get('parent_id')) {
-                $path = $item->parent->path . '/' . $input->get('alias');
-            } elseif ($item && $item->parent_id != $input->get('parent_id')) {
-                $newParent = $this->repo->find($input->get('parent_id'));
+            $path = '';
+            if ($item && $item->parent_id == $inputParentId) {
+                $path = $item->parent
+                        ? $item->parent->path . '/' . $input->get('alias')
+                        :  '/' . $input->get('alias');
+            } elseif ($item && $item->parent_id != $inputParentId) {
+                $newParent = $inputParentId ? $this->repo->find($inputParentId) : null;
                 $path = $newParent ? $newParent->path . '/' . $alias : '/' . $alias;
             } else {
-                $path = '/' . $alias;
+                if ($inputParentId) {
+                    $parent = $this->repo->find($inputParentId);
+                    $path = $parent ? $parent->path : '';
+                }
+                $path .= '/' . $alias;
             }
 
             $language_options = ['*'];
@@ -230,9 +238,11 @@ class BaseService
                     'alias' => $alias
                 ], null, $this->modelName);
             }
+
+            $input->put('path', $path);
         }
 
-        return false;
+        return true;
     }
 
 
@@ -307,6 +317,12 @@ class BaseService
         }
 
         return $this->response;
+    }
+
+
+    public function featuredOrdering(Collection $input)
+    {
+        return self::ordering($input);
     }
 
 
@@ -449,17 +465,22 @@ class BaseService
 
 
 
-    public function modifyNested(Collection $input, $parent, $item)
+    public function modifyNested(Collection $input)
     {
-        if (!$input->get('alias')) {
+        $item = $this->checkItem(collect([ 'id' => $input->get('id')]));
+
+        if (!$input->get('alias') && $this->getModel()->hasAttribute('alias')) {
             $input->put('alias', $item->alias);
         }
 
-        $modify = $this->repo->modifyNested($input, $parent, $item);
+        $this->checkLocked($item);
+        $this->checkPathExist($input, $item);
+
+        $modify = $this->repo->modifyNested($input, $item->parent, $item);
         if ($modify) {
             $this->modifyMapping($item, $input);
             $this->status   = 'UpdateNestedSuccess';
-            $this->response = $item->refresh();
+            $this->response = $modify->refresh();
         } else {
             throw new InternalServerErrorException('UpdateNestedFail', null, [], $this->modelName);
         }
@@ -468,9 +489,32 @@ class BaseService
     }
 
 
+    /**
+     * 修改項目排序
+     * - 一般排序
+     * - 精選排序
+     * @param Collection $input
+     * @return mixed
+     * @throws ForbiddenException
+     * @throws InternalServerErrorException
+     * @throws NotFoundException
+     */
     public function ordering(Collection $input)
     {
-        return $this->modify($input);
+        $item = $this->checkItem($input);
+
+        $key = $input->has('ordering') ? 'ordering' : 'featured_ordering';
+
+        $result = $this->repo->ordering($input, $item, $key);
+
+        $action = $key == 'ordering' ? 'Ordering' : 'FeaturedOrdering';
+        if (!$result) {
+            throw new InternalServerErrorException($action.'Fail', null, null, $this->modelName);
+        } else {
+            $this->status = $action . 'Success';
+        }
+
+        return $result;
     }
 
 
@@ -478,7 +522,14 @@ class BaseService
     {
         $item = $this->checkItem($input);
 
-        return $this->modifyNested($input, $item->parent, $item);
+        $result = $this->repo->orderingNested($input, $item);
+
+        $this->status = $result
+            ? 'OrderingNestedSuccess'
+            : 'OrderingNestedFail';
+        $this->response = $result;
+
+        return $this->response;
     }
 
 
@@ -507,7 +558,7 @@ class BaseService
             $this->removeMapping($item);
             // 若有排序的欄位則要調整 ordering 大於刪除項目的值
             if ($this->getModel()->hasAttribute('ordering')) {
-                 $this->repo->handleDeleteOrdering($item, 'ordering');
+                 $this->repo->handleDeleteOrdering($item->ordering, 'ordering');
             }
 
             if ($this->getModel()->hasAttribute('featured') && $item->featured == 1) {
@@ -581,7 +632,9 @@ class BaseService
                 ? $this->getUser()->accessIds
                 : (config('daydreamlab.cms.item.front.access_ids') ?: [1]);
 
-            $input->put('q', $input->get('q')->whereIn('access', $accessIds));
+            $q = $input->get('q') ? $input->get('q') : new QueryCapsule();
+            $q = $q->whereIn('access', $accessIds);
+            $input->put('q', $q);
         }
 
         $items = $this->repo->search($input);
@@ -696,7 +749,7 @@ class BaseService
      */
     public function storeNested(Collection $input)
     {
-        $parent_id = $input->get('parent_id');
+        $parent_id = $input->get('parentId') ?: $input->get('parent_id');
         $parent = $parent_id ? $this->repo->find($parent_id) : null;
 
         // 設定初始值
@@ -706,14 +759,9 @@ class BaseService
         $input  = $this->setStoreDefaultInput($input);
 
         if (InputHelper::null($input, 'id')) {
-            $this->checkPathExist($input);
             return $this->addNested($input);
         } else {
-            $item = $this->checkItem(collect([ 'id' => $input->get('id')]));
-            $this->checkLocked($item);
-            $this->checkPathExist($input, $item);
-            return $this->modifyNested($input, $parent, $item);
-
+            return $this->modifyNested($input);
         }
     }
 

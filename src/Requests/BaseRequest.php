@@ -84,6 +84,7 @@ class BaseRequest extends FormRequest
     {
         $validated = parent::validated();
         $validated['q'] = $this->q;
+
         $validated = collect($validated);
         $validated->forget('assetId');
         if ($validated->has('alias')) {

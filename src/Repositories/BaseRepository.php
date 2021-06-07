@@ -71,64 +71,81 @@ class BaseRepository implements BaseRepositoryInterface
      */
     public function addNested(Collection $input)
     {
-        if (!InputHelper::null($input, 'parent_id')) {
-            if (!InputHelper::null($input, 'ordering')) {
-                $q = $input->get('q') ?: new QueryCapsule();
-                $q = $q->where('parent_id', $input->get('parent_id'))
-                    ->where('ordering', $input->get('ordering'));
-
-                $selected = $this->search(collect(['q' => $q]))->first();
-                $new      = $this->create($input->toArray());
-                $selected ? $new->beforeNode($selected)->save() : true;
-
-                return $this->handleNextSiblingsOrdering($new->refresh(), 'add') ? $new : false;
-            } else {
-                $parent     = $this->find($input->get('parent_id'));
-                if (!$parent) {
-                    throw new NotFoundException('ItemNotExist', [
-                        'parent_id' => $input->get('parent_id')
-                    ], null, $this->modelName);
+        $inputParentId = $input->get('parentId') ?: $input->get('parent_id');
+        $inputOrdering = $input->get('ordering');
+        if ($inputParentId) {
+            $parent = $this->find($inputParentId);
+            if (!$parent) {
+                throw new NotFoundException('ItemNotExist', ['parent_id' => $inputParentId], null, $this->modelName);
+            }
+            if ($inputOrdering) {
+                $children = $parent->children()->get();
+                $selected = $children->where('ordering', $inputOrdering)->first();
+                if (!$selected) {
+                    $input->put('ordering', $children->count() + 1);
                 }
-                $last_child = $parent->children->last();
-                if ($last_child) {
-                    $lastOrdering = $last_child->ordering + 1;
-                    $input->put('ordering', $lastOrdering);
-                    $new   = $this->create($input->toArray());
-
-                    return $new->afterNode($last_child)->save() ? $new : false;
+                $new      = $this->create($input->toArray());
+                if ($selected) {
+                    $new->beforeNode($selected)->save();
+                    $this->handleNextSiblingsOrdering($new, 'add');
                 } else {
-                    $ordering =  1;
-                    $input->put('ordering', $ordering);
-                    $new   = $this->create($input->toArray());
-                    return $parent->appendNode($new) ? $new : false;
+
+                    $parent->appendNode($new);
+                }
+
+                return $new;
+            } else {
+
+                if ($inputOrdering !== null) {
+                    $q = new QueryCapsule();
+                    $q = $q->where('parent_id', $inputParentId)
+                        ->where('ordering', $inputOrdering);
+
+                    $targetNode = $this->search(collect(['q' => $q]))->first();
+
+                    if ($targetNode) {
+                        $this->handleAddOrdering($input, 'ordering');
+                        $new = $this->create($this->getFillableInput($input));
+                        return $targetNode->beforeNode($new)->save() ? $new :null;
+                    } else {
+                        return $this->handleLastChildOrdering($input, $parent);
+                    }
+                } else {
+                    return $this->handleLastChildOrdering($input, $parent);
                 }
             }
         } else {
-            # 代表 model = category
-            if ($this->model->hasAttribute('extension')) {
-                if($input->get('extension') != '') {
-                    $q = new QueryCapsule();
-                    $q = $q->where('title', 'ROOT')
-                        ->where('extension', $input->get('extension'));
-                    $parent = $this->search(collect(['q' => $q]))->first();
-                    $newNode = $this->create($input->toArray());
+            $q = new QueryCapsule();
+            $q = $q->whereNull('parent_id');
+            if ($inputOrdering) {
+                if($this->getModel()->hasAttribute('path') && $this->getModel()->hasAttribute('alias')) {
+                    if($input->get('extension') != '') {
+                        $q = $q->where('extension', $input->get('extension'));
 
-                    return $parent ? $parent->appendNode($newNode) : $newNode;
-                } else {
-                    throw new ForbiddenException('InvalidInput', [
-                        'extension' => null,
-                        'parent_id' => null
-                    ], null, $this->modelName);
+                    } else {
+                        throw new ForbiddenException('InvalidInput', [
+                            'extension' => null,
+                            'parent_id' => null
+                        ], null, $this->modelName);
+                    }
                 }
+
+                $rootItems = $this->search(collect(['q' => $q]));
+                $targetNode = $rootItems->where('ordering', $inputOrdering)->first();
+                $input->put('ordering', $targetNode ? $inputOrdering + 1 : $rootItems->count() );
+
+                $node = $this->create($input->toArray());
+                if ($targetNode) {
+                    $node->afterNode($targetNode)->save();
+                }
+                $this->handleNextSiblingsOrdering($node, 'add');
+                return $node;
             } else {
-                $q = new QueryCapsule();
-                $q =$q->whereNull('parent_id')
-                    ->max('ordering');
+                $q = $q->max('ordering');
+                $maxOrdering = $this->search(collect(['q' => $q]));
+                $input->put('ordering', $maxOrdering + 1);
 
-                $lastOrdering = $this->search(collect(['q' => $q]));
-                $input->put('ordering', $lastOrdering +1);
-
-                return $this->create($input->toArray());
+                return  $this->create($input->toArray());
             }
         }
     }
@@ -171,6 +188,7 @@ class BaseRepository implements BaseRepositoryInterface
 
         return $result;
     }
+
 
 
     /**
@@ -216,13 +234,14 @@ class BaseRepository implements BaseRepositoryInterface
      */
     public function findModifyOrderingTargetNode($input, $node = null)
     {
+        $inputParentId = $input->get('parentId') ?: $input->get('parent_id');
         $q = new QueryCapsule();
-        if (!$input->get('parentId')) {
+        if (!$inputParentId) {
             $q = $q->where('parent_id', null);
-        } elseif ($node->parent_id == $input->get('parentId')) {
+        } elseif ($node->parent_id == $inputParentId) {
             $q = $q->where('parent_id', $node->parent_id);
         } else {
-            $q = $q->where('parent_id', $input->get('parentId'));
+            $q = $q->where('parent_id', $inputParentId);
         }
 
         if ($input->get('ordering') !== null) {
@@ -242,49 +261,27 @@ class BaseRepository implements BaseRepositoryInterface
 
 
     /**
-     * 找出多語言下，路徑重複的項目
-     * @param $input
-     * @return mixed
+     * 修正樹狀結構排序問題
+     * @param array $nodes
+     * @return bool
      */
-    public function findMultiLanguageItem($input)
+    public function fixNestedOrdering($nodes = [])
     {
-        $language_options = ['*'];
-        $language = !InputHelper::null($input, 'language') ? $input->get('language') : config('daydreamlab.global.locale');
-        if ($language != '*') {
-            $language_options[] = $language;
-        }
-
-        $query = $this->model;
-
-        // table = menu
-        if ($this->getModel()->hasAttribute('host')) {
-            $query = $query
-                ->where('host', $input->get('host'))
-                ->whereIn('language', $language_options);
-            $query = !InputHelper::null($input, 'path')
-                ? $query->where('path', $input->get('path'))
-                : $query;
-        } else {
-
-            if ($this->getModel()->hasAttribute('language')) {
-                $query = $query
-                    ->whereIn('language', $language_options);
-                $query = !InputHelper::null($input, 'path')
-                    ? $query->where('path', $input->get('path'))
-                    : $query;
-            } else {
-                $query = $query->where('path', $input->get('path'));
+        foreach ($nodes as $key => $node) {
+            if ($node->children->count()) {
+                $this->fixNestedOrdering($node->children);
             }
+            $node->ordering = $key + 1;
+            $node->save();
         }
 
-        startLog();
-        $a =  $query->first();
-        showLog();
-        return  $a;
+        return true;
     }
 
 
-
+    /**
+     * 修正樹狀結構排序問題
+     */
     public function fixTree()
     {
         $this->model->fixTree();
@@ -322,9 +319,6 @@ class BaseRepository implements BaseRepositoryInterface
             $input->put($key, $maxFeaturedOrdering + 1);
         }
     }
-
-
-
 
 
     /**
@@ -365,6 +359,30 @@ class BaseRepository implements BaseRepositoryInterface
 
 
     /**
+     * 處理槽狀結構下，最後一個子結點排序問題
+     * @param Collection $input
+     * @param $parent
+     * @return false|mixed
+     */
+    public function handleLastChildOrdering(Collection $input, $parent)
+    {
+        $last_child = $parent->children->last();
+        if ($last_child) {
+            $lastOrdering = $last_child->ordering + 1;
+            $input->put('ordering', $lastOrdering);
+            $new   = $this->create($input->toArray());
+
+            return $new->afterNode($last_child)->save() ? $new : false;
+        } else {
+            $ordering =  1;
+            $input->put('ordering', $ordering);
+            $new = $this->create($this->getFillableInput($input));
+            return $parent->appendNode($new) ? $new : false;
+        }
+    }
+
+
+    /**
      * 處理修改項目時，非槽狀結構的排序問題
      * @param Collection $input
      * @param $node
@@ -377,32 +395,48 @@ class BaseRepository implements BaseRepositoryInterface
             : ($input->get($key) <=  0
                 ? 0
                 : $input->get($key));
+        $nodeOrdering = $node->{$key};
 
-        $ordering = $node->{$key};
         $q = new QueryCapsule();
-        if ($ordering > $inputOrdering) {
-            $q = $q->where($key, '>', $inputOrdering)
-                ->where($key, '<', $ordering);
-            $updateItems = $this->search(collect(['q' => $q]));
+        if ($nodeOrdering > $inputOrdering) {
+            $updateItems = $q->where($key, '>', $inputOrdering)
+                ->where($key, '<', $nodeOrdering)
+                ->orderBy($key, 'asc')
+                ->exec($this->model);
+
             $updateItems->each(function ($item) use ($key) {
                 $item->{$key}++;
                 $item->save();
             });
-        } else {
-            $q = $q->where($key, '>', $ordering)
-                ->where($key, '<=', $inputOrdering);
-            $updateItems = $this->search(collect(['q' => $q]));
+        } elseif ($nodeOrdering < $inputOrdering) {
+            $updateItems = $q->where($key, '>', $nodeOrdering)
+                ->where($key, '<=', $inputOrdering)
+                ->orderBy($key, 'asc')
+                ->exec($this->model);
+
             $updateItems->each(function ($item) use ($key) {
                 $item->{$key}--;
                 $item->save();
             });
+        } else {
+            return ;
         }
 
         $q = new QueryCapsule();
-        $q->whereNotNull($key);
-        $allItems = $this->search(collect(['q' => $q]));
+        $allItems = $q->whereNotNull($key)->exec($this->model);
+
         if ($inputOrdering > $allItems->count()) {
             $input->put($key, $allItems->count());
+        } else {
+            if ($inputOrdering !== 0) {
+                if ($updateItems->last()) {
+                    $input->put($key, $updateItems->last()->{$key} + 1);
+                } else {
+                    $input->put($key, $inputOrdering + 1);
+                }
+            } else {
+                $input->put($key, 1);
+            }
         }
     }
 
@@ -429,7 +463,11 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-
+    /**
+     * 鎖定編輯中的項目
+     * @param $id
+     * @return false
+     */
     public function lock($id)
     {
         $user = Auth::guard('api')->user();
@@ -483,21 +521,7 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
         if ($model->hasAttribute('featured')) {
-            $q = new QueryCapsule();
-            if ($model->featured == 0 && $data->get('featured') == 1) {
-                $this->handleAddOrdering($data, 'featured_ordering');
-            } elseif ($model->featured == 1 && $data->get('featured') == 0) {
-                $q = $q->where('featured_ordering', '>', $model->featured_ordering);
-                $updateItems = $this->search(collect(['q' => $q]));
-                $updateItems->each(function ($item) {
-                    $item->featured_ordering--;
-                    $item->save();
-                });
-                $data->put('featured_ordering', null);
-            } elseif ($model->featured == 1 && $data->get('featured') == 1 && $model->featured_ordering != $data->get('featured_ordering')) {
-                $this->handleModifyOrdering($data,$model, 'featured_ordering');
-                $data->put('featured_ordering', $data->get('featured_ordering') + 1);
-            }
+            $this->handleModifyOrdering($data, $model, 'featured_ordering');
         }
 
         $fillable = $this->getFillableInput($data);
@@ -507,7 +531,6 @@ class BaseRepository implements BaseRepositoryInterface
         }
         return $result;
     }
-
 
     /**
      * 修改槽狀結構項目
@@ -519,60 +542,230 @@ class BaseRepository implements BaseRepositoryInterface
      */
     public function modifyNested(Collection $input, $parent, $item)
     {
-        // 如果更換了 parent
-        $inputParentId = $input->get('parentId') ?: $input->get('parent_id');
-        if ($item->parent_id != $inputParentId) {
-            if ( $this->model->hasAttribute('ordering')) {
-                $this->handleNextSiblingsOrdering($item, 'sub');
-            }
-        }
-
-        $targetNode = $this->model->hasAttribute('ordering')
-            ? $this->findModifyOrderingTargetNode($input, $item)
-            : null;
-        if ($targetNode) {
-            $item->parent_id = $targetNode->parent ? $targetNode->parent_id : null;
-            if (in_array($input->get('ordering'), [0, '0'])) {
-                $item->beforeNode($targetNode);
-                $input->put('ordering', $input->get('ordering')+1);
-            } else {
-                $item->afterNode($targetNode);
-                $input->put('ordering', $targetNode->ordering);
-            }
+        if ($input->get('featured') == 0 && $item->featured == 1) {
+            $input->put('featured_ordering', null);
+            $this->update($item, $this->getFillableInput($input->except(['ordering', 'parent_id'])));
         } else {
-            if ($this->model->hasAttribute('ordering')) {
-                if ($parent) {
-                    if ($input->get('ordering') !== null) {
-                        if (in_array($input->get('ordering'), [0, '0'])) {
-                            $item->beforeNode($targetNode);
-                            $input->put('ordering', $input->get('ordering')+1);
-                        } else {
-                            $item->afterNode($targetNode);
-                            $input->put('ordering', $targetNode->ordering);
-                        }
-                    } else {
-                        $parent->appendNode($item);
-                        $input->put('ordering', $parent->children->count());
-                    }
-                } else {
-                    $q = new QueryCapsule();
-                    $q = $q->whereNull('parent_id');
-                    $input->put('ordering', $this->search(collect(['q' => $q]))->count() + 1);
-                    $input->put('parent_id', null);
-                }
-            }
-        }
-        $this->handleModifyOrdering($input, $item, 'ordering');
-        $result = $this->update($item, $this->getFillableInput($input));
-        if (!$result) {
-            throw new InternalServerErrorException('UpdateNestedFail', [], null, $this->modelName);
+            $this->update($item, $this->getFillableInput($input->except(['ordering', 'parent_id', 'featured_ordering'])));
+            $this->ordering($input->only(['id', 'featured_ordering']), $item, 'featured_ordering');
         }
 
-        return $item->refresh();
+        $this->orderingNested($input, $item);
+
+        return $item;
     }
 
 
+    /**
+     * 處理非槽狀結構的排序問題
+     * @param Collection $input
+     * @param $model
+     * @param $key
+     * @return mixed
+     * @throws ForbiddenException
+     */
+    public function ordering(Collection $input, $model, $key)
+    {
+        if ($key == 'featured_ordering' && $model->featured == 0) {
+            throw new ForbiddenException('IsNotFeatured', ['id' => $model->id], null, $this->modelName);
+        }
 
+        $this->handleModifyOrdering($input, $model, $key);
+
+        $result = $this->update($model, $input->only($key)->all());
+
+        return $result;
+    }
+
+
+    /**
+     * 處理槽狀結構排序問題
+     * @param Collection $input
+     * @param $node
+     * @return mixed
+     * @throws NotFoundException
+     */
+    public function orderingNested(Collection $input, $node)
+    {
+        $inputParentId = $input->get('parent_id');
+        $inputOrdering = $input->get('ordering');
+        $q = new QueryCapsule();
+        if (!$node->parent_id) {
+            if (!$input->get('parent_id')) {
+                if ($inputOrdering === null) {
+                    $siblings = $q->where('parent_id', null)
+                        ->orderBy('ordering', 'asc')
+                        ->exec($this->model);
+                    $targetNode = $siblings->last();
+                    if ($targetNode && $targetNode != $node){
+                        $node->afterNode($targetNode);
+                    }
+                } else {
+                    $siblings =  $q->where('parent_id', null)
+                        ->orderBy('ordering', 'asc')
+                        ->exec($this->model);
+                    if ($inputOrdering === '0' || $inputOrdering === 0) {
+                        $targetNode = $siblings->first();
+                        if ($targetNode && $targetNode != $node){
+                            $node->beforeNode($targetNode)->save();
+                        }
+                    } else {
+                        $targetNode = $siblings->where('ordering', $inputOrdering)->first();
+                        if ($targetNode && $targetNode != $node) {
+                            $node->afterNode($targetNode);
+                        }
+                    }
+                }
+            } else {
+                $newParent = $this->find($inputParentId);
+                if (!$newParent) {
+                    throw new NotFoundException('ItemNotExist', ['id' => $inputParentId], null, $this->modelName);
+                }
+
+                $node->parent_id = $newParent->id;
+                $siblings = $newParent->children()->get();
+                if ($inputOrdering === null) {
+                    $targetNode = $siblings->last();
+                    if ($targetNode) {
+                        $node->afterNode($targetNode);
+                    } else {
+                        $node->ordering = 1;
+                        return $newParent->appendNode($node);
+                    }
+                } else {
+                    if ($inputOrdering === '0' || $inputOrdering === 0) {
+                        $targetNode = $siblings->first();
+                        if ($targetNode) {
+                            $node->beforeNode($targetNode);
+                        } else {
+                            return $newParent->appendNode($node);
+                        }
+                    } else {
+                        $targetNode = $siblings->where('ordering', $inputOrdering)->first();
+                        if ($targetNode && $targetNode != $node) {
+                            $node->afterNode($targetNode);
+                        } else {
+                            throw new NotFoundException('ItemNotExist', [
+                                'parent_id' => $inputParentId,
+                                'ordering' => $inputOrdering
+                            ], null, $this->modelName);
+                        }
+                    }
+                }
+            }
+        } else {
+            if (!$input->get('parent_id')) {
+                $node->parent_id = null;
+                $q = new QueryCapsule();
+                $siblings = $q->where('parent_id', null)
+                    ->orderBy('ordering', 'asc')
+                    ->exec($this->model);
+                if ($inputOrdering === null) {
+                    if (!$siblings->count()) {
+                        $input->put('ordering', 1);
+                    } else {
+                        $node->afterNode($siblings->last());
+                    }
+                } else {
+                    if ($inputOrdering === '0' || $inputOrdering === 0) {
+                        if (!$siblings->first()) {
+                            $node->parent_id = null;
+                        } else {
+                            $node->beforeNode($siblings->first());
+                        }
+                    } else {
+                        $targetNode = $siblings->where('ordering', $inputOrdering)->first();
+                        if ($targetNode && $targetNode != $node) {
+                            $node->afterNode($targetNode);
+                        } else {
+                            throw new NotFoundException('ItemNotExist', [
+                                'parent_id' => $inputParentId,
+                                'ordering' => $inputOrdering
+                            ], null, $this->modelName);
+                        }
+                    }
+                }
+            } else {
+                if ($inputParentId == $node->parent_id) {
+                    $parent = $node->parent;
+                    $siblings = $parent->children()->get();
+                    if ($inputOrdering === null) {
+                        if ($siblings->last()) {
+                            $node->afterNode($siblings->last());
+                        } else {
+                            return $parent->appendNode($node);
+                        }
+                    } else {
+                        if ($inputOrdering === 0 || $inputOrdering === '0') {
+                            if ($siblings->first()) {
+                                $node->beforeNode($siblings->first());
+                            } else {
+                                return $parent->appendNode($node);
+                            }
+                        } else {
+                            $targetNode = $siblings->where('ordering', $inputOrdering)->first();
+                            if ($targetNode && $targetNode != $node) {
+                                $node->afterNode($targetNode);
+                            } else {
+                                throw new NotFoundException('ItemNotExist', [
+                                    'parent_id' => $inputParentId,
+                                    'ordering' => $inputOrdering
+                                ], null, $this->modelName);
+                            }
+                        }
+                    }
+                } else {
+                    $newParent = $this->find($inputParentId);
+                    if (!$newParent) {
+                        throw new NotFoundException('ItemNotExist', ['id' => $inputParentId,], null, $this->modelName);
+                    }
+
+                    $node->parent_id = $newParent->id;
+                    $siblings = $newParent->children()->get();
+                    if ($inputOrdering === null) {
+                        if ($siblings->count()) {
+                            $node->afterNode($siblings->last());
+                        } else {
+                            return $newParent->appendNode($node);
+                        }
+                    } else {
+                        if ($inputOrdering === 0 || $inputOrdering === '0') {
+                            if ($siblings->first()) {
+                                $node->beforeNode($siblings->first());
+                            } else {
+                                return $newParent->appendNode($node);
+                            }
+                        } else {
+                            $targetNode = $siblings->where('ordering', $inputOrdering)->first();
+                            if ($targetNode && $targetNode != $node) {
+                                $node->afterNode($targetNode);
+                            } else {
+                                throw new NotFoundException('ItemNotExist', [
+                                    'parent_id' => $inputParentId,
+                                    'ordering' => $inputOrdering
+                                ], null, $this->modelName);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $result = $node->save();
+        $this->fixNestedOrdering($this->model->defaultOrder()->get()->toTree());
+
+        return $result;
+    }
+
+
+    /**
+     * 資料分頁
+     * @param $items
+     * @param int $perPage
+     * @param null $page
+     * @param array $options
+     * @return LengthAwarePaginator
+     */
     public function paginate($items, $perPage = 25, $page = null, $options = [])
     {
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
@@ -606,6 +799,13 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
+    /**
+     * 回存項目
+     * @param $item
+     * @param $user
+     * @return mixed
+     * @throws InternalServerErrorException
+     */
     public function restore($item, $user)
     {
         if ($item->locked_by == 0
@@ -627,7 +827,11 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-
+    /**
+     * 搜尋項目
+     * @param Collection $data
+     * @return mixed
+     */
     public function search(Collection $data)
     {
         if (!$data->has('limit')) {
@@ -638,7 +842,7 @@ class BaseRepository implements BaseRepositoryInterface
             ? $data->get('q')
             : new QueryCapsule();
 
-        $q->getQuery($data->except('q'));
+        $q = $q->getQuery($data->except('q'));
 
         $result = $q->exec($this->model);
 

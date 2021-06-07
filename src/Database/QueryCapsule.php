@@ -162,14 +162,16 @@ class QueryCapsule
         $input = $input->except(['searchKeys']);
         foreach ($input as $key => $value) {
             if ($key == 'search') {
-                foreach ($searchKeys as $searchKey) {
-                    $this->orWhere($searchKey, 'LIKE', "%$value%");
-                }
+                $this->where(function ($q) use ($value, $searchKeys) {
+                    foreach ($searchKeys as $searchKey) {
+                        $q->orWhere($searchKey, 'LIKE', "%%$value%%");
+                    }
+                });
             } elseif ($key == 'limit') {
                 $this->limit = $value;
             } elseif ($key == 'paginate') {
                 $this->paginate = $value;
-            } elseif ($key = 'page') {
+            } elseif ($key == 'page') {
                 $this->page = $value;
             } elseif ($key == 'q') {
                 #do nothing
@@ -179,6 +181,8 @@ class QueryCapsule
                 $this->where($key, $value);
             }
         }
+
+        return $this;
     }
 
 

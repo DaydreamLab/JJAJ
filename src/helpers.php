@@ -36,3 +36,16 @@ if (!function_exists('showLog')) {
     }
 }
 
+if (!function_exists('flushLog')) {
+    function flushLog()
+    {
+        DB::connection()->flushQueryLog();
+    }
+}
+
+if (!function_exists('stopLog')) {
+    function stopLog()
+    {
+        DB::connection()->disableQueryLog();
+    }
+}

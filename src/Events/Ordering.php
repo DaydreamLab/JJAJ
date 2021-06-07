@@ -39,12 +39,9 @@ class Ordering
         $this->item_id  = $input->get('id');
         $this->payload  = json_encode(['index_diff' => $input->get('index_diff')]);
 
-        if ($input->has('orderingKey'))
-        {
-            $orderingKey = $input->get('orderingKey');
-        }
+        $orderingKey = $input->get('orderingKey');
 
-        if ($orderingKey == 'featured_ordering')
+        if ($orderingKey && $orderingKey == 'featured_ordering')
         {
             $this->action = 'featured_ordering';
         }

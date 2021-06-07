@@ -18,6 +18,8 @@ return [
 
     'FEATURED_SUCCESS'                      => 200,
     'FEATURED_FAIL'                         => 500,
+    'FEATURED_ORDERING_SUCCESS'             => 200,
+    'FEATURED__ORDERING_FAIL'               => 500,
 
     'GET_ITEM_SUCCESS'                      => 200,
     'GET_LIST_SUCCESS'                      => 200,
@@ -27,6 +29,7 @@ return [
     'INVALID_INPUT'                         => 400,
     'INVALID_ORDERING_DIFF'                 => 400,
     'ITEM_NOT_EXIST'                        => 404,
+    'IS_NOT_FEATURED'                       => 403,
     'IS_LOCKED'                             => 403,
     'IS_PRESERVED'                          => 403,
     'INSUFFICIENT_PERMISSION'               => 403,

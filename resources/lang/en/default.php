@@ -20,6 +20,8 @@ return [
 
     'FEATURED_SUCCESS'                      => '{$ModelName} featured success',
     'FEATURED_FAIL'                         => '{$ModelName} featured fail',
+    'FEATURED_ORDERING_SUCCESS'             => '{$ModelName} featured ordering success',
+    'FEATURED_ORDERING_FAIL'                => '{$ModelName} featured ordering fail',
 
     'GET_ITEM_SUCCESS'                      => '{$ModelName} get item success',
     'GET_LIST_SUCCESS'                      => '{$ModelName} get list success',
@@ -29,6 +31,7 @@ return [
     'INVALID_INPUT'                         => 'Invalid input',
     'INVALID_ORDERING_DIFF'                 => '{$ModelName} invalid ordering diff, target ordering: :target_ordering',
     'ITEM_NOT_EXIST'                        => '{$ModelName} item not exist',
+    'IS_NOT_FEATURED'                       => '{$ModelName} is not featured',
     'IS_LOCKED'                             => '{$ModelName} is locked',
     'IS_PRESERVED'                          => '{$ModelName} is preserved',
     'INSUFFICIENT_PERMISSION'               => 'Insufficient permission',

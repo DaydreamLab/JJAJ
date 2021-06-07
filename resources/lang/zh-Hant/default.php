@@ -18,6 +18,8 @@ return [
 
     'FEATURED_SUCCESS'                      => '{$ModelName} 精選項目成功',
     'FEATURED_FAIL'                         => '{$ModelName} 精選項目失敗',
+    'FEATURED_ORDERING_SUCCESS'             => '{$ModelName} 精選項目排序成功',
+    'FEATURED_ORDERING_FAIL'                => '{$ModelName} 精選項目排序失敗',
 
     'GET_ITEM_SUCCESS'                      => '{$ModelName} 取得項目成功',
     'GET_LIST_SUCCESS'                      => '{$ModelName} 取得清單成功',
@@ -27,6 +29,7 @@ return [
     'INVALID_INPUT'                         => '輸入的資料有誤',
     'INVALID_ORDERING_DIFF'                 => '{$ModelName} 不合法的排序: :diff',
     'ITEM_NOT_EXIST'                        => '{$ModelName} 項目不存在',
+    'IS_NOT_FEATURED'                       => '{$ModelName} 非精選項目',
     'IS_LOCKED'                             => '{$ModelName} 項目鎖定中',
     'IS_PRESERVED'                          => '{$ModelName} 為被保留項目',
     'INSUFFICIENT_PERMISSION'               => '使用者權限不足',
