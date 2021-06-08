@@ -39,7 +39,8 @@ class BaseRequest extends FormRequest
             if (!$this->apiMethod) {
                 return true;
             } else {
-                $assetId = $this->get('assetId');
+                $pageGroupId = $this->get('pageGroup');
+                $pageId = $this->get('pageId');
                 $apis = $this->user()->apis;
                 $method = $this->apiMethod;
                 if ($this->apiMethod == 'store'. $this->modelName) {
@@ -48,8 +49,8 @@ class BaseRequest extends FormRequest
                         : 'add' . $this->modelName;
                 }
 
-                return $apis->filter(function ($api) use ($method, $assetId) {
-                    return $api->method == $method && $api->assetId == $assetId;
+                return $apis->filter(function ($api) use ($method, $pageGroupId, $pageId) {
+                    return $api->method == $method && $api->assetId == $pageId && $api->asset_group_id == $pageGroupId;
                 })->count();
             }
         }
@@ -75,7 +76,8 @@ class BaseRequest extends FormRequest
     public function rules()
     {
         return [
-            'assetId' => 'required|integer'
+            'pageGroupId'   => 'nullable|integer',
+            'pageId'        => 'nullable|integer',
         ];
     }
 

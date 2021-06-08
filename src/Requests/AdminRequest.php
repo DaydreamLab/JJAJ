@@ -17,6 +17,6 @@ class AdminRequest extends BaseRequest
 
     public function rules()
     {
-        return [];
+        return parent::rules();
     }
 }

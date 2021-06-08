@@ -49,3 +49,17 @@ if (!function_exists('stopLog')) {
         DB::connection()->disableQueryLog();
     }
 }
+
+if (!function_exists('stopLog')) {
+    function showLogCount()
+    {
+        show(count(DB::getQueryLog()));
+    }
+}
+
+if (!function_exists('getJson')) {
+    function getJson($path, $assoc = true)
+    {
+        return json_decode(file_get_contents($path), $assoc);
+    }
+}
