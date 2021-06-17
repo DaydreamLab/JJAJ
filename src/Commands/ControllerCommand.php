@@ -4,6 +4,7 @@ namespace DaydreamLab\JJAJ\Commands;
 
 use DaydreamLab\JJAJ\Helpers\CommandHelper;
 use DaydreamLab\JJAJ\Helpers\Helper;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Routing\Console\ControllerMakeCommand;
 
 class ControllerCommand extends ControllerMakeCommand
@@ -23,7 +24,11 @@ class ControllerCommand extends ControllerMakeCommand
     protected $description = 'Create Controller';
 
 
-    protected $type = 'Controller';
+    public function __construct(Filesystem $files)
+    {
+        parent::__construct($files);
+
+    }
 
 
     protected function getDefaultNamespace($rootNamespace)
@@ -33,14 +38,14 @@ class ControllerCommand extends ControllerMakeCommand
 
     protected function getStub()
     {
-        if($this->option('front')) {
-            return __DIR__.'/../Controllers/Stubs/controller.front.stub';
-        } elseif ($this->option('admin')) {
-            return __DIR__.'/../Controllers/Stubs/controller.admin.stub';
-        } elseif ($this->option('component')) {
+        if ($this->option('component')) {
             return $this->option('componentBase')
                 ? __DIR__.'/../Controllers/Stubs/controller.component.base.stub'
                 : __DIR__.'/../Controllers/Stubs/controller.component.stub';
+        } elseif($this->option('front')) {
+            return __DIR__.'/../Controllers/Stubs/controller.front.stub';
+        } elseif ($this->option('admin')) {
+            return __DIR__.'/../Controllers/Stubs/controller.admin.stub';
         } else {
             return __DIR__.'/../Controllers/Stubs/controller.stub';
         }
@@ -66,67 +71,49 @@ class ControllerCommand extends ControllerMakeCommand
 
     protected function replaceScaffold(&$stub, $name)
     {
-        $controller = str_replace($this->getNamespace($name).'\\', '', $name);
-        $model      = str_replace('Controller', '', $controller);
-        $type       = CommandHelper::getType($name);
-        $modelType  = $this->option('admin')
-            ? 'Admin'
-            : ($this->option('front')
-                ? 'Front'
-                : 'Base'
-            );
-        $modelName  = in_array($modelType, ['Admin', 'Front'])
-            ? substr($model, 0, -strlen($modelType))
-            : $model;
+        $controllerClass = str_replace($this->getNamespace($name).'\\', '', $name);
+        $model  = str_replace('Controller', '', $controllerClass);
+        $modelName = str_replace('Front', '', str_replace('Admin', '', $model));
         $component  = $this->option('component');
-
         if ($component) {
-            $service_path = 'DaydreamLab\\'.$component;
-            $request_path = 'DaydreamLab\\'.$component;
+            $basePath = 'DaydreamLab\\' . $component;
         } else {
-            $service_path = 'App';
-            $request_path = 'App';
-        }
-
-        if ($this->option('front')) {
-            $site = 'Front';
-        } elseif ($this->option('admin')) {
-            $site = 'Admin';
-        } else {
-            $site = 'Base';
-        }
-
-
-        if ($this->option('front') || $this->option('admin')) {
-            $stub  = str_replace('DummySite', $site, $stub);
+            $basePath = 'App';
         }
 
         if($this->option('component')) {
-            $stub  = str_replace('DummyComponentBaseClass', $component.'Controller' , $stub);
-            $stub  = str_replace('DummyComponentBasePath', $service_path.'\\Controllers\\'.$component.'Controller' , $stub);
-            //$stub  = str_replace('DummyComponentServicePath', $service_path.'\\Services\\'.$component.'Service' , $stub);
+            $stub = str_replace('DummyParentControllerClass', $component.'Controller' , $stub);
+            $stub = str_replace('DummyParentControllerPath', $basePath.'\\Controllers\\'.$component.'Controller' , $stub);
+            $stub = str_replace('DummyComponentBaseClass', $component.'Controller' , $stub);
+            $stub = str_replace('DummyComponentBasePath', $basePath.'\\Controllers\\'.$component.'Controller' , $stub);
             if (!$this->option('componentBase')) {
-                $stub  = str_replace('DummyComponentServicePath', $service_path.'\\Services\\'.$component.'Service' , $stub);
-                $stub  = str_replace('DummyComponentServiceClass', $component.'Service' , $stub);
+                $stub = str_replace('DummyComponentServicePath', $basePath.'\\Services\\'.$component.'Service' , $stub);
+                $stub = str_replace('DummyComponentServiceClass', $component.'Service' , $stub);
+                $stub = str_replace('DummyParentControllerPath', $basePath.'\\Controllers\\'.$component.'Controller', $stub);
+                $stub = str_replace('DummyParentControllerClass', $component.'Controller', $stub);
             }
             $stub = str_replace('{package}', $this->option('component'), $stub);
 
         } else {
             $stub = str_replace('{package}', '', $stub);
+            $stub = str_replace('DummyParentControllerPath', 'DaydreamLab\\JJAJ\\Controllers\\BaseController', $stub);
+            $stub = str_replace('DummyParentControllerClass', 'BaseController', $stub);
         }
 
-        $stub = str_replace('{modelName}', $modelName, $stub);
-        $stub = str_replace('{modelType}', $modelType, $stub);
-        $stub  = str_replace('DummyType', $type , $stub);
-        $stub  = str_replace('DummyService', $model.'Service', $stub);
-        $stub  = str_replace('DummyPathService', $service_path, $stub);
-        $stub  = str_replace('DummyPathRequest', $request_path, $stub);
-        $stub  = str_replace('DummyStorePostRequest', $model.'StorePost', $stub);
-        $stub  = str_replace('DummyRemovePostRequest', $model.'RemovePost', $stub);
-        $stub  = str_replace('DummyStatePostRequest', $model.'StatePost', $stub);
-        $stub  = str_replace('DummySearchPostRequest', $model.'SearchPost', $stub);
-        $stub  = str_replace('DummyOrderingPostRequest', $model.'OrderingPost', $stub);
-        $stub  = str_replace('DummyCheckoutPostRequest', $model.'CheckoutPost', $stub);
+        $stub = str_replace('{modelName}',$modelName, $stub);
+        $stub = str_replace('DummyModelName', $modelName , $stub);
+        $stub = str_replace('DummyService', $model.'Service', $stub);
+        $stub = str_replace('DummyPathService', $basePath, $stub);
+        $stub = str_replace('DummyPathRequest', $basePath, $stub);
+        $stub = str_replace('DummyStorePostRequest', $model.'StorePost', $stub);
+        $stub = str_replace('DummyRemovePostRequest', $model.'RemovePost', $stub);
+        $stub = str_replace('DummyStatePostRequest', $model.'StatePost', $stub);
+        $stub = str_replace('DummySearchPostRequest', $model.'SearchPost', $stub);
+        $stub = str_replace('DummyOrderingPostRequest', $model.'OrderingPost', $stub);
+        $stub = str_replace('DummyRestorePostRequest', $model.'RestorePost', $stub);
+        $stub = str_replace('DummyFeaturedPostRequest', $model.'FeaturedPost', $stub);
+        $stub = str_replace('DummyFeaturedOrderingPostRequest', $model.'FeaturedOrderingPost', $stub);
+        $stub = str_replace('DummyGetItemRequest', $model.'GetItem', $stub);
 
         return $this;
     }

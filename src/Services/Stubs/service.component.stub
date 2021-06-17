@@ -8,11 +8,9 @@ use Illuminate\Support\Collection;
 
 class DummyClass extends DummyComponentBaseClass
 {
-    protected $modelName = '{modelName}';
+    protected $modelName = 'DummyModelName';
 
-    protected $modelType = 'Base';
-
-    public function __construct(DummyComponentRepositoryClass $repo)
+    public function __construct(DummyRepository $repo)
     {
         parent::__construct($repo);
         $this->repo = $repo;
@@ -29,13 +27,23 @@ class DummyClass extends DummyComponentBaseClass
     }
 
 
-    public function checkout(Collection $input)
+    public function featured(Collection $input)
     {
-        $result = parent::checkout($input);
+        $item = parent::featured($input);
 
-        //event(new Checkout($this->model_name, $result, $input, $this->user));
+        //event(new Add($item, $this->model_name, $input, $this->user));
 
-        return $result;
+        return $item;
+    }
+
+
+    public function featuredOrdering(Collection $input)
+    {
+        $item = parent::featuredOrdering($input);
+
+        //event(new Add($item, $this->model_name, $input, $this->user));
+
+        return $item;
     }
 
 
@@ -59,11 +67,31 @@ class DummyClass extends DummyComponentBaseClass
     }
 
 
+    public function orderingNested(Collection $input)
+    {
+        $result = parent::orderingNested($input);
+
+        //event(new Ordering($this->model_name, $result, $input, $orderingKey, $this->user));
+
+        return $result;
+    }
+
+
     public function remove(Collection $input)
     {
         $result =  parent::remove($input);
 
         //event(new Remove($this->model_name, $result, $input, $this->user));
+
+        return $result;
+    }
+
+
+    public function restore(Collection $input)
+    {
+        $result = parent::restore($input);
+
+        //event(new Checkout($this->model_name, $result, $input, $this->user));
 
         return $result;
     }

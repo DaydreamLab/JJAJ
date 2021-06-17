@@ -46,76 +46,57 @@ class RepositoryCommand extends GeneratorCommand
 
     public function getStub()
     {
-        if($this->option('front')) {
-            return __DIR__.'/../Repositories/Stubs/repository.front.stub';
-        } elseif ($this->option('admin')) {
-            return __DIR__.'/../Repositories/Stubs/repository.admin.stub';
-        } elseif ($this->option('component')) {
-            return $this->option('componentBase')
-                ? __DIR__.'/../Repositories/Stubs/repository.component.base.stub'
-                : __DIR__.'/../Repositories/Stubs/repository.component.stub';
+        if ($this->option('component')) {
+            if ($this->option('componentBase')) {
+                return __DIR__.'/../Repositories/Stubs/repository.component.base.stub';
+            } else {
+                return ($this->option('front') || $this->option('admin'))
+                    ? __DIR__.'/../Repositories/Stubs/repository.child.stub'
+                    : __DIR__.'/../Repositories/Stubs/repository.component.stub';
+            }
         } else {
-            return __DIR__.'/../Repositories/Stubs/repository.stub';
+            return ($this->option('front') || $this->option('admin'))
+                ? __DIR__.'/../Repositories/Stubs/repository.child.stub'
+                : __DIR__.'/../Repositories/Stubs/repository.parent.stub';
         }
     }
 
     protected function replaceScaffold(&$stub, $name)
     {
-        $repository = str_replace($this->getNamespace($name).'\\', '', $name);
-        $model      = str_replace('Repository', '', $repository);
-        $type       = CommandHelper::getType($name);
+        $repositoryClass = str_replace($this->getNamespace($name).'\\', '', $name);
+        $model      = str_replace('Repository', '', $repositoryClass);
+        $modelName = str_replace('Front', '', str_replace('Admin', '', $model));
         $component  = $this->option('component');
-        $modelType  = $this->option('admin')
-            ? 'Admin'
-            : ($this->option('front')
-                ? 'Front'
-                : 'Base'
-            );
-        $modelName  = in_array($modelType, ['Admin', 'Front'])
-            ? substr($model, 0, -strlen($modelType))
-            : $model;
 
-
-        if ($this->option('front')) {
-            $site = 'Front';
-        } elseif ($this->option('admin')) {
-            $site = 'Admin';
-        } else {
-            $site = 'Base';
-        }
+        $namespace = $component
+            ? 'DaydreamLab\\' . $component
+            : 'App';
 
         if ($component) {
-            $component_path = 'DaydreamLab\\'.$component;
             $stub  = str_replace('DummyComponentBaseClass', $component.'Repository' , $stub);
-            $stub  = str_replace('DummyComponentBasePath', $component_path.'\\Repositories\\'.$component.'Repository' , $stub);
+            $stub  = str_replace('DummyComponentBasePath', $namespace.'\\Repositories\\'.$component.'Repository' , $stub);
 
             if (!$this->option('componentBase')) {
                 $stub  = str_replace('DummyComponentModelClass', $model, $stub);
-                $stub  = str_replace('DummyComponentModelPath', $component_path.'\\Models\\'.$type. '\\'.$model, $stub);
+                $stub  = str_replace('DummyComponentModelPath', $namespace.'\\Models\\'.$modelName. '\\'.$model, $stub);
             }
             $stub = str_replace('{package}', $this->option('component'), $stub);
         }
         else {
-            $component_path = 'App';
             $stub = str_replace('{package}', '', $stub);
         }
 
-
         if ($this->option('front') || $this->option('admin')) {
-            $parent_repo        = CommandHelper::getParent($repository);
-            $parent_namespace   = CommandHelper::getParentNameSpace($this->getNamespace($name));
-
-            $stub  = str_replace('DummyParentRepositoryNamespace', $parent_namespace.$parent_repo, $stub);
-            $stub  = str_replace('DummyFrontRepository', $parent_repo, $stub);
-            $stub  = str_replace('DummyAdminRepository', $parent_repo, $stub);
-            $stub  = str_replace('DummySite', $site, $stub);
+            $type = $this->option('admin') ? 'Admin' : 'Front';
+            $stub  = str_replace('DummyParentClassPath', $namespace . '\\Repositories\\' . $modelName . '\\' . $modelName . 'Repository', $stub);
+            $stub  = str_replace('DummyModelPath', $namespace . '\\Models\\'. $modelName . '\\' .$type .'\\' . $modelName . $type, $stub);
+            $stub  = str_replace('DummyParentClass', $modelName . 'Repository', $stub);
+            $stub  = str_replace('DummyParentClass', $modelName . 'Repository', $stub);
+            $stub = str_replace('DummyModel', $modelName . $type, $stub);
         }
 
-        $stub = str_replace('{modelName}', $modelName, $stub);
-        $stub = str_replace('{modelType}', $modelType, $stub);
-        $stub  = str_replace('DummyType', $type , $stub);
-        $stub  = str_replace('DummyModel', $model, $stub);
-        $stub  = str_replace('DummyPathModel', $component_path, $stub);
+        $stub = str_replace('DummyModelName', $modelName, $stub);
+
 
         return  $this;
     }

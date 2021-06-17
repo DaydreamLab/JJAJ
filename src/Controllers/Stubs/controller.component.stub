@@ -7,9 +7,7 @@ use DummyComponentServicePath;
 
 class DummyClass extends DummyComponentBaseClass
 {
-    protected $modelName = '{modelName}';
-
-    protected $modelType = '{modelType}';
+    protected $modelName = 'DummyModelName';
 
     public function __construct(DummyComponentServiceClass $service)
     {

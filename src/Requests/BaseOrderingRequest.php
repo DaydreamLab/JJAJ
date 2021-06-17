@@ -1,13 +1,14 @@
 <?php
 
-namespace DummyNamespace;
+namespace DaydreamLab\JJAJ\Requests;
 
-use DaydreamLab\JJAJ\Requests\ListRequest;
-use Illuminate\Validation\Rule;
-
-class DummyClass extends ListRequest
+class BaseOrderingRequest extends AdminRequest
 {
-
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
     public function authorize()
     {
         return parent::authorize();
@@ -21,17 +22,12 @@ class DummyClass extends ListRequest
     public function rules()
     {
         $rules = [
-            'title' => 'nullable|string',
-            'state'     => [
-                'nullable',
-                'integer',
-                Rule::in([0,1,-2])
-            ]
+            'id'            => 'required|integer',
+            'ordering'      => 'nullable|integer',
         ];
 
         return array_merge(parent::rules(), $rules);
     }
-
 
     public function validated()
     {

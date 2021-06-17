@@ -2,21 +2,17 @@
 
 namespace DummyNamespace;
 
-use DaydreamLab\JJAJ\Controllers\BaseController;
-use DummyPathService\Services\DummyType\Front\DummyService;
-use DummyPathRequest\Requests\DummyType\Front\DummyRemovePostRequest;
-use DummyPathRequest\Requests\DummyType\Front\DummyStorePostRequest;
-use DummyPathRequest\Requests\DummyType\Front\DummyStatePostRequest;
-use DummyPathRequest\Requests\DummyType\Front\DummySearchPostRequest;
-use DummyPathRequest\Requests\DummyType\Front\DummyOrderingPostRequest;
-use DummyPathRequest\Requests\DummyType\Front\DummyCheckoutPostRequest;
+use DummyParentControllerPath;
+use DummyPathService\Services\ModelName\Front\DummyService;
+use DummyPathRequest\Requests\ModelName\Front\DummyRemovePostRequest;
+use DummyPathRequest\Requests\ModelName\Front\DummyStorePostRequest;
+use DummyPathRequest\Requests\ModelName\Front\DummyStatePostRequest;
+use DummyPathRequest\Requests\ModelName\Front\DummySearchPostRequest;
+use DummyPathRequest\Requests\ModelName\Front\DummyOrderingPostRequest;
+use DummyPathRequest\Requests\ModelName\Front\DummyCheckoutPostRequest;
 
-class DummyClass extends BaseController
+class DummyClass extends DummyParentController
 {
-    protected $modelName = '{modelName}';
-
-    protected $modelType = '{modelType}';
-
     public function __construct(DummyService $service)
     {
         parent::__construct($service);
@@ -24,17 +20,13 @@ class DummyClass extends BaseController
     }
 
 
-    public function checkout(DummyCheckoutPostRequest $request)
+    public function getItem(DummyGetItemRequest $request)
     {
-        $this->service->checkout($request->validated());
-
-        return $this->response($this->service->status, $this->service->response);
-    }
-
-
-    public function getItem($id)
-    {
-        $this->service->getItem($id);
+        try {
+            $this->service->getItem(collect(['alias' => $request->get('alias')]));
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
 
         return $this->response($this->service->status, $this->service->response);
     }
@@ -42,7 +34,11 @@ class DummyClass extends BaseController
 
     public function ordering(DummyOrderingPostRequest $request)
     {
-        $this->service->ordering($request->validated());
+        try {
+            $this->service->ordering($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
 
         return $this->response($this->service->status, $this->service->response);
     }
@@ -50,23 +46,23 @@ class DummyClass extends BaseController
 
     public function remove(DummyRemovePostRequest $request)
     {
-        $this->service->remove($request->validated());
+        try {
+            $this->service->remove($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
 
         return $this->response($this->service->status, $this->service->response);
     }
 
 
-    public function state(DummyStatePostRequest $request)
+    public function restore(DummyRestorePostRequest $request)
     {
-        $this->service->state($request->validated());
-
-        return $this->response($this->service->status, $this->service->response);
-    }
-
-
-    public function store(DummyStorePostRequest $request)
-    {
-        $this->service->store($request->validated());
+        try {
+            $this->service->checkout($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
 
         return $this->response($this->service->status, $this->service->response);
     }
@@ -74,7 +70,35 @@ class DummyClass extends BaseController
 
     public function search(DummySearchPostRequest $request)
     {
-        $this->service->search($request->validated());
+        try {
+             $this->service->search($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function state(DummyStatePostRequest $request)
+    {
+        try {
+            $this->service->state($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function store(DummyStorePostRequest $request)
+    {
+        try {
+            $this->service->store($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
 
         return $this->response($this->service->status, $this->service->response);
     }

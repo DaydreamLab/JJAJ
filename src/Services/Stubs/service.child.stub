@@ -1,0 +1,15 @@
+<?php
+
+namespace DummyNamespace;
+
+use DummyRepositoryPath;
+use DummyParentClassPath;
+
+class DummyClass extends DummyParentClass
+{
+    public function __construct(DummyRepository $repo)
+    {
+        parent::__construct($repo);
+        $this->repo = $repo;
+    }
+}

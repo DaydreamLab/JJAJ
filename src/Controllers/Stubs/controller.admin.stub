@@ -2,21 +2,21 @@
 
 namespace DummyNamespace;
 
-use DaydreamLab\JJAJ\Controllers\BaseController;
-use DummyPathService\Services\DummyType\Admin\DummyService;
-use DummyPathRequest\Requests\DummyType\Admin\DummyRemovePostRequest;
-use DummyPathRequest\Requests\DummyType\Admin\DummyStorePostRequest;
-use DummyPathRequest\Requests\DummyType\Admin\DummyStatePostRequest;
-use DummyPathRequest\Requests\DummyType\Admin\DummySearchPostRequest;
-use DummyPathRequest\Requests\DummyType\Admin\DummyOrderingPostRequest;
-use DummyPathRequest\Requests\DummyType\Admin\DummyCheckoutPostRequest;
+use DummyParentControllerPath;
+use DummyPathService\Services\DummyModelName\Admin\DummyService;
+use DummyPathRequest\Requests\DummyModelName\Admin\DummyGetItemRequest;
+use DummyPathRequest\Requests\DummyModelName\Admin\DummyFeaturedPostRequest;
+use DummyPathRequest\Requests\DummyModelName\Admin\DummyFeaturedOrderingPostRequest;
+use DummyPathRequest\Requests\DummyModelName\Admin\DummyRemovePostRequest;
+use DummyPathRequest\Requests\DummyModelName\Admin\DummyStorePostRequest;
+use DummyPathRequest\Requests\DummyModelName\Admin\DummyStatePostRequest;
+use DummyPathRequest\Requests\DummyModelName\Admin\DummySearchPostRequest;
+use DummyPathRequest\Requests\DummyModelName\Admin\DummyOrderingPostRequest;
+use DummyPathRequest\Requests\DummyModelName\Admin\DummyRestorePostRequest;
+use Throwable;
 
-class DummyClass extends BaseController
+class DummyClass extends DummyParentControllerClass
 {
-    protected $modelName = '{modelName}';
-
-    protected $modelType = '{modelType}';
-
     public function __construct(DummyService $service)
     {
         parent::__construct($service);
@@ -24,17 +24,40 @@ class DummyClass extends BaseController
     }
 
 
-    public function checkout(DummyCheckoutPostRequest $request)
+    public function featured(DummyFeaturedPostRequest $request)
     {
-        $this->service->checkout($request->validated());
+        $this->service->setUser($request->user('api'));
+        try {
+            $this->service->featured($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
 
         return $this->response($this->service->status, $this->service->response);
     }
 
 
-    public function getItem($request)
+    public function featuredOrdering(DummyFeaturedOrderingPostRequest $request)
     {
-        $this->service->getItem(collect(['id' => $request->route('id')]));
+        $this->service->setUser($request->user('api'));
+        try {
+            $this->service->getItem(collect(['id' => $request->route('id')]));
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function getItem(DummyGetItemRequest $request)
+    {
+        $this->service->setUser($request->user('api'));
+        try {
+            $this->service->getItem(collect(['id' => $request->route('id')]));
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
 
         return $this->response($this->service->status, $this->service->response);
     }
@@ -42,7 +65,12 @@ class DummyClass extends BaseController
 
     public function ordering(DummyOrderingPostRequest $request)
     {
-        $this->service->ordering($request->validated());
+        $this->service->setUser($request->user('api'));
+        try {
+            $this->service->ordering($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
 
         return $this->response($this->service->status, $this->service->response);
     }
@@ -50,23 +78,25 @@ class DummyClass extends BaseController
 
     public function remove(DummyRemovePostRequest $request)
     {
-        $this->service->remove($request->validated());
+        $this->service->setUser($request->user('api'));
+        try {
+            $this->service->remove($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
 
         return $this->response($this->service->status, $this->service->response);
     }
 
 
-    public function state(DummyStatePostRequest $request)
+    public function restore(DummyRestorePostRequest $request)
     {
-        $this->service->state($request->validated());
-
-        return $this->response($this->service->status, $this->service->response);
-    }
-
-
-    public function store(DummyStorePostRequest $request)
-    {
-        $this->service->store($request->validated());
+        $this->service->setUser($request->user('api'));
+        try {
+            $this->service->restore($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
 
         return $this->response($this->service->status, $this->service->response);
     }
@@ -74,7 +104,38 @@ class DummyClass extends BaseController
 
     public function search(DummySearchPostRequest $request)
     {
-        $this->service->search($request->validated());
+        $this->service->setUser($request->user('api'));
+        try {
+            $this->service->search($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function state(DummyStatePostRequest $request)
+    {
+        $this->service->setUser($request->user('api'));
+        try {
+            $this->service->state($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function store(DummyStorePostRequest $request)
+    {
+        $this->service->setUser($request->user('api'));
+        try {
+            $this->service->store($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
 
         return $this->response($this->service->status, $this->service->response);
     }

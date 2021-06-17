@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 
 class DummyClass extends BaseService
 {
-    protected $type = 'DummyModel';
+    protected $modelName = 'DummyModelName';
 
     public function __construct(DummyRepository $repo)
     {

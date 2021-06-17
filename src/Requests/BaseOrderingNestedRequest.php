@@ -1,10 +1,8 @@
 <?php
 
-namespace DummyNamespace;
+namespace DaydreamLab\JJAJ\Requests;
 
-use DaydreamLab\JJAJ\Requests\AdminRequest;
-
-class DummyClass extends AdminRequest
+class BaseOrderingNestedRequest extends AdminRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,15 +22,21 @@ class DummyClass extends AdminRequest
     public function rules()
     {
         $rules = [
-            //
+            'id'            => 'required|integer',
+            'parentId'      => 'nullable|integer',
+            'parent_id'     => 'nullable|integer',
+            'ordering'      => 'nullable|integer',
         ];
-        return array_merge(parent::rules(),$rules);
-    }
 
+        return array_merge(parent::rules(), $rules);
+    }
 
     public function validated()
     {
         $validated = parent::validated();
+        if ($validated->get('parentId')) {
+            $validated->put('parent_id', $validated->get('parentId'));
+        }
 
         return $validated;
     }

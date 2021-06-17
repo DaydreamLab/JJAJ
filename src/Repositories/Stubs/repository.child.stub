@@ -2,10 +2,10 @@
 
 namespace DummyNamespace;
 
-use DaydreamLab\JJAJ\Repositories\BaseRepository;
-use DummyPathModel\Models\DummyType\DummyModel;
+use DummyParentClassPath;
+use DummyModelPath;
 
-class DummyClass extends BaseRepository
+class DummyClass extends DummyParentClass
 {
     public function __construct(DummyModel $model)
     {

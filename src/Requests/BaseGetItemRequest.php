@@ -1,10 +1,8 @@
 <?php
 
-namespace DummyNamespace;
+namespace DaydreamLab\JJAJ\Requests;
 
-use DaydreamLab\JJAJ\Requests\AdminRequest;
-
-class DummyClass extends AdminRequest
+class BaseGetItemRequest extends AdminRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,9 +21,6 @@ class DummyClass extends AdminRequest
      */
     public function rules()
     {
-        return [
-            'ids'       => 'required|array',
-            'ids.*'     => 'required|integer'
-        ];
+        return parent::rules();
     }
 }

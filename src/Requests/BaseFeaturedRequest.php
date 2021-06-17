@@ -1,11 +1,10 @@
 <?php
 
-namespace DummyNamespace;
+namespace DaydreamLab\JJAJ\Requests;
 
-use DaydreamLab\JJAJ\Requests\AdminRequest;
 use Illuminate\Validation\Rule;
 
-class DummyClass extends AdminRequest
+class BaseFeaturedRequest extends AdminRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,13 +23,12 @@ class DummyClass extends AdminRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'ids'       => 'required|array',
             'ids.*'     => 'required|integer',
-            'featured'  => [
-                'required',
-                Rule::in([0,1])
-            ]
+            'featured'  => ['required', Rule::in([0,1])]
         ];
+
+        return array_merge(parent::rules(), $rules);
     }
 }
