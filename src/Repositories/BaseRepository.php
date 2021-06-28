@@ -520,7 +520,7 @@ class BaseRepository implements BaseRepositoryInterface
             $this->handleModifyOrdering($data, $model, 'ordering');
         }
 
-        if ($model->hasAttribute('featured')) {
+        if ($model->hasAttribute('featured') && $model->feafured_ordering != $data->get('featured_ordering')) {
             $this->handleModifyOrdering($data, $model, 'featured_ordering');
         }
 
