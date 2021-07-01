@@ -116,7 +116,7 @@ class BaseService
             && $this->repo->getModel()->getTable() != 'extrafields'
         ) {
             $same = null;
-            $q = $input->get('q') ?: new QueryCapsule();
+            $q = new QueryCapsule();
             $q = $q->where('alias', $input->get('alias'));
             if ($this->repo->getModel()->hasAttribute('language')) {
                 $q = $q->where('language', $input->get('language') ?: config('app.locale'));
@@ -649,7 +649,11 @@ class BaseService
     public function setStoreDefaultInput(Collection $input)
     {
         if ($this->repo->getModel()->hasAttribute('alias')) {
-            $input->put('alias', Str::lower($input->get('alias')));
+            if ($input->has('alias')) {
+                $input->put('alias', Str::lower($input->get('alias')));
+            } else {
+                $input->put('alias', Str::lower(Str::random()));
+            }
         }
 
         if ($this->repo->getModel()->hasAttribute('state') && $input->get('state') === null) {
