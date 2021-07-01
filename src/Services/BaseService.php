@@ -652,7 +652,9 @@ class BaseService
             if ($input->has('alias')) {
                 $input->put('alias', Str::lower($input->get('alias')));
             } else {
-                $input->put('alias', Str::lower(Str::random()));
+                if (InputHelper::null($input, 'id')) {
+                    $input->put('alias', Str::lower(Str::random()));
+                }
             }
         }
 
