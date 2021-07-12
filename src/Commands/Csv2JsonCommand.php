@@ -44,7 +44,7 @@ class Csv2JsonCommand extends Command
      */
     public function handle()
     {
-        if (($handle = fopen(__DIR__.'/' . $this->argument('data.csv'), "r")) !== FALSE) {
+        if (($handle = fopen(__DIR__.'/' . $this->argument('filename'), "r")) !== FALSE) {
             $csvs = [];
             while(! feof($handle)) {
                 $csvs[] = fgetcsv($handle);

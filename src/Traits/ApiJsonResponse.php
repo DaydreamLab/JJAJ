@@ -14,6 +14,8 @@ use Throwable;
 
 trait ApiJsonResponse
 {
+    protected $code = null;
+
     public function formatResponse($data, $resource, $wrapItems)
     {
         if (!$data) {
@@ -57,6 +59,7 @@ trait ApiJsonResponse
             $this->service->status = $t->status;
             $this->service->response = $t->response;
             $this->modelName = $t->modelName ?: $this->modelName;
+            $this->code = $t->getCode();
         } else {
             $errorResponse =  [
                 'type' => get_class($t),
@@ -122,6 +125,6 @@ trait ApiJsonResponse
             }
         }
 
-        return response()->json($r, $code);
+        return response()->json($r, $this->code ?: $code);
     }
 }
