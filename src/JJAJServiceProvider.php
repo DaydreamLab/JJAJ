@@ -25,6 +25,7 @@ class JJAJServiceProvider extends ServiceProvider
         'DaydreamLab\JJAJ\Commands\OptimizeCommand',
         'DaydreamLab\JJAJ\Commands\ServiceCommand',
         'DaydreamLab\JJAJ\Commands\TestCommand',
+        'DaydreamLab\JJAJ\Commands\Csv2JsonCommand',
     ];
 
     /**
