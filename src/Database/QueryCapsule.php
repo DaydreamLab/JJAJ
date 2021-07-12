@@ -135,10 +135,7 @@ class QueryCapsule
             }
         }
 
-        if (!$this->orderBy) {
-            $q = $q->orderBy($model->getOrderBy(), !$this->order ? $model->getOrder() : $this->order);
-        }
-
+        $q = $q->orderBy(!$this->orderBy ? $model->getOrderBy() : $this->orderBy, !$this->order ? $model->getOrder() : $this->order);
 
         if ($this->max) {
             return $q->max($this->max);

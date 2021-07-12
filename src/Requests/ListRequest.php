@@ -16,8 +16,8 @@ class ListRequest extends BaseRequest
             'searchKeys'    => 'nullable|array',
             'page'          => 'nullable|integer',
             'limit'         => 'nullable|integer',
-            'orderBy'      => 'nullable|string',
-            'order'      => [
+            'orderBy'       => 'nullable|string',
+            'order'         => [
                 'nullable',
                 Rule::in(['asc', 'desc'])
             ],
@@ -45,8 +45,9 @@ class ListRequest extends BaseRequest
             : $validated->put('paginate', 1);
 
         if ($orderBy = $validated->get('orderBy')) {
-            $validated->put('order_by', $orderBy);
+            $validated['q'] = $this->q->orderBy($orderBy, $validated->get('order') ? : 'desc');
             $validated->forget('orderBy');
+            $validated->forget('order');
         }
 
         return $validated;
