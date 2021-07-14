@@ -3,13 +3,13 @@
 namespace DummyNamespace;
 
 use DummyComponentBasePath;
-use DummyComponentServicePath;
+use DummyPathService;
 
 class DummyClass extends DummyComponentBaseClass
 {
     protected $modelName = 'DummyModelName';
 
-    public function __construct(DummyComponentServiceClass $service)
+    public function __construct(DummyService $service)
     {
         parent::__construct($service);
         $this->service = $service;

@@ -1,14 +1,9 @@
 <?php
 
-namespace DummyNamespace;
+namespace DaydreamLab\JJAJ\Requests;
 
-use DummyParentClassPath;
-
-class DummyClass extends DummyParentClass
+class BaseRemoveRequest extends AdminRequest
 {
-    protected $modelName = 'DummyModelName';
-
-    protected $apiMethod = 'DummyApiMethod';
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,18 +21,10 @@ class DummyClass extends DummyParentClass
      */
     public function rules()
     {
-        $rules =[
-            //
+        $rules = [
+            'ids'       => 'required|array',
+            'ids.*'     => 'required|integer'
         ];
-
         return array_merge(parent::rules(), $rules);
-    }
-
-
-    public function validated()
-    {
-        $validated = parent::validated();
-
-        return $validated;
     }
 }

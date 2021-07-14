@@ -2,7 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Requests;
 
-class BaseRestoreRemoveRequest extends AdminRequest
+class BaseRestoreRequest extends AdminRequest
 {
     /**
      * Determine if the user is authorized to make this request.

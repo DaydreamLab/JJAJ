@@ -1,14 +1,9 @@
 <?php
 
-namespace DummyNamespace;
+namespace DaydreamLab\JJAJ\Requests;
 
-use DummyParentClassPath;
-
-class DummyClass extends DummyParentClass
+class BaseStoreRequest extends AdminRequest
 {
-    protected $modelName = 'DummyModelName';
-
-    protected $apiMethod = 'DummyApiMethod';
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,8 +21,8 @@ class DummyClass extends DummyParentClass
      */
     public function rules()
     {
-        $rules =[
-            //
+        $rules = [
+
         ];
 
         return array_merge(parent::rules(), $rules);

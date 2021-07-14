@@ -5,6 +5,7 @@ namespace DaydreamLab\JJAJ\Commands;
 use DaydreamLab\JJAJ\Helpers\CommandHelper;
 use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Foundation\Console\RequestMakeCommand;
+use Psy\Util\Str;
 
 class RequestCommand extends RequestMakeCommand
 {
@@ -114,6 +115,13 @@ class RequestCommand extends RequestMakeCommand
                     $className = $component .$this->requestType.'Request';
                     $stub = str_replace('DummyParentClassPath', 'DaydreamLab\\'.$component.'\\Requests\\'. $className, $stub);
                     $stub = str_replace('DummyParentClass',$className , $stub);
+                }
+
+                $stub = str_replace('DummyModelName',$modelName , $stub);
+                if ($this->option('getItem')) {
+                    $stub = str_replace('DummyApiMethod','get'.$modelName , $stub);
+                } else {
+                    $stub = str_replace('DummyApiMethod', lcfirst($this->requestType).$modelName , $stub);
                 }
             }
         } else {

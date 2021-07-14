@@ -75,6 +75,7 @@ class ControllerCommand extends ControllerMakeCommand
         $model  = str_replace('Controller', '', $controllerClass);
         $modelName = str_replace('Front', '', str_replace('Admin', '', $model));
         $component  = $this->option('component');
+        $type = $this->option('admin') ? 'Admin' : 'Front';
         if ($component) {
             $basePath = 'DaydreamLab\\' . $component;
         } else {
@@ -103,7 +104,11 @@ class ControllerCommand extends ControllerMakeCommand
         $stub = str_replace('{modelName}',$modelName, $stub);
         $stub = str_replace('DummyModelName', $modelName , $stub);
         $stub = str_replace('DummyService', $model.'Service', $stub);
-        $stub = str_replace('DummyPathService', $basePath, $stub);
+        if (!$this->option('admin') && !$this->option('front')) {
+            $stub = str_replace('DummyPathService', $basePath.'\\Services\\'.$modelName.'\\'.$model.'Service', $stub);
+        } else{
+            $stub = str_replace('DummyPathService', $basePath.'\\Services\\'.$modelName.'\\'.$type.'\\'.$model.'Service', $stub);
+        }
         $stub = str_replace('DummyPathRequest', $basePath, $stub);
         $stub = str_replace('DummyStorePostRequest', $model.'StorePost', $stub);
         $stub = str_replace('DummyRemovePostRequest', $model.'RemovePost', $stub);
