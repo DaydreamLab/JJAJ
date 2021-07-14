@@ -6,6 +6,7 @@ use DaydreamLab\JJAJ\Helpers\Helper;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use DaydreamLab\JJAJ\Exceptions\BaseExceptionHandler;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 
 class JJAJServiceProvider extends ServiceProvider
@@ -34,6 +35,9 @@ class JJAJServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if (File::exists(__DIR__ .'/helpers.php')) {
+            require_once __DIR__ .'/helpers.php';
+        }
     }
 
     /**

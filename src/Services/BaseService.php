@@ -456,7 +456,6 @@ class BaseService
         $update = $this->update($input->toArray(), $item);
 
         if ($update) {
-
             $this->modifyMapping($item, $input);
             $this->status = Str::upper(Str::snake($this->type.'UpdateSuccess'));
             $this->response = $update;
@@ -471,6 +470,11 @@ class BaseService
 
     public function modifyMapping($item, $input)
     {
+        if ($lineId = $input->get('lineId')) {
+            $item->merchants()->updateExistingPivot($input->get('merchant_id'), [
+                'lineId' => $lineId
+            ]);
+        }
         return true;
     }
 
