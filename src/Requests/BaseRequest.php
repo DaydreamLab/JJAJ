@@ -3,12 +3,10 @@
 namespace DaydreamLab\JJAJ\Requests;
 
 use DaydreamLab\JJAJ\Database\QueryCapsule;
-use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Traits\ApiJsonResponse;
 use DaydreamLab\JJAJ\Traits\CloudflareIp;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Str;
 
@@ -17,6 +15,8 @@ class BaseRequest extends FormRequest
     use CloudflareIp, ApiJsonResponse;
 
     protected $apiMethod = null;
+
+    protected $needAuth = true;
 
     protected $modelName;
 
@@ -36,7 +36,7 @@ class BaseRequest extends FormRequest
         if (config('app.seeding')) {
             return true;
         } else {
-            if (!$this->apiMethod) {
+            if (!$this->needAuth) {
                 return true;
             } else {
                 $pageGroupId = $this->get('pageGroup');

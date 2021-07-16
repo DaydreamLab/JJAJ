@@ -4,8 +4,6 @@ namespace DaydreamLab\JJAJ;
 
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use DaydreamLab\JJAJ\Exceptions\BaseExceptionHandler;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 

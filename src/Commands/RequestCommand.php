@@ -108,7 +108,7 @@ class RequestCommand extends RequestMakeCommand
                 if ($this->option('admin') || $this->option('front')) {
                     $className = $model .$this->requestType.'Request';
                     $parentClassName = $component.$this->requestType.'Request';
-                    $stub = str_replace('DummyParentClassPath', 'DaydreamLab\\'.$component.'\\Requests\\'.$parentClassName, $stub);
+                    $stub = str_replace('DummyParentClassPath', 'DaydreamLab\\'.$component.'\\Requests\\ComponentBase\\'.$parentClassName, $stub);
                     $stub = str_replace('DummyParentClass',$parentClassName , $stub);
                     $stub = str_replace('DummyClass',$className , $stub);
                 } else {
