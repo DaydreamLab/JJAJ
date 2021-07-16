@@ -75,7 +75,12 @@ class ControllerCommand extends ControllerMakeCommand
         $model  = str_replace('Controller', '', $controllerClass);
         $modelName = str_replace('Front', '', str_replace('Admin', '', $model));
         $component  = $this->option('component');
-        $type = $this->option('admin') ? 'Admin' : 'Front';
+        $type = $this->option('admin')
+            ? 'Admin'
+            : (($this->option('front')
+                ? 'Front'
+                : ''
+            ));
         if ($component) {
             $basePath = 'DaydreamLab\\' . $component;
         } else {
@@ -94,6 +99,8 @@ class ControllerCommand extends ControllerMakeCommand
                 $stub = str_replace('DummyParentControllerClass', $component.'Controller', $stub);
             }
             $stub = str_replace('{package}', $this->option('component'), $stub);
+            $stub = str_replace('DummyComponentPath', $basePath, $stub);
+            $stub = str_replace('DummyModelAndTypePath', $modelName.($type ? '\\' : '').$type, $stub);
 
         } else {
             $stub = str_replace('{package}', '', $stub);
@@ -110,15 +117,15 @@ class ControllerCommand extends ControllerMakeCommand
             $stub = str_replace('DummyPathService', $basePath.'\\Services\\'.$modelName.'\\'.$type.'\\'.$model.'Service', $stub);
         }
         $stub = str_replace('DummyPathRequest', $basePath, $stub);
-        $stub = str_replace('DummyStorePostRequest', $model.'StorePost', $stub);
-        $stub = str_replace('DummyRemovePostRequest', $model.'RemovePost', $stub);
-        $stub = str_replace('DummyStatePostRequest', $model.'StatePost', $stub);
-        $stub = str_replace('DummySearchPostRequest', $model.'SearchPost', $stub);
-        $stub = str_replace('DummyOrderingPostRequest', $model.'OrderingPost', $stub);
-        $stub = str_replace('DummyRestorePostRequest', $model.'RestorePost', $stub);
-        $stub = str_replace('DummyFeaturedPostRequest', $model.'FeaturedPost', $stub);
-        $stub = str_replace('DummyFeaturedOrderingPostRequest', $model.'FeaturedOrderingPost', $stub);
-        $stub = str_replace('DummyGetItemRequest', $model.'GetItem', $stub);
+        $stub = str_replace('DummyStoreRequest', $model.'StoreRequest', $stub);
+        $stub = str_replace('DummyRemoveRequest', $model.'RemoveRequest', $stub);
+        $stub = str_replace('DummyStateRequest', $model.'StateRequest', $stub);
+        $stub = str_replace('DummySearchRequest', $model.'SearchRequest', $stub);
+        $stub = str_replace('DummyOrderingRequest', $model.'OrderingRequest', $stub);
+        $stub = str_replace('DummyRestoreRequest', $model.'RestoreRequest', $stub);
+        $stub = str_replace('DummyFeaturedRequest', $model.'FeaturedRequest', $stub);
+        $stub = str_replace('DummyFeaturedOrderingRequest', $model.'FeaturedOrderingRequest', $stub);
+        $stub = str_replace('DummyGetItemRequest', $model.'GetItemRequest', $stub);
 
         return $this;
     }

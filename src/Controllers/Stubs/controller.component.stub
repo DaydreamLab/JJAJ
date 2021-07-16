@@ -4,6 +4,16 @@ namespace DummyNamespace;
 
 use DummyComponentBasePath;
 use DummyPathService;
+use Throwable;
+use DummyComponentPath\Requests\DummyModelAndTypePath\DummyStoreRequest;
+use DummyComponentPath\Requests\DummyModelAndTypePath\DummySearchRequest;
+use DummyComponentPath\Requests\DummyModelAndTypePath\DummyFeaturedRequest;
+use DummyComponentPath\Requests\DummyModelAndTypePath\DummyFeaturedOrderingRequest;
+use DummyComponentPath\Requests\DummyModelAndTypePath\DummyGetItemRequest;
+use DummyComponentPath\Requests\DummyModelAndTypePath\DummyOrderingRequest;
+use DummyComponentPath\Requests\DummyModelAndTypePath\DummyRemoveRequest;
+use DummyComponentPath\Requests\DummyModelAndTypePath\DummyRestoreRequest;
+use DummyComponentPath\Requests\DummyModelAndTypePath\DummyStateRequest;
 
 class DummyClass extends DummyComponentBaseClass
 {
@@ -13,5 +23,113 @@ class DummyClass extends DummyComponentBaseClass
     {
         parent::__construct($service);
         $this->service = $service;
+    }
+
+
+    public function featured(DummyFeaturedRequest $request)
+    {
+        try {
+            $this->service->featured($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function featuredOrdering(DummyFeaturedOrderingRequest $request)
+    {
+        try {
+            $this->service->ordering($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function getItem(DummyGetItemRequest $request)
+    {
+        try {
+            $this->service->getItem(collect(['id' => $request->route('id')]));
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function ordering(DummyOrderingRequest $request)
+    {
+        try {
+            $this->service->ordering($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function remove(DummyRemoveRequest $request)
+    {
+        try {
+            $this->service->remove($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function restore(DummyRestoreRequest $request)
+    {
+        try {
+            $this->service->restore($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function search(DummySearchRequest $request)
+    {
+        try {
+            $this->service->search($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function state(DummyStateRequest $request)
+    {
+        try {
+            $this->service->state($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
+    }
+
+
+    public function store(DummyStoreRequest $request)
+    {
+        try {
+            $this->service->store($request->validated());
+        } catch (Throwable $t) {
+            $this->handleException($t);
+        }
+
+        return $this->response($this->service->status, $this->service->response);
     }
 }
