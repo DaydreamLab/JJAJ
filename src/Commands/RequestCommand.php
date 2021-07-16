@@ -100,7 +100,7 @@ class RequestCommand extends RequestMakeCommand
             if ($this->option('componentBase')) {
                 $stub = str_replace('DummyClass', $requestClass , $stub);
                 $stub = str_replace('DummyPackage', $component , $stub);
-                $stub = str_replace('DummyNamespace', $this->getNamespace($name) , $stub);
+                $stub = str_replace('DummyNamespace', $this->getNamespace($name), $stub);
                 $className = 'Base' . $this->requestType . 'Request';
                 $stub = str_replace('DummyParentClassPath', 'DaydreamLab\\JJAJ\\Requests\\'.$className , $stub);
                 $stub = str_replace('DummyParentClass',$className , $stub);

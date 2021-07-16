@@ -144,7 +144,7 @@ class McCommand extends Command
 
                     # 產生 base class
                     $baseParams = [
-                        'name' => $namespace . $component.Str::ucfirst($requestType).'Request',
+                        'name' => $namespace .'ComponentBase\\'. $component.Str::ucfirst($requestType).'Request',
                         '--component' => $component,
                         '--componentBase' => 1,
                         '--'.$requestType => 1,
