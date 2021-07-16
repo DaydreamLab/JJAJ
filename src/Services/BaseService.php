@@ -663,7 +663,7 @@ class BaseService
         }
 
         if ($this->repo->getModel()->hasAttribute('access') && InputHelper::null($input, 'access')) {
-            $input->put('access', config('daydreamlab.cms.default_viewlevel_id'));
+            $input->put('access', config('daydreamlab.cms.default_viewlevel_id') ?? 1);
         }
 
         if ($this->repo->getModel()->hasAttribute('language') && InputHelper::null($input, 'language')) {
