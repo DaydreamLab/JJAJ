@@ -121,7 +121,7 @@ class BaseService
             if ($this->repo->getModel()->hasAttribute('language')) {
                 $q = $q->where('language', $input->get('language') ?: config('app.locale'));
             }
-            $same = $this->search(collect(['q' => $q]))->first();
+            $same = self::search(collect(['q' => $q]))->first();
 
             if ($same && $same->id != $input->get('id')) {
                 throw new ForbiddenException('StoreWithExistAlias', ['alias' => $same->alias]);
