@@ -476,7 +476,7 @@ class BaseService
         $this->checkLocked($item);
         $this->checkPathExist($input, $item);
 
-        $modify = $this->repo->modifyNested($input, $item->parent, $item);
+        $modify = $this->repo->modifyNested($input, $item);
         if ($modify) {
             $this->modifyMapping($item, $input);
             $this->status   = 'UpdateNestedSuccess';

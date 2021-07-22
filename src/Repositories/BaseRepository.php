@@ -540,16 +540,24 @@ class BaseRepository implements BaseRepositoryInterface
      * @return mixed
      * @throws InternalServerErrorException
      */
-    public function modifyNested(Collection $input, $parent, $item)
+    public function modifyNested(Collection $input, $item)
     {
-        if ($input->get('featured') == 0 && $item->featured == 1) {
-            $input->put('featured_ordering', null);
-            $this->update($item, $this->getFillableInput($input->except(['ordering', 'parent_id'])));
+        if ($item->featured == 1) {
+            if ($input->get('featured') == 0) {
+                $input->put('featured_ordering', null);
+                $this->ordering($input, $item, 'featured_ordering');
+            }
         } else {
-            $this->update($item, $this->getFillableInput($input->except(['ordering', 'parent_id', 'featured_ordering'])));
-            $this->ordering($input->only(['id', 'featured_ordering']), $item, 'featured_ordering');
+            if ($input->get('featured') == 1) {
+                $q = new QueryCapsule();
+                $q->max('featured_ordering');
+                $maxFeaturedOrdering = $this->search(collect(['q' => $q]));
+                $maxFeaturedOrdering = $maxFeaturedOrdering == 0 ? 1 : $maxFeaturedOrdering+1;
+                $input->put('featured_ordering', $maxFeaturedOrdering);
+            }
         }
 
+        $this->update($item, $this->getFillableInput($input->except(['ordering', 'parent_id'])));
         $this->orderingNested($input, $item);
 
         return $item;
