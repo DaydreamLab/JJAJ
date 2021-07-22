@@ -124,7 +124,7 @@ trait ApiJsonResponse
                 $r['data'] = $data ?: null;
             }
         }
-
+        $r['code'] = $code;
         return response()->json($r, $this->code ?: $code);
     }
 }
