@@ -543,16 +543,19 @@ class BaseRepository implements BaseRepositoryInterface
     public function modifyNested(Collection $input, $item)
     {
         if ($item->featured == 1) {
+            # 精選->非精選，修改精選的排序
             if ($input->get('featured') == 0) {
                 $input->put('featured_ordering', null);
                 $this->ordering($input, $item, 'featured_ordering');
+                $item = $item->referesh();
             }
         } else {
+            # 非精選->精選，找出精選最大值
             if ($input->get('featured') == 1) {
                 $q = new QueryCapsule();
                 $q->max('featured_ordering');
                 $maxFeaturedOrdering = $this->search(collect(['q' => $q]));
-                $maxFeaturedOrdering = $maxFeaturedOrdering == 0 ? 1 : $maxFeaturedOrdering+1;
+                $maxFeaturedOrdering = $maxFeaturedOrdering + 1;
                 $input->put('featured_ordering', $maxFeaturedOrdering);
             }
         }
