@@ -19,6 +19,6 @@ trait FormatDateTime
 
     public function parse($dateTime, $tz = 'Asia/Taipei')
     {
-        return Carbon::parse($dateTime, 'UTC')->tz($tz);
+        return Carbon::parse($dateTime, config('app.timezone'))->tz($tz);
     }
 }

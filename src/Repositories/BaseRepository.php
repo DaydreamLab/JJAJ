@@ -476,7 +476,7 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
         $item->lock_by = $user->id;
-        $item->lock_at = now()->tz('UTC')->toDateTimeString();
+        $item->lock_at = now()->toDateTimeString();
 
         return $item->save();
     }

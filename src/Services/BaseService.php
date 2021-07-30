@@ -155,7 +155,7 @@ class BaseService
     {
         $user = $this->getUser();
         if ($item->locked_by
-            && $item->locked_by != $this->user->id
+            && $item->locked_by != $user->id
             && $user
             && !$user->higherPermissionThan($item->locker)
         ) {
@@ -360,7 +360,7 @@ class BaseService
         if ($canLock && $item->hasAttribute('locked_by')) {
             $data = [
                 'locked_by' => $this->getUser()->id,
-                'locked_at' => now()->tz('UTC')->toDateTimeString()
+                'locked_at' => now()->toDateTimeString()
             ];
             $this->repo->update($item, $data);
         }
