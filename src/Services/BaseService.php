@@ -360,7 +360,7 @@ class BaseService
         if ($canLock && $item->hasAttribute('locked_by')) {
             $data = [
                 'locked_by' => $this->getUser()->id,
-                'locked_at' => Carbon::now()->toDateTimeString()
+                'locked_at' => now()->tz('UTC')->toDateTimeString()
             ];
             $this->repo->update($item, $data);
         }
@@ -397,7 +397,7 @@ class BaseService
             $this->status = 'GetItemSuccess';
             $this->response = $item;
         } else {
-            $this->throwResponse( 'GetItemFail');
+            throw new NotFoundException('GetItemFail');
         }
 
         return $item;
@@ -452,6 +452,9 @@ class BaseService
 
         $update = $this->repo->modify($item, $input);
         $this->modifyMapping($item, $input);
+
+        $item = $item->refresh();
+        $this->afterModify($input, $item);
 
         if ($this->getModel()->hasAttribute('locked_by')) {
             $this->repo->restore($item, $this->getUser());
@@ -553,7 +556,10 @@ class BaseService
     {
         $result = false;
         foreach ($input->get('ids') as $id) {
-            $item = $this->checkItem(collect(['id' => $id]));
+            $q = $input->get('q')
+                ? clone ($input->get('q'))
+                : new QueryCapsule();
+            $item = $this->checkItem(collect(['id' => $id, 'q' => $q]));
             $this->beforeRemove($input, $item);
             $this->removeMapping($item);
             // 若有排序的欄位則要調整 ordering 大於刪除項目的值
@@ -610,7 +616,10 @@ class BaseService
     {
         $result = false;
         foreach ($input->get('ids') as $id) {
-            $item = $this->checkItem(collect(['id' => $id]));
+            $q = $input->get('q')
+                ? clone ($input->get('q'))
+                : new QueryCapsule();
+            $item = $this->checkItem(collect(['id' => $id, 'q' => $q]));
             $result = $this->repo->restore($item, $this->getUser());
         }
 
@@ -623,7 +632,7 @@ class BaseService
 
     /**
      * @param Collection $input
-     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     * @return \Illuminate\Database\Eloquent\Collection|static[]|integer
      */
     public function search(Collection $input)
     {
@@ -692,8 +701,14 @@ class BaseService
         $result = false;
         foreach ($input->get('ids') as $id) {
             $input->put('id', $id);
-            $item = $this->checkItem($input->except('ids'));
+            $q = $input->get('q')
+                ? clone ($input->get('q'))
+                : new QueryCapsule();
+            $tempInput = clone ($input->except(['q', 'ids']));
+            $tempInput->put('q', $q);
+            $tempInput->put('id', $id);
 
+            $item = $this->checkItem($tempInput);
             $result = $this->repo->state($item, $input->get('state'));
         }
 

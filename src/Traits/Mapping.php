@@ -6,18 +6,18 @@ trait Mapping
 {
     public function addMapping($item, $input)
     {
-        return true;
+        return ;
     }
 
 
     public function modifyMapping($item, $input)
     {
-        return true;
+        return ;
     }
 
 
     public function removeMapping($item)
     {
-        return true;
+        return ;
     }
 }

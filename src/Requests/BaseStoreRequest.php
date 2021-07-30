@@ -32,6 +32,7 @@ class BaseStoreRequest extends AdminRequest
     public function validated()
     {
         $validated = parent::validated();
+        $validated->forget('q');
 
         return $validated;
     }

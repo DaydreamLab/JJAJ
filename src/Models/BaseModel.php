@@ -2,11 +2,14 @@
 
 namespace DaydreamLab\JJAJ\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class BaseModel extends Model
 {
+    use HasFactory;
+
     protected $limit = 25;
 
     protected $order_by = 'id';

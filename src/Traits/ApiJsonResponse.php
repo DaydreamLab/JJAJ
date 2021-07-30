@@ -65,7 +65,8 @@ trait ApiJsonResponse
                 'type' => get_class($t),
                 'line' => $t->getLine(),
                 'file' => $t->getFile(),
-                'message' => $t->getMessage()
+                'message' => $t->getMessage(),
+                'trace' => collect($t->getTrace())->take(10)
             ];
             $this->service->status = 'CatchException';
             $this->service->response = $errorResponse;

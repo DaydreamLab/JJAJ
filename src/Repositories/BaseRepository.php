@@ -51,11 +51,9 @@ class BaseRepository implements BaseRepositoryInterface
         $input = $input->only($fillableData);
 
         $item = $this->create($input->toArray());
-
         if(!$item) {
             throw new InternalServerErrorException('CreateFail', $fillableData, null, $this->modelName);
         }
-
 
         return $item;
     }
@@ -478,7 +476,7 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
         $item->lock_by = $user->id;
-        $item->lock_at = now();
+        $item->lock_at = now()->tz('UTC')->toDateTimeString();
 
         return $item->save();
     }

@@ -4,10 +4,11 @@ namespace DummyNamespace;
 
 use DummyComponentBasePath;
 use DaydreamLab\JJAJ\Traits\RecordChanger;
+use DaydreamLab\JJAJ\Traits\UserInfo;
 
 class DummyClass extends DummyComponentBaseClass
 {
-    use RecordChanger {
+    use UserInfo, RecordChanger {
         RecordChanger::boot as traitBoot;
     }
     /**
@@ -31,26 +32,15 @@ class DummyClass extends DummyComponentBaseClass
         'category_id',
         'state',
         'description',
+        'locked_by',
         'created_by',
-        'updated_by'
+        'updated_by',
+        'locked_at',
     ];
 
 
-    /**
-     * The attributes that should be hidden for arrays
-     *
-     * @var array
-     */
-    protected $hidden = [
-    ];
-
-
-    /**
-     * The attributes that should be append for arrays
-     *
-     * @var array
-     */
-    protected $appends = [
+    protected $casts = [
+        'params'    => 'array'
     ];
 
 
@@ -59,4 +49,9 @@ class DummyClass extends DummyComponentBaseClass
         self::traitBoot();
     }
 
+
+    public static function newFactory()
+    {
+
+    }
 }

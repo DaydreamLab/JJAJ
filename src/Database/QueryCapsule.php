@@ -175,7 +175,9 @@ class QueryCapsule
             } elseif ($key == 'extraRelations') {
                 $this->extraRelations = array_merge($this->extraRelations, $value);
             } else {
-                $this->where($key, $value);
+                if ($value !== '' && $value !== null)  {
+                    $this->where($key, $value);
+                }
             }
         }
 
