@@ -117,10 +117,16 @@ class Helper {
     public static function paginate($items, $perPage = 15, $page = null, $options = [])
     {
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $queryString = Paginator::resolveQueryString();
+
+        # 取出幾筆成一分頁
+        if (isset($queryString['limit'])) {
+            $perPage = $queryString['limit'] ?: $perPage;
+        }
 
         $items = $items instanceof Collection ? $items : Collection::make($items);
 
-        $paginate = new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+        $paginate = new LengthAwarePaginator($items->forPage($page, $perPage)->values(), $items->count(), $perPage, $page, $options);
 
         if (count($options))
         {

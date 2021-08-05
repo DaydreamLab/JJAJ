@@ -14,13 +14,14 @@ use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
 use DaydreamLab\JJAJ\Traits\ActionHook;
 use DaydreamLab\JJAJ\Traits\FormatDateTime;
+use DaydreamLab\JJAJ\Traits\LoggedIn;
 use DaydreamLab\JJAJ\Traits\Mapping;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class BaseService
 {
-    use FormatDateTime, Mapping, ActionHook;
+    use FormatDateTime, Mapping, ActionHook, LoggedIn;
 
     public $response = null;
 
@@ -374,7 +375,11 @@ class BaseService
 
     public function getItemByAlias(Collection $input)
     {
-        $item = $this->repo->findBy('alias', '=', $input->get('alias'));
+        $item = $this->repo->findBy('alias', '=', $input->get('alias'))->first();
+        if (!$item) {
+            throw new NotFoundException('ItemNotExist');
+        }
+
         if ($item->hasAttribute('hits')) {
             $item->hits++;
             $this->update($item, $item);
