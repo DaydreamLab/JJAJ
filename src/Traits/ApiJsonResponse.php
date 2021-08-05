@@ -34,19 +34,17 @@ trait ApiJsonResponse
                 : $data;
         } elseif ($data instanceof Collection) {
             $response =  $resource
-                ? new $resource($data, $wrapItems)
+                ? ($data->count()
+                    ? new $resource($data, $wrapItems)
+                    : null)
                 : $data;
         } elseif ($data instanceof LengthAwarePaginator) {
             $response =  new $resource($data);
         }
-//        elseif ($data instanceof ResourceCollection) {
-//            $response = $data;
-//        } elseif ($data instanceof JsonResource) {
-//            $response['items'] = $data;
-//        }
         elseif ($data instanceof MessageBag) {
             $response['items'] = $data;
         } else {
+
         }
 
         return  $response;
