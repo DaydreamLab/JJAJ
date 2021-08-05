@@ -117,4 +117,14 @@ class BaseModel extends Model
             $this->order_by = $order_by;
         }
     }
+
+
+    protected function castAttribute($key, $value)
+    {
+        if ($this->getCastType($key) == 'array' && is_null($value)) {
+            return [];
+        }
+
+        return parent::castAttribute($key, $value);
+    }
 }
