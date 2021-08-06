@@ -9,6 +9,7 @@ use DaydreamLab\JJAJ\Exceptions\OutOfBoundException;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\Interfaces\BaseRepositoryInterface;
+use DaydreamLab\JJAJ\Traits\FormatDateTime;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -20,6 +21,8 @@ use function Webmozart\Assert\Tests\StaticAnalysis\null;
 
 class BaseRepository implements BaseRepositoryInterface
 {
+    use FormatDateTime;
+
     protected $model;
 
     protected $package = null;
