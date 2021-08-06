@@ -19,13 +19,15 @@ use DaydreamLab\JJAJ\Traits\Mapping;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-class BaseService
+abstract class BaseService
 {
     use FormatDateTime, Mapping, ActionHook, LoggedIn;
 
     public $response = null;
 
     public $status = '';
+
+    public $transParams = [];
 
     protected $package = null;
 
@@ -377,7 +379,7 @@ class BaseService
     {
         $item = $this->repo->findBy('alias', '=', $input->get('alias'))->first();
         if (!$item) {
-            throw new NotFoundException('ItemNotExist');
+            throw new NotFoundException('ItemNotExist', null, null, $this->modelName);
         }
 
         if ($item->hasAttribute('hits')) {

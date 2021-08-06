@@ -34,9 +34,7 @@ trait ApiJsonResponse
                 : $data;
         } elseif ($data instanceof Collection) {
             $response =  $resource
-                ? ($data->count()
-                    ? new $resource($data, $wrapItems)
-                    : null)
+                ? new $resource($data, $wrapItems)
                 : $data;
         } elseif ($data instanceof LengthAwarePaginator) {
             $response =  new $resource($data);
