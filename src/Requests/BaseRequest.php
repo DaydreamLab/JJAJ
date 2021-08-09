@@ -50,7 +50,9 @@ class BaseRequest extends FormRequest
                 }
 
                 return $apis->filter(function ($api) use ($method, $pageGroupId, $pageId) {
-                    return $api->method == $method && $api->assetId == $pageId && $api->asset_group_id == $pageGroupId;
+                    return $api->method == $method
+                        && $api->pivot->asset_group_id == $pageGroupId
+                        && $api->pivot->asset_id == $pageId;
                 })->count();
             }
         }
