@@ -5,6 +5,7 @@ namespace DaydreamLab\JJAJ\Requests;
 use DaydreamLab\JJAJ\Database\QueryCapsule;
 use DaydreamLab\JJAJ\Traits\ApiJsonResponse;
 use DaydreamLab\JJAJ\Traits\CloudflareIp;
+use DaydreamLab\JJAJ\Exceptions\MethodNotAllowException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
@@ -36,7 +37,7 @@ class BaseRequest extends FormRequest
         if (config('app.seeding')) {
             return true;
         } else {
-            if (!$this->needAuth || $this->user()->isSuperUser()) {
+            if (!$this->needAuth) {
                 return true;
             } else {
                 $pageGroupId = $this->get('pageGroupId');
@@ -66,6 +67,12 @@ class BaseRequest extends FormRequest
         } else {
             throw new HttpResponseException($this->response('InvalidInput', null));
         }
+    }
+
+
+    protected function failedAuthorization()
+    {
+        throw new HttpResponseException($this->response('Unauthorized', null));
     }
 
 
