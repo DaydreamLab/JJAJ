@@ -39,7 +39,7 @@ class BaseRequest extends FormRequest
             if (!$this->needAuth) {
                 return true;
             } else {
-                $pageGroupId = $this->get('pageGroup');
+                $pageGroupId = $this->get('pageGroupId');
                 $pageId = $this->get('pageId');
                 $apis = $this->user()->apis;
                 $method = $this->apiMethod;
@@ -88,7 +88,8 @@ class BaseRequest extends FormRequest
         $validated['q'] = $this->q;
 
         $validated = collect($validated);
-        $validated->forget('assetId');
+        $validated->forget('pageGroupId');
+        $validated->forget('pageId');
         if ($validated->has('alias')) {
             $validated->put('alias', Str::lower($validated->get('alias')));
         }
