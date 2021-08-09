@@ -37,7 +37,7 @@ class BaseRequest extends FormRequest
         if (config('app.seeding')) {
             return true;
         } else {
-            if (!$this->needAuth) {
+            if (!$this->needAuth || $this->user()->isSuperUser()) {
                 return true;
             } else {
                 $pageGroupId = $this->get('pageGroupId');
