@@ -833,7 +833,7 @@ class BaseRepository implements BaseRepositoryInterface
             throw new InternalServerErrorException('InsufficientPermissionRestore', [
                 'item_id'   => $item->id,
                 'lockerName' => $item->lockerName,
-                'locked_at' => $this->getDateTimeString($item->locked_at, $this->getUser()->timezone)
+                'locked_at' => $this->getDateTimeString($item->locked_at, $user->timezone)
             ], null, $this->modelName);
         }
     }
