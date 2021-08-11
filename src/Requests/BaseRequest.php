@@ -5,6 +5,7 @@ namespace DaydreamLab\JJAJ\Requests;
 use DaydreamLab\JJAJ\Database\QueryCapsule;
 use DaydreamLab\JJAJ\Traits\ApiJsonResponse;
 use DaydreamLab\JJAJ\Traits\CloudflareIp;
+use DaydreamLab\JJAJ\Exceptions\MethodNotAllowException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
@@ -36,10 +37,10 @@ class BaseRequest extends FormRequest
         if (config('app.seeding')) {
             return true;
         } else {
-            if (!$this->needAuth) {
+            if (!$this->needAuth || $this->user()->isSuperUser()) {
                 return true;
             } else {
-                $pageGroupId = $this->get('pageGroup');
+                $pageGroupId = $this->get('pageGroupId');
                 $pageId = $this->get('pageId');
                 $apis = $this->user()->apis;
                 $method = $this->apiMethod;
@@ -50,7 +51,9 @@ class BaseRequest extends FormRequest
                 }
 
                 return $apis->filter(function ($api) use ($method, $pageGroupId, $pageId) {
-                    return $api->method == $method && $api->assetId == $pageId && $api->asset_group_id == $pageGroupId;
+                    return $api->method == $method
+                        && $api->pivot->asset_group_id == $pageGroupId
+                        && $api->pivot->asset_id == $pageId;
                 })->count();
             }
         }
@@ -64,6 +67,12 @@ class BaseRequest extends FormRequest
         } else {
             throw new HttpResponseException($this->response('InvalidInput', null));
         }
+    }
+
+
+    protected function failedAuthorization()
+    {
+        throw new HttpResponseException($this->response('Unauthorized', null));
     }
 
 
@@ -88,7 +97,8 @@ class BaseRequest extends FormRequest
         $validated['q'] = $this->q;
 
         $validated = collect($validated);
-        $validated->forget('assetId');
+        $validated->forget('pageGroupId');
+        $validated->forget('pageId');
         if ($validated->has('alias')) {
             $validated->put('alias', Str::lower($validated->get('alias')));
         }
