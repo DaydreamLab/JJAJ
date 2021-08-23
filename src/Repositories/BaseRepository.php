@@ -787,7 +787,7 @@ class BaseRepository implements BaseRepositoryInterface
         $items = $items instanceof Collection ? $items : Collection::make($items);
 
         $paginate = new LengthAwarePaginator(
-            $items->forPage($page, $perPage),
+            $items->forPage($page, $perPage)->values(),
             $items->count(),
             $perPage,
             $page,
