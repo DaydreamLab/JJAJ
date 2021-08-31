@@ -57,4 +57,16 @@ class RequestHelper
     {
         return Carbon::parse($time, $tz)->tz(config('app.timezone'))->toDateTimeString();
     }
+
+    #
+    public static function mapIds($array)
+    {
+        if (!is_array($array)) {
+            return  [];
+        }
+
+        return array_map(function($i) {
+            return $i['id'];
+        }, $array);
+    }
 }
