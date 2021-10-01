@@ -55,6 +55,7 @@ return [
     'STORE_NESTED_WITH_EXIST_PATH'          => 403,
     'SEARCH_SUCCESS'                        => 200,
     'SEARCH_NESTED_SUCCESS'                 => 200,
+    'STATE_TRANSITION_INVALID'              => 403,
 
     'TRASH_SUCCESS'                         => 200,
     'TRASH_FAIL'                            => 500,

@@ -9,6 +9,9 @@ trait LoggedIn
 {
     protected $user = null;
 
+    /**
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     */
     public function getUser()
     {
         if ($this->user == null) {

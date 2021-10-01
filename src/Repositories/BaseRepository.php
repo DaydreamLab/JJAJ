@@ -51,6 +51,7 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
         $fillableData = $this->model->getFillable();
+
         $input = $input->only($fillableData);
 
         $item = $this->create($input->toArray());
