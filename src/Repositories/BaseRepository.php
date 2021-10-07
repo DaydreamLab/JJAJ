@@ -401,7 +401,7 @@ class BaseRepository implements BaseRepositoryInterface
 
         $q = new QueryCapsule();
         if ($nodeOrdering > $inputOrdering) {
-            $updateItems = $q->where($key, '>', $inputOrdering)
+            $updateItems = $q->where($key, '>=', $inputOrdering)
                 ->where($key, '<', $nodeOrdering)
                 ->orderBy($key, 'asc')
                 ->exec($this->model);
@@ -430,15 +430,15 @@ class BaseRepository implements BaseRepositoryInterface
         if ($inputOrdering > $allItems->count()) {
             $input->put($key, $allItems->count());
         } else {
-            if ($inputOrdering !== 0) {
+            if ($inputOrdering === 0) {
+                $input->put($key, 1);
+            }/* else {
                 if ($updateItems->last()) {
                     $input->put($key, $updateItems->last()->{$key} + 1);
                 } else {
                     $input->put($key, $inputOrdering + 1);
                 }
-            } else {
-                $input->put($key, 1);
-            }
+            }*/
         }
     }
 
