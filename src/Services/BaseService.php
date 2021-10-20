@@ -457,6 +457,8 @@ abstract class BaseService
     {
         $item = $this->checkItem($input);
 
+        $this->beforeModify($input, $item);
+
         $update = $this->repo->modify($item, $input);
         $this->modifyMapping($item, $input);
 
@@ -716,7 +718,12 @@ abstract class BaseService
             $tempInput->put('id', $id);
 
             $item = $this->checkItem($tempInput);
+
+            $this->beforeState($item, $input->get('state'));
+
             $result = $this->repo->state($item, $input->get('state'));
+
+            $this->afterState($input, $item);
         }
 
         if ($input->get('state') == '1') {

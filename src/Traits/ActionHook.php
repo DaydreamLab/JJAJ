@@ -29,6 +29,12 @@ trait ActionHook
     }
 
 
+    public function afterState(Collection $input, $item)
+    {
+
+    }
+
+
     public function beforeAdd(Collection &$input)
     {
 
@@ -42,6 +48,12 @@ trait ActionHook
 
 
     public function beforeRemove(Collection $input, $item)
+    {
+
+    }
+
+
+    public function beforeState($state, $item)
     {
 
     }
