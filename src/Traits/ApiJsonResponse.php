@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Str;
 use Throwable;
+use function Psy\sh;
 
 trait ApiJsonResponse
 {
@@ -122,6 +123,7 @@ trait ApiJsonResponse
             }
         }
         $r['code'] = $code;
+
         return response()->json($r, $this->code ?: $code);
     }
 }

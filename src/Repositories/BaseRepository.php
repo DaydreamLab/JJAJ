@@ -827,8 +827,9 @@ class BaseRepository implements BaseRepositoryInterface
         ) {
             $data = [
                 'locked_by' => null,
-                'locked_at' => null
+                'locked_at' => null,
             ];
+            $item->timestamps = false;
             return $this->update($item, $data);
         } else {
             throw new InternalServerErrorException('InsufficientPermissionRestore', [

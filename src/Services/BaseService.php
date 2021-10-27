@@ -2,8 +2,6 @@
 
 namespace DaydreamLab\JJAJ\Services;
 
-use Carbon\Carbon;
-
 use DaydreamLab\JJAJ\Database\QueryCapsule;
 use DaydreamLab\JJAJ\Exceptions\ForbiddenException;
 use DaydreamLab\JJAJ\Exceptions\InternalServerErrorException;
@@ -649,7 +647,6 @@ abstract class BaseService
             $accessIds = $this->getUser()
                 ? $this->getUser()->accessIds
                 : (config('daydreamlab.cms.item.front.access_ids') ?: [1]);
-
             $q = $input->get('q') ? $input->get('q') : new QueryCapsule();
             $q = $q->whereIn('access', $accessIds);
             $input->put('q', $q);
@@ -719,7 +716,7 @@ abstract class BaseService
 
             $item = $this->checkItem($tempInput);
 
-            $this->beforeState($item, $input->get('state'));
+            $this->beforeState($input->get('state'), $item);
 
             $result = $this->repo->state($item, $input->get('state'));
 
@@ -734,6 +731,8 @@ abstract class BaseService
             $action = 'Archive';
         } elseif ($input->get('state') == '-2') {
             $action = 'Trash';
+        } else {
+            $action = '';
         }
 
         $this->status = $result

@@ -62,7 +62,7 @@ class RequestHelper
     public static function mapIds($array)
     {
         if (!is_array($array)) {
-            return  [];
+            return [];
         }
 
         return array_map(function($i) {
