@@ -28,7 +28,7 @@ return [
     'GET_TREE_SUCCESS'                      => '{$ModelName} get tree success',
     'GET_TREE_LIST_SUCCESS'                 => '{$ModelName} get tree list success',
 
-    'INVALID_INPUT'                         => 'Invalid input',
+    'INPUT_INVALID'                         => 'Invalid input',
     'INVALID_ORDERING_DIFF'                 => '{$ModelName} invalid ordering diff, target ordering: :target_ordering',
     'ITEM_NOT_EXIST'                        => '{$ModelName} item not exist',
     'IS_NOT_FEATURED'                       => '{$ModelName} is not featured',

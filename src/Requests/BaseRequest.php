@@ -62,10 +62,11 @@ class BaseRequest extends FormRequest
 
     protected function failedValidation(Validator $validator)
     {
+        $this->modelName = null;
         if (config('app.debug')) {
-            throw new HttpResponseException($this->response('InvalidInput', $validator->errors()));
+            throw new HttpResponseException($this->response('InputInvalid', $validator->errors()));
         } else {
-            throw new HttpResponseException($this->response('InvalidInput', null));
+            throw new HttpResponseException($this->response('InputInvalid', null));
         }
     }
 

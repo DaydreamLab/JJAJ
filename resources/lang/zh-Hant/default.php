@@ -26,7 +26,7 @@ return [
     'GET_TREE_SUCCESS'                      => '{$ModelName} 取得樹狀結構成功',
     'GET_TREE_LIST_SUCCESS'                 => '{$ModelName} 取得樹狀結構清單成功',
 
-    'INVALID_INPUT'                         => '輸入的資料有誤',
+    'INPUT_INVALID'                         => '輸入的資料有誤',
     'INVALID_ORDERING_DIFF'                 => '{$ModelName} 不合法的排序: :diff',
     'ITEM_NOT_EXIST'                        => '{$ModelName} 項目不存在',
     'IS_NOT_FEATURED'                       => '{$ModelName} 非精選項目',
