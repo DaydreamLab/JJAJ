@@ -26,7 +26,7 @@ return [
     'GET_TREE_SUCCESS'                      => 200,
     'GET_TREE_LIST_SUCCESS'                 => 200,
 
-    'INVALID_INPUT'                         => 400,
+    'INPUT_INVALID'                         => 400,
     'INVALID_ORDERING_DIFF'                 => 400,
     'ITEM_NOT_EXIST'                        => 404,
     'IS_NOT_FEATURED'                       => 403,
