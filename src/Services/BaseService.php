@@ -665,7 +665,7 @@ abstract class BaseService
     {
         if ($this->repo->getModel()->hasAttribute('alias')) {
             if ($input->has('alias')) {
-                $input->put('alias', Str::lower($input->get('alias')));
+                $input->put('alias', str_replace(' ', '_', Str::lower($input->get('alias'))));
             } else {
                 if (InputHelper::null($input, 'id')) {
                     $input->put('alias', Str::lower(Str::random()));
