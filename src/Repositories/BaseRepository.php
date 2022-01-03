@@ -530,7 +530,7 @@ class BaseRepository implements BaseRepositoryInterface
      * @param bool $paginate
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Collection|static[]
      */
-    public function search(Collection $input, $paginate = true)
+    public function search(Collection $input, $paginate = true, $cursorPaginate = false)
     {
         $order_by   = InputHelper::getCollectionKey($input, 'order_by', $this->model->getOrderBy());
 
@@ -580,13 +580,23 @@ class BaseRepository implements BaseRepositoryInterface
 
         if ($limit == 0)
         {
-            $items = $paginate ? $query->paginate($this->infinity)
-                : $query->get();
+            if ($cursorPaginate) {
+                $items = $query->cursorPaginate($this->infinity);
+            } elseif ($paginate) {
+                $items = $query->paginate($this->infinity);
+            } else {
+                $items = $query->get();
+            }
         }
         else
         {
-            $items = $paginate ? $query->paginate($limit)
-                : $query->get();
+            if ($cursorPaginate) {
+                $items = $query->cursorPaginate($limit);
+            } elseif ($paginate) {
+                $items = $query->paginate($limit);
+            } else {
+                $items = $query->get();
+            }
         }
 
         return $items;

@@ -21,6 +21,10 @@ class ListRequest extends BaseRequest
                 'nullable',
                 Rule::in([0,1])
             ],
+            'cursorPaginate' => [
+                'nullable',
+                Rule::in([0, 1])
+            ]
         ];
     }
 }

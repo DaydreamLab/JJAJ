@@ -611,10 +611,12 @@ class BaseService
         // 處理搜尋結果是否要分頁
 
         $paginate = $input->has('paginate') ? $input->get('paginate') : true;
-
         $input->forget('paginate');
 
-        $items = $this->repo->search($input, $paginate);
+        $cursorPaginate = $input->get('cursorPaginate');
+        $input->forget('cursorPaginate');
+
+        $items = $this->repo->search($input, $paginate, $cursorPaginate);
 
         $this->status   = Str::upper(Str::snake($this->type.'SearchSuccess'));
         $this->response = $items;

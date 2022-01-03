@@ -16,10 +16,14 @@ class BaseResourceCollection extends ResourceCollection
 
     public function toArray($request)
     {
+
         $resource = $this->resource->toArray();
+
         unset($resource['data']);
 
-        if($this->resource instanceof \Illuminate\Pagination\LengthAwarePaginator)
+        if ($this->resource instanceof \Illuminate\Pagination\LengthAwarePaginator ||
+            get_class($this->resource) == 'Juampi92\CursorPagination\CursorPaginator'
+        )
         {
             return [
                 'items'         => $this->collection->all(),
