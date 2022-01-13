@@ -92,7 +92,6 @@ class QueryCapsule
             $q = $q->select($this->select);
         }
 
-
         if (count($this->with)) {
             foreach ($this->with as $with) {
                 $q = $q->with(...$with);
@@ -158,7 +157,7 @@ class QueryCapsule
         $searchKeys = $input->get('searchKeys') ?: [];
         $input = $input->except(['searchKeys']);
         foreach ($input as $key => $value) {
-            if ($key == 'search') {
+            if ($key == 'search' && $value) {
                 $this->where(function ($q) use ($value, $searchKeys) {
                     foreach ($searchKeys as $searchKey) {
                         $q->orWhere($searchKey, 'LIKE', "%%$value%%");
