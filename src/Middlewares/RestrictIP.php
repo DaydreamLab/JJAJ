@@ -28,14 +28,14 @@ class RestrictIP
         if (in_array(config('app.env'), ['staging', 'production']) && !in_array($ip, $whitelist)) {
             return $route == 'api'
                 ? ResponseHelper::genResponse('IP_REJECTED', [], 'User', 'User', [])
-                : '不被允許的訪問IP';
+                : redirect('/');
         }
 
         $blacklist = config('app.ip.' . $category . '.blacklist') ?: [];
         if (in_array(config('app.env'), ['staging', 'production']) && in_array($ip, $blacklist)) {
             return $route == 'api'
                 ? ResponseHelper::genResponse('IP_REJECTED', [], 'User', 'User', [])
-                : '不被允許的訪問IP';
+                : redirect('/');
         }
 
         return $next($request);
