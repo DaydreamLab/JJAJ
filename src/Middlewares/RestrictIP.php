@@ -18,7 +18,11 @@ class RestrictIP
      */
     public function handle($request, Closure $next, $category)
     {
-        $ip = $request->ip();
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {
+            $ip = $request->ip();
+        }
 
         $whitelist = config('app.ip.' . $category . '.whitelist') ?: [];
         if (in_array(config('app.env'), ['staging', 'production']) && !in_array($ip, $whitelist)) {
