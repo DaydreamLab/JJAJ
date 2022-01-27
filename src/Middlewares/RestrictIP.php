@@ -3,9 +3,7 @@
 namespace DaydreamLab\JJAJ\Middlewares;
 
 use Closure;
-use DaydreamLab\JJAJ\Exceptions\ForbiddenException;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
-use Illuminate\Http\Exceptions\HttpResponseException;
 
 class RestrictIP
 {
