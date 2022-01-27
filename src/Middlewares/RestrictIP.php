@@ -16,7 +16,7 @@ class RestrictIP
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next, $category)
+    public function handle($request, Closure $next, $category, $route = 'api')
     {
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -26,12 +26,16 @@ class RestrictIP
 
         $whitelist = config('app.ip.' . $category . '.whitelist') ?: [];
         if (in_array(config('app.env'), ['staging', 'production']) && !in_array($ip, $whitelist)) {
-            return ResponseHelper::genResponse('IP_REJECTED', [], 'User', 'User', []);
+            return $route == 'api'
+                ? ResponseHelper::genResponse('IP_REJECTED', [], 'User', 'User', [])
+                : '不被允許的訪問IP';
         }
 
         $blacklist = config('app.ip.' . $category . '.blacklist') ?: [];
         if (in_array(config('app.env'), ['staging', 'production']) && in_array($ip, $blacklist)) {
-            return ResponseHelper::genResponse('IP_REJECTED', [], 'User', 'User', []);
+            return route == 'api'
+                ? ResponseHelper::genResponse('IP_REJECTED', [], 'User', 'User', [])
+                : '不被允許的訪問IP';
         }
 
         return $next($request);
