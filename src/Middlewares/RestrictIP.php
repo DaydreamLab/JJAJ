@@ -16,21 +16,28 @@ class RestrictIP
      */
     public function handle($request, Closure $next, $category, $route = 'api')
     {
+        $ips = [$request->ip()];
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
-            $ip = $request->ip();
+            $ips = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+
+        if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+            $ips = array_merge($ips, [$_SERVER['HTTP_CF_CONNECTING_IP']]);
+        }
+
+        if (isset($_SERVER['REMOTE_ADDR'])) {
+            $ips = array_merge($ips, [$_SERVER['REMOTE_ADDR']]);
         }
 
         $whitelist = config('app.ip.' . $category . '.whitelist') ?: [];
-        if (in_array(config('app.env'), ['staging', 'production']) && !in_array($ip, $whitelist)) {
+        if (in_array(config('app.env'), ['staging', 'production']) && !in_array($ips, $whitelist)) {
             return $route == 'api'
                 ? ResponseHelper::genResponse('IP_REJECTED', [], 'User', 'User', [])
                 : redirect('/');
         }
 
         $blacklist = config('app.ip.' . $category . '.blacklist') ?: [];
-        if (in_array(config('app.env'), ['staging', 'production']) && in_array($ip, $blacklist)) {
+        if (in_array(config('app.env'), ['staging', 'production']) && in_array($ips, $blacklist)) {
             return $route == 'api'
                 ? ResponseHelper::genResponse('IP_REJECTED', [], 'User', 'User', [])
                 : redirect('/');
