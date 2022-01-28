@@ -45,17 +45,4 @@ class RestrictIP
 
         return $next($request);
     }
-
-
-    public function compare($ips, $ipList, $type)
-    {
-        $in = false;
-        foreach ($ips as $ip) {
-            if (in_array($ip, $ipList)) {
-                $in = true;
-            }
-        }
-
-
-    }
 }
