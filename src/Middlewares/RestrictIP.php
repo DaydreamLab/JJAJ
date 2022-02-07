@@ -18,7 +18,7 @@ class RestrictIP
     {
         $ips = [$request->ip()];
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ips = $_SERVER['HTTP_X_FORWARDED_FOR'];
+            $ips = array_merge($ips, [$_SERVER['HTTP_X_FORWARDED_FOR']]);
         }
 
         if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
