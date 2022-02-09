@@ -101,7 +101,11 @@ class Helper {
     {
         $user = auth()->guard($guard)->user();
 
-        return $user ? $user->token() : null;
+        if ($user && json_encode($user->token()) !== 'false') {
+            return $user->token();
+        }
+
+        return null;
     }
 
 
