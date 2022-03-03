@@ -4,7 +4,6 @@ namespace DaydreamLab\JJAJ\Services;
 
 use Carbon\Carbon;
 use DaydreamLab\JJAJ\Traits\LoggedIn;
-use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
@@ -604,6 +603,7 @@ class BaseService
         if (!InputHelper::null($input, 'loads')) {
             $this->loads = array_merge($this->loads, $input->get('loads'));
         }
+
         $input->put('search_keys', $this->search_keys);
         $input->put('eagers', $this->eagers);
         $input->put('loads', $this->loads);
@@ -632,7 +632,7 @@ class BaseService
             if (InputHelper::null($input, 'alias'))
             {
                 $encode = urlencode($input->get('title'));
-                $alias = Str::lower(Str::random(20));
+                $alias = Str::lower(Str::random(10));
             }
             else
             {

@@ -2,13 +2,11 @@
 
 namespace DaydreamLab\JJAJ\Repositories;
 
-use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\Interfaces\BaseRepositoryInterface;
 use DaydreamLab\User\Models\User\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -39,7 +37,7 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function add(Collection $input)
     {
-        if ($this->model->hasAttribute('ordering'))
+        if ($this->model->hasAttribute('ordering') && !$input->get('ordering'))
         {
             $query = $this->model;
 

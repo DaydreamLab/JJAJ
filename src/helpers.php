@@ -22,6 +22,7 @@ if (! function_exists('show')) {
     }
 }
 
+
 if (!function_exists('startLog')) {
     function startLog()
     {
@@ -33,6 +34,18 @@ if (!function_exists('showLog')) {
     function showLog()
     {
         show(DB::getQueryLog());
+    }
+}
+
+if (!function_exists('showLogTime')) {
+    function showLogTime()
+    {
+        $sum = 0;
+        foreach (DB::getQueryLog() as $log) {
+           $sum += $log['time'];
+        }
+
+        show('time:' . $sum);
     }
 }
 
