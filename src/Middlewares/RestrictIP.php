@@ -30,7 +30,7 @@ class RestrictIP
         }
 
         $whitelist = config('app.ip.' . $category . '.whitelist') ?: [];
-        if (in_array(config('app.env'), ['staging', 'production']) && ! empty($whitelist) && ! collect($ips)->intersect($whitelist)->count()) {
+        if (in_array(config('app.env'), ['staging', 'production']) && (! collect($ips)->intersect($whitelist)->count() && !array_search('*', $whitelist))){
             return $route == 'api'
                 ? ResponseHelper::genResponse('IP_REJECTED', [], 'User', 'User', [])
                 : redirect('/');
