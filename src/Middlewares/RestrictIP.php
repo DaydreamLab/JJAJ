@@ -30,14 +30,15 @@ class RestrictIP
         }
 
         $whitelist = config('app.ip.' . $category . '.whitelist') ?: [];
-        if (in_array(config('app.env'), ['staging', 'production']) && !collect($ips)->intersect($whitelist)->count()) {
+        if (in_array(config('app.env'), ['staging', 'production']) && (! collect($ips)->intersect($whitelist)->count() && !in_array('*', $whitelist))){
+
             return $route == 'api'
                 ? ResponseHelper::genResponse('IP_REJECTED', [], 'User', 'User', [])
                 : redirect('/');
         }
 
         $blacklist = config('app.ip.' . $category . '.blacklist') ?: [];
-        if (in_array(config('app.env'), ['staging', 'production']) && collect($ips)->intersect($blacklist)->count()) {
+        if (in_array(config('app.env'), ['staging', 'production']) && ! empty($blacklist) && collect($ips)->intersect($blacklist)->count()) {
             return $route == 'api'
                 ? ResponseHelper::genResponse('IP_REJECTED', [], 'User', 'User', [])
                 : redirect('/');

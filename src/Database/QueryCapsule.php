@@ -255,7 +255,7 @@ class QueryCapsule
 
     public function select(...$data) : QueryCapsule
     {
-        $this->select[] = $data;
+        $this->select = array_merge($this->select, $data);
 
         return $this;
     }

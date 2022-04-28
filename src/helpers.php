@@ -36,6 +36,18 @@ if (!function_exists('showLog')) {
     }
 }
 
+if (!function_exists('showLogTime')) {
+    function showLogTime()
+    {
+        $sum = 0;
+        foreach (DB::getQueryLog() as $log) {
+            $sum += $log['time'];
+        }
+
+        show('time:' . $sum);
+    }
+}
+
 if (!function_exists('flushLog')) {
     function flushLog()
     {
