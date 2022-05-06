@@ -570,7 +570,7 @@ abstract class BaseService
             $this->beforeRemove($input, $item);
             $this->removeMapping($item);
             // 若有排序的欄位則要調整 ordering 大於刪除項目的值
-            if ($this->getModel()->hasAttribute('ordering')) {
+            if ($this->getModel()->hasAttribute('ordering') && ($item->ordering != null) ) {
                  $this->repo->handleDeleteOrdering($item->ordering, 'ordering');
             }
 
