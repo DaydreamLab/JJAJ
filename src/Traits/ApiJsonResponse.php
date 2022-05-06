@@ -109,7 +109,13 @@ trait ApiJsonResponse
             $r['status'] = ($modelName && !$error)
                 ? Str::upper($modelName).'_'.$statusString
                 : $statusString;
-            $r['message'] = str_replace('{$ModelName}', $modelName, $message);
+
+            $searchStr = (isset($this->localeModelName) && config('app.locale') != 'en')
+                ? '{$ModelName} '
+                : '{$ModelName}';
+            $replaceStr =  isset($this->localeModelName) ? $this->localeModelName : $modelName;
+            $r['message'] = str_replace($searchStr, $replaceStr, $message);
+//            $r['message'] = str_replace('{$ModelName}', $modelName, $message);
 
             if ($error) {
                 $r['data']= null;

@@ -566,7 +566,7 @@ abstract class BaseService
             $q = $input->get('q')
                 ? clone ($input->get('q'))
                 : new QueryCapsule();
-            $item = $this->checkItem(collect(['id' => $id, 'q' => $q]));
+            $item = $this->checkItem(collect(['id' => $id, 'q' => $q]));;
             $this->beforeRemove($input, $item);
             $this->removeMapping($item);
             // 若有排序的欄位則要調整 ordering 大於刪除項目的值

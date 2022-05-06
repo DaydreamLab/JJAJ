@@ -41,7 +41,7 @@ trait ActionHook
     }
 
 
-    public function beforeModify(Collection $input, $item)
+    public function beforeModify(Collection $input, &$item)
     {
 
     }
