@@ -42,7 +42,7 @@ class TaiwanUnifiedBusinessNumber extends BaseRule implements Rule
             $sum += floor($result[$key]/10) + $result[$key]%10;
         }
 
-        if($sum%10 == 0 || ( ($sum%10 == 0) && $ubn_str[5] == '7'))
+        if( ($sum%10 == 0) || ( (($sum+1)%10 == 0) && $ubn_str[6] === '7'))
             return true;
         else
             return false;
