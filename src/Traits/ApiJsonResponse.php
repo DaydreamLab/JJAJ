@@ -83,6 +83,7 @@ trait ApiJsonResponse
 
         $code = config("constants.default.{$statusString}");
         $message = trans("jjaj::default.{$statusString}", $trans_params);
+
         if (!$code) {
             $lowerPackage = Str::lower($package);
             $lowerModelName = Str::lower($modelName);

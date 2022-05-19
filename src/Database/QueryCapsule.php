@@ -3,6 +3,7 @@
 namespace DaydreamLab\JJAJ\Database;
 
 use Illuminate\Support\Collection;
+use phpDocumentor\Reflection\Types\String_;
 
 class QueryCapsule
 {
@@ -160,7 +161,9 @@ class QueryCapsule
             if ($key == 'search' && $value) {
                 $this->where(function ($q) use ($value, $searchKeys) {
                     foreach ($searchKeys as $searchKey) {
-                        $q->orWhere($searchKey, 'LIKE', "%%$value%%");
+                        $searchKey instanceof \Closure
+                            ? $q->orWhere($searchKey)
+                            : $q->orWhere($searchKey, 'LIKE', "%%$value%%");
                     }
                 });
             } elseif ($key == 'limit') {

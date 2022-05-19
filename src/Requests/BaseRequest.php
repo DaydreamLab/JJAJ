@@ -73,6 +73,7 @@ class BaseRequest extends FormRequest
 
     protected function failedAuthorization()
     {
+        $this->modelName = 'User';
         throw new HttpResponseException($this->response('Unauthorized', null));
     }
 
