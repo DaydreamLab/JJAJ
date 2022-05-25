@@ -12,7 +12,7 @@ class UriHelper {
 
         $domain = config('app.env') == 'production'
             ? config('app.dingsomthing.dsth.url', 'https://dsth.me/')
-            : config('app.dingsomthing.dsth.url', 'https://demo.dsth.me/');
+            : 'https://demo.dsth.me/';
 
         $shortCodeUri = $domain . 'shortcode.php';
         $shortenUrl = $domain . 'shorten.php';

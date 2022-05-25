@@ -95,7 +95,6 @@ trait ApiJsonResponse
             $message = $package
                 ? trans("{$lowerPackage}::{$lowerModelName}.{$statusString}", $trans_params)
                 : trans("{$lowerModelName}.{$statusString}", $trans_params);
-
             $responseStatusString = Str::upper($modelName).'_'.$statusString;
             if (!$code) {
                 $code = config('constants.default.UNDEFINED_STATUS');
