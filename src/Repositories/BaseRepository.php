@@ -821,7 +821,8 @@ class BaseRepository implements BaseRepositoryInterface
      */
     public function restore($item, $user)
     {
-        if ($item->locked_by == 0
+        if (config('app.seeding')
+            || $item->locked_by == 0
             || $item->locked_by == $user->id
             || $user->higherPermissionThan($item->locker)
         ) {
