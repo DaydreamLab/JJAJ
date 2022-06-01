@@ -5,7 +5,7 @@ return [
     'ARCHIVE_SUCCESS'                       => '{$ModelName} 封存項目成功',
     'ARCHIVE_FAIL'                          => '{$ModelName} 封存項目失敗',
 
-    'CATCH_EXCEPTION'                       => '產生例外狀況',
+    'CATCH_EXCEPTION'                       => '系統發生錯誤，請聯繫管理員尋求協助',
     'CREATE_SUCCESS'                        => '{$ModelName} 建立項目成功',
     'CREATE_NESTED_SUCCESS'                 => '{$ModelName} 建立項目成功',
     'CREATE_FAIL'                           => '{$ModelName} 建立項目失敗',
