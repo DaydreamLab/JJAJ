@@ -3,6 +3,7 @@
 namespace DaydreamLab\JJAJ\Database;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use phpDocumentor\Reflection\Types\String_;
 
 class QueryCapsule
@@ -20,6 +21,8 @@ class QueryCapsule
     public $max = null;
 
     public $page = 1;
+
+    public $clearOrderBy = 0;
 
     public $paginate = false;
 
@@ -135,11 +138,18 @@ class QueryCapsule
             }
         }
 
-        $q = $q->orderBy(!$this->orderBy ? $model->getOrderBy() : $this->orderBy, !$this->order ? $model->getOrder() : $this->order);
+        if (!$this->clearOrderBy) {
+            $q = $q->orderBy(!$this->orderBy ? $model->getOrderBy() : $this->orderBy, !$this->order ? $model->getOrder() : $this->order);
+        }
 
         if ($this->max) {
             return $q->max($this->max);
         }
+
+//        $sql = $q->toSql();
+//        $bindings = $q->getBindings();
+//        $sqlStr = Str::replaceArray('?', $bindings,$sql);
+//        show($sqlStr);
 
         if ($this->paginate) {
             return $this->limit
