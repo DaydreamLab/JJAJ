@@ -10,6 +10,8 @@ class QueryCapsule
 {
     public $extraRelations = [];
 
+    public $extraSearch = [];
+
     public $has = [];
 
     public $having = [];
@@ -163,6 +165,14 @@ class QueryCapsule
     }
 
 
+    public function extraSearch($data)
+    {
+        $this->extraSearch[] = $data;
+
+        return $this;
+    }
+
+
     public function getQuery(Collection $input)
     {
         $searchKeys = $input->get('searchKeys') ?: [];
@@ -174,6 +184,11 @@ class QueryCapsule
                         $searchKey instanceof \Closure
                             ? $q->orWhere($searchKey)
                             : $q->orWhere($searchKey, 'LIKE', "%%$value%%");
+                    }
+                    foreach ($this->extraSearch as $extraSearch) {
+                        $extraSearch instanceof \Closure
+                            ? $q->orWhere($extraSearch)
+                            : $q->orWhere(...$extraSearch);
                     }
                 });
             } elseif ($key == 'limit') {

@@ -823,8 +823,8 @@ class BaseRepository implements BaseRepositoryInterface
     {
         if (config('app.seeding')
             || $item->locked_by == 0
-            || ($user && $item->locked_by == $user->id)
-            || ($user && $user->higherPermissionThan($item->locker))
+            || ($item->locked_by == $user->id)
+            || ($user->higherPermissionThan($item->locker))
         ) {
             $data = [
                 'locked_by' => null,
