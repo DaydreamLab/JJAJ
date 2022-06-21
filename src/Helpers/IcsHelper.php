@@ -18,6 +18,7 @@ class IcsHelper {
             'DTSTAMP:' . now()->format('Ymd\This') . PHP_EOL .
             'LOCATION:' . addslashes($params['locationName']) . PHP_EOL .
             'DESCRIPTION:' . addslashes($params['title']) . PHP_EOL .
+            'ORGANIZER;'. $params['ORGANIZER']. PHP_EOL .
             'URL;VALUE=URI:' . $params['url'] . PHP_EOL .
             'SUMMARY:' . addslashes($params['title']) . PHP_EOL .
             'DTSTART:' .  Carbon::parse($params['DTSTART'])->tz($params['tz'])->format('Ymd\THis') . PHP_EOL .
