@@ -16,14 +16,15 @@ class IcsHelper {
             'DTEND:' . Carbon::parse($params['DTEND'])->tz($params['tz'])->format('Ymd\THis') . PHP_EOL .
             'UID:' . md5($params['title']) . PHP_EOL .
             'DTSTAMP:' . now()->format('Ymd\This') . PHP_EOL .
-            'LOCATION:' . addslashes($params['locationName']) . PHP_EOL .
-            'DESCRIPTION:' . addslashes($params['title']) . PHP_EOL .
-            'ORGANIZER;'. $params['ORGANIZER']. PHP_EOL .
-            'URL;VALUE=URI:' . $params['url'] . PHP_EOL .
-            'SUMMARY:' . addslashes($params['title']) . PHP_EOL .
-            'DTSTART:' .  Carbon::parse($params['DTSTART'])->tz($params['tz'])->format('Ymd\THis') . PHP_EOL .
-            'END:VEVENT' . PHP_EOL .
-            'END:VCALENDAR');
+            'LOCATION:' . addslashes($params['locationName']) . PHP_EOL) .
+            self::filter_linelimit('DESCRIPTION:' . ($params['DESCRIPTION'])) .
+            self::filter_linelimit(PHP_EOL .
+                'ORGANIZER;'. $params['ORGANIZER']. PHP_EOL .
+                'URL;VALUE=URI:' . $params['url'] . PHP_EOL .
+                'SUMMARY:' . addslashes($params['title']) . PHP_EOL .
+                'DTSTART:' .  Carbon::parse($params['DTSTART'])->tz($params['tz'])->format('Ymd\THis') . PHP_EOL .
+                'END:VEVENT' . PHP_EOL .
+                'END:VCALENDAR');
     }
 
 
