@@ -381,8 +381,7 @@ abstract class BaseService
         }
 
         if ($item->hasAttribute('hits')) {
-            $item->hits++;
-            $this->update($item, $item);
+            $this->update($item, collect(['hits' => $item->hits + 1]));
         }
 
         $this->status = 'GetItemSuccess';
