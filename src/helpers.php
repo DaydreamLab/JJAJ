@@ -62,7 +62,7 @@ if (!function_exists('stopLog')) {
     }
 }
 
-if (!function_exists('stopLog')) {
+if (!function_exists('showLogCount')) {
     function showLogCount()
     {
         show(count(DB::getQueryLog()));
