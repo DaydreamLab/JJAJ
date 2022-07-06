@@ -52,6 +52,8 @@ class QueryCapsule
 
     public $whereNotNull = [];
 
+    public $whereRaw = [];
+
 
     public function exec($model)
     {
@@ -137,6 +139,12 @@ class QueryCapsule
         if (count($this->whereNotNull)) {
             foreach ($this->whereNotNull as $whereNotNull) {
                 $q = $q->whereNotNull($whereNotNull);
+            }
+        }
+
+        if (count($this->whereRaw)) {
+            foreach ($this->whereRaw as $whereRaw) {
+                $q = $q->whereRaw($whereRaw);
             }
         }
 
@@ -333,6 +341,14 @@ class QueryCapsule
     public function whereNotNull($data) : QueryCapsule
     {
         $this->whereNotNull[] = $data;
+
+        return $this;
+    }
+
+
+    public function whereRaw($data) : QueryCapsule
+    {
+        $this->whereRaw[] = $data;
 
         return $this;
     }
