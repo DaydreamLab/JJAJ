@@ -6,6 +6,7 @@ use DaydreamLab\JJAJ\Helpers\Helper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -50,6 +51,10 @@ class BaseExceptionHandler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        if ($exception instanceof ThrottleRequestsException) {
+            return ResponseHelper::genResponse('TOO_MANNY_ATTEMPT', [], null, null, [], null);
+        }
+
 //        if ($exception instanceof \Illuminate\Auth\AuthenticationException) {
 //            return ResponseHelper::response('Unauthorized', null);
 //        } else if($exception instanceof \League\Flysystem\FileNotFoundException) {

@@ -58,6 +58,7 @@ return [
 
     'TRASH_SUCCESS'                         => '{$ModelName} trash success',
     'TRASH_FAIL'                            => '{$ModelName} search fail',
+    'TOO_MANNY_ATTEMPT'                     => 'Too manny attempt',
 
     'UNDEFINED_STATUS'                      => 'Undefined status string: :status',
     'UNAUTHORIZED'                          => 'Unauthorized',

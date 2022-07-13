@@ -58,6 +58,7 @@ return [
 
     'TRASH_SUCCESS'                         => '{$ModelName} 丟到垃圾桶成功',
     'TRASH_FAIL'                            => '{$ModelName} 丟到垃圾桶失敗',
+    'TOO_MANNY_ATTEMPT'                     => '嘗試次數過多，請稍後在試',
 
     'UNDEFINED_STATUS'                      => '未定義回應代碼: :status',
     'UNAUTHORIZED'                          => '使用者未認證',

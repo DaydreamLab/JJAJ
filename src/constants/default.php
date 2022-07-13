@@ -59,6 +59,7 @@ return [
 
     'TRASH_SUCCESS'                         => 200,
     'TRASH_FAIL'                            => 500,
+    'TOO_MANNY_ATTEMPT'                     => 429,
 
     'UNDEFINED_STATUS'                      => 500,
     'UNAUTHORIZED'                          => 401,
