@@ -80,14 +80,13 @@ trait ApiJsonResponse
         $error          = isset($this->error) ? $this->error : false;
         $data           = $this->formatResponse($response, $resource, $wrapItems);
         $r              = [];
+        $lowerPackage   = Str::lower($package);
+        $lowerModelName = Str::lower($modelName);
 
         $code = config("constants.default.{$statusString}");
         $message = trans("jjaj::default.{$statusString}", $trans_params);
 
         if (!$code) {
-            $lowerPackage = Str::lower($package);
-            $lowerModelName = Str::lower($modelName);
-
             $code = $package
                 ? config("constants.{$lowerPackage}.{$lowerModelName}.{$statusString}")
                 : config("constants.{$lowerModelName}.{$statusString}");
@@ -116,6 +115,14 @@ trait ApiJsonResponse
             $replaceStr =  isset($this->localeModelName) ? $this->localeModelName : $modelName;
             $r['message'] = str_replace($searchStr, $replaceStr, $message);
 //            $r['message'] = str_replace('{$ModelName}', $modelName, $message);
+
+
+            $pkgMessage = $package
+                ? trans("{$lowerPackage}::{$lowerModelName}.{$statusString}", $trans_params)
+                : trans("{$lowerModelName}.{$statusString}", $trans_params);
+            if ($pkgMessage) {
+                $r['message'] = $pkgMessage;
+            }
 
             if ($error) {
                 $r['data']= null;
