@@ -4,14 +4,11 @@ namespace DaydreamLab\JJAJ\Traits;
 
 use DaydreamLab\JJAJ\Exceptions\BaseException;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Str;
 use Throwable;
-use function Psy\sh;
 
 trait ApiJsonResponse
 {
@@ -116,11 +113,11 @@ trait ApiJsonResponse
             $r['message'] = str_replace($searchStr, $replaceStr, $message);
 //            $r['message'] = str_replace('{$ModelName}', $modelName, $message);
 
-
-            $pkgMessage = $package
-                ? trans("{$lowerPackage}::{$lowerModelName}.{$statusString}", $trans_params)
-                : trans("{$lowerModelName}.{$statusString}", $trans_params);
-            if ($pkgMessage) {
+            $pkgMessageKey = $package
+                ? "{$lowerPackage}::{$lowerModelName}.{$statusString}"
+                : "{$lowerModelName}.{$statusString}";
+            $pkgMessage = trans($pkgMessageKey, $trans_params);
+            if ($pkgMessage && $pkgMessage != $pkgMessage) {
                 $r['message'] = $pkgMessage;
             }
 
