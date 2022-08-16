@@ -38,6 +38,8 @@ class QueryCapsule
 
     public $orWhereHas = [];
 
+    public $toSql = false;
+
     public $with = [];
 
     public $withCount = [];
@@ -82,7 +84,6 @@ class QueryCapsule
                 $q = $q->having(...$has);
             }
         }
-
 
         if (count($this->orWhere)) {
             foreach ($this->orWhere as $orWhere) {
@@ -149,17 +150,26 @@ class QueryCapsule
         }
 
         if (!$this->clearOrderBy) {
-            $q = $q->orderBy(!$this->orderBy ? $model->getOrderBy() : $this->orderBy, !$this->order ? $model->getOrder() : $this->order);
+            $q = $q->orderBy(
+                !$this->orderBy
+                    ? $model->getOrderBy()
+                    : $this->orderBy,
+                !$this->order
+                    ? $model->getOrder()
+                    : $this->order
+            );
         }
 
         if ($this->max) {
             return $q->max($this->max);
         }
 
-//        $sql = $q->toSql();
-//        $bindings = $q->getBindings();
-//        $sqlStr = Str::replaceArray('?', $bindings,$sql);
-//        show($sqlStr);
+        if ($this->toSql) {
+            $sql = $q->toSql();
+            $bindings = $q->getBindings();
+            $sqlStr = Str::replaceArray('?', $bindings,$sql);
+            return $sqlStr;
+        }
 
         if ($this->paginate) {
             return $this->limit
@@ -292,6 +302,14 @@ class QueryCapsule
     public function select(...$data) : QueryCapsule
     {
         $this->select = array_merge($this->select, $data);
+
+        return $this;
+    }
+
+
+    public function toSql()
+    {
+        $this->toSql = true;
 
         return $this;
     }
