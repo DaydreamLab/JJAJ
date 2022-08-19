@@ -5,8 +5,6 @@ namespace DaydreamLab\JJAJ\Repositories;
 use DaydreamLab\JJAJ\Database\QueryCapsule;
 use DaydreamLab\JJAJ\Exceptions\ForbiddenException;
 use DaydreamLab\JJAJ\Exceptions\InternalServerErrorException;
-use DaydreamLab\JJAJ\Exceptions\OutOfBoundException;
-use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\Interfaces\BaseRepositoryInterface;
 use DaydreamLab\JJAJ\Traits\FormatDateTime;
@@ -16,8 +14,6 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use DaydreamLab\JJAJ\Exceptions\NotFoundException;
-use function Psy\sh;
-use function Webmozart\Assert\Tests\StaticAnalysis\null;
 
 class BaseRepository implements BaseRepositoryInterface
 {
@@ -55,7 +51,7 @@ class BaseRepository implements BaseRepositoryInterface
         $input = $input->only($fillableData);
 
         $item = $this->create($input->toArray());
-        if(!$item) {
+        if (!$item) {
             throw new InternalServerErrorException('CreateFail', $fillableData, null, $this->modelName);
         }
 
@@ -91,13 +87,11 @@ class BaseRepository implements BaseRepositoryInterface
                     $new->beforeNode($selected)->save();
                     $this->handleNextSiblingsOrdering($new, 'add');
                 } else {
-
                     $parent->appendNode($new);
                 }
 
                 return $new;
             } else {
-
                 if ($inputOrdering !== null) {
                     $q = new QueryCapsule();
                     $q = $q->where('parent_id', $inputParentId)
@@ -108,7 +102,7 @@ class BaseRepository implements BaseRepositoryInterface
                     if ($targetNode) {
                         $this->handleAddOrdering($input, 'ordering');
                         $new = $this->create($this->getFillableInput($input));
-                        return $targetNode->beforeNode($new)->save() ? $new :null;
+                        return $targetNode->beforeNode($new)->save() ? $new : null;
                     } else {
                         return $this->handleLastChildOrdering($input, $parent);
                     }
@@ -120,10 +114,9 @@ class BaseRepository implements BaseRepositoryInterface
             $q = new QueryCapsule();
             $q = $q->whereNull('parent_id');
             if ($inputOrdering) {
-                if($this->getModel()->hasAttribute('path') && $this->getModel()->hasAttribute('alias')) {
-                    if($input->get('extension') != '') {
+                if ($this->getModel()->hasAttribute('path') && $this->getModel()->hasAttribute('alias')) {
+                    if ($input->get('extension') != '') {
                         $q = $q->where('extension', $input->get('extension'));
-
                     } else {
                         throw new ForbiddenException('InvalidInput', [
                             'extension' => null,
@@ -134,7 +127,7 @@ class BaseRepository implements BaseRepositoryInterface
 
                 $rootItems = $this->search(collect(['q' => $q]));
                 $targetNode = $rootItems->where('ordering', $inputOrdering)->first();
-                $input->put('ordering', $targetNode ? $inputOrdering + 1 : $rootItems->count() );
+                $input->put('ordering', $targetNode ? $inputOrdering + 1 : $rootItems->count());
 
                 $node = $this->create($input->toArray());
                 if ($targetNode) {
@@ -185,7 +178,7 @@ class BaseRepository implements BaseRepositoryInterface
     {
         $result = $model->delete();
         if (!$result) {
-            throw new InternalServerErrorException('DeleteFail', null,null, $this->modelName);
+            throw new InternalServerErrorException('DeleteFail', null, null, $this->modelName);
         }
 
         return $result;
@@ -310,7 +303,7 @@ class BaseRepository implements BaseRepositoryInterface
         if ($inputOrdering !== null) {
             $q = $q->where($key, '>', $inputOrdering);
             $updateItems = $this->search(collect(['q' => $q]));
-            $updateItems->each(function ($item) use ($key){
+            $updateItems->each(function ($item) use ($key) {
                 $item->{$key}++;
                 $item->save();
             });
@@ -351,7 +344,7 @@ class BaseRepository implements BaseRepositoryInterface
      */
     public function handleDeleteNestedOrdering($item)
     {
-        $item->getNextSiblings()->each(function ($sibling){
+        $item->getNextSiblings()->each(function ($sibling) {
             $sibling->ordering--;
             if (!$sibling->save()) {
                 throw new InternalServerErrorException('OrderingNestedFail', null, null, $this->modelName);
@@ -453,7 +446,7 @@ class BaseRepository implements BaseRepositoryInterface
     public function handleNextSiblingsOrdering($item, $action)
     {
         $item->getNextSiblings()->each(function ($sibling) use ($action) {
-           $action == 'add'
+            $action == 'add'
                ? $sibling->ordering++
                : $sibling->ordering--;
             if (!$sibling->save()) {
@@ -527,7 +520,8 @@ class BaseRepository implements BaseRepositoryInterface
         }
 
         $fillable = $this->getFillableInput($data);
-        $result = $this->update($model, $fillable);;
+        $result = $this->update($model, $fillable);
+        ;
         if (!$result) {
             throw new InternalServerErrorException('UpdateFail', $data, null, $this->modelName);
         }
@@ -610,7 +604,7 @@ class BaseRepository implements BaseRepositoryInterface
                         ->orderBy('ordering', 'asc')
                         ->exec($this->model);
                     $targetNode = $siblings->last();
-                    if ($targetNode && $targetNode != $node){
+                    if ($targetNode && $targetNode != $node) {
                         $node->afterNode($targetNode);
                     }
                 } else {
@@ -619,7 +613,7 @@ class BaseRepository implements BaseRepositoryInterface
                         ->exec($this->model);
                     if ($inputOrdering === '0' || $inputOrdering === 0) {
                         $targetNode = $siblings->first();
-                        if ($targetNode && $targetNode != $node){
+                        if ($targetNode && $targetNode != $node) {
                             $node->beforeNode($targetNode)->save();
                         }
                     } else {
@@ -821,7 +815,8 @@ class BaseRepository implements BaseRepositoryInterface
      */
     public function restore($item, $user)
     {
-        if (config('app.seeding')
+        if (
+            config('app.seeding')
             || $item->locked_by == 0
             || ($item->locked_by == $user->id)
             || ($user->higherPermissionThan($item->locker))

@@ -8,5 +8,5 @@ interface StateMachine
 
     public function graph();
 
-    public function transition($from, $to, $key);
+    public function transition($to, $key);
 }

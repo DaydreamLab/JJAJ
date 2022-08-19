@@ -56,6 +56,10 @@ class QueryCapsule
 
     public $whereRaw = [];
 
+    public $sharedLock = false;
+
+    public $lockForUpdate = false;
+
 
     public function exec($model)
     {
@@ -164,6 +168,14 @@ class QueryCapsule
             return $q->max($this->max);
         }
 
+        if ($this->lockForUpdate) {
+            $q = $q->lockForUpdate();
+        }
+
+        if ($this->sharedLock) {
+            $q = $q->sharedLock();
+        }
+
         if ($this->toSql) {
             $sql = $q->toSql();
             $bindings = $q->getBindings();
@@ -254,6 +266,14 @@ class QueryCapsule
     }
 
 
+    public function lockForUpdate()
+    {
+        $this->lockForUpdate = true;
+
+        return $this;
+    }
+
+
     public function max($data)
     {
         $this->max = $data;
@@ -302,6 +322,14 @@ class QueryCapsule
     public function select(...$data) : QueryCapsule
     {
         $this->select = array_merge($this->select, $data);
+
+        return $this;
+    }
+
+
+    public function sharedLock()
+    {
+        $this->sharedLock = true;
 
         return $this;
     }
