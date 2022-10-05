@@ -40,12 +40,12 @@ trait ActionHook
     }
 
 
-    public function beforeRemove(Collection &$input, $item)
+    public function beforeRemove(Collection &$input, &$item)
     {
     }
 
 
-    public function beforeState($state, $item)
+    public function beforeState($state, &$item)
     {
     }
 }
