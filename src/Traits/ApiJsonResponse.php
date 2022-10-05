@@ -67,7 +67,7 @@ trait ApiJsonResponse
     }
 
 
-    public function response($status, $response, $trans_params = [], $resource = null, $wrapItems = true, $debug = false)
+    public function response($status, $response, $trans_params = [], $resource = null, $wrapItems = true)
     {
         $statusString   = Str::upper(Str::snake($status));
         $package        = isset($this->package) ? $this->package : null;
@@ -121,7 +121,7 @@ trait ApiJsonResponse
 
             if ($error) {
                 $r['data'] = null;
-                if ($debug || config('app.debug')) {
+                if (config('app.debug')) {
                     $r['error'] = isset($data['items'])
                         ? $data['items']
                         : $data;
