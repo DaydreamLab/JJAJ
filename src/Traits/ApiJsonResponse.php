@@ -20,9 +20,9 @@ trait ApiJsonResponse
             $response = $data;
         } elseif (gettype($data) == 'boolean') {
             $response = null;
-        } elseif (gettype($data) == 'array'){
+        } elseif (gettype($data) == 'array') {
             $response['items'] = $data;
-        }  elseif ($data instanceof \stdClass){
+        } elseif ($data instanceof \stdClass) {
             $response['items'] = $resource
                 ? new $resource($data)
                 : $data;
@@ -36,11 +36,9 @@ trait ApiJsonResponse
                 : $data;
         } elseif ($data instanceof LengthAwarePaginator) {
             $response =  new $resource($data);
-        }
-        elseif ($data instanceof MessageBag) {
+        } elseif ($data instanceof MessageBag) {
             $response['items'] = $data;
         } else {
-
         }
 
         return  $response;
@@ -69,7 +67,7 @@ trait ApiJsonResponse
     }
 
 
-    public function response($status, $response, $trans_params = [], $resource = null, $wrapItems = true)
+    public function response($status, $response, $trans_params = [], $resource = null, $wrapItems = true, $debug = false)
     {
         $statusString   = Str::upper(Str::snake($status));
         $package        = isset($this->package) ? $this->package : null;
@@ -91,11 +89,11 @@ trait ApiJsonResponse
             $message = $package
                 ? trans("{$lowerPackage}::{$lowerModelName}.{$statusString}", $trans_params)
                 : trans("{$lowerModelName}.{$statusString}", $trans_params);
-            $responseStatusString = Str::upper($modelName).'_'.$statusString;
+            $responseStatusString = Str::upper($modelName) . '_' . $statusString;
             if (!$code) {
                 $code = config('constants.default.UNDEFINED_STATUS');
                 $r['status'] = 'UNDEFINED_STATUS';
-                $r['message'] = trans("jjaj::default.UNDEFINED_STATUS",  ['status' => $responseStatusString]);
+                $r['message'] = trans("jjaj::default.UNDEFINED_STATUS", ['status' => $responseStatusString]);
             } else {
                 $r['status'] = $responseStatusString;
                 $r['message'] = str_replace('{$ModelName}', $modelName, $message);
@@ -103,13 +101,13 @@ trait ApiJsonResponse
             }
         } else {
             $r['status'] = ($modelName && !$error)
-                ? Str::upper($modelName).'_'.$statusString
+                ? Str::upper($modelName) . '_' . $statusString
                 : $statusString;
 
             $searchStr = (isset($this->localeModelName) && config('app.locale') != 'en')
                 ? '{$ModelName} '
                 : '{$ModelName}';
-            $replaceStr =  isset($this->localeModelName) ? $this->localeModelName : $modelName;
+            $replaceStr = $this->localeModelName ?? $modelName;
             $r['message'] = str_replace($searchStr, $replaceStr, $message);
 //            $r['message'] = str_replace('{$ModelName}', $modelName, $message);
 
@@ -122,8 +120,8 @@ trait ApiJsonResponse
             }
 
             if ($error) {
-                $r['data']= null;
-                if (config('app.debug')) {
+                $r['data'] = null;
+                if ($debug || config('app.debug')) {
                     $r['error'] = isset($data['items'])
                         ? $data['items']
                         : $data;

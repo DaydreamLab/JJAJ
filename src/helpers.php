@@ -17,7 +17,7 @@ if (! function_exists('show')) {
             echo '<pre>' . implode("\n\n", $prints) . '</pre>';
         } else {
             // Print one value.
-            echo '<pre>' . print_r($data, 1) . '</pre>';
+            echo '<pre>' . print_r($data, true) . '</pre>';
         }
     }
 }
