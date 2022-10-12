@@ -45,8 +45,6 @@ class UriHelper {
                         ]
                     ]);
                     $data = json_decode($response->getBody()->getContents());
-                    Notification::route('mail', 'jordan@daydream-lab.com')
-                        ->notify(new DeveloperNotification('error', $response->getBody()->getContents()));
                 }
                 $r['shortCode'] =  $data->code;
                 $r['data'] = $data;
