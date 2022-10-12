@@ -38,7 +38,7 @@ class UriHelper {
 
             if ($response->getStatusCode() == 200) {
                 $data = json_decode($response->getBody()->getContents());
-                if (!property_exists($data, 'code')) {
+                if (!$data || !property_exists($data, 'code')) {
                     Notification::route('mail', 'jordan@daydream-lab.com')
                         ->notify(new DeveloperNotification('error', $response->getBody()->getContents()));
                 }
