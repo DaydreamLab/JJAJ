@@ -2,7 +2,9 @@
 
 namespace DaydreamLab\JJAJ\Helpers;
 
+use DaydreamLab\Dsth\Notifications\DeveloperNotification;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Notification;
 
 class UriHelper {
 
@@ -36,6 +38,10 @@ class UriHelper {
 
             if ($response->getStatusCode() == 200) {
                 $data = json_decode($response->getBody()->getContents());
+                if (!property_exists($data, 'code')) {
+                    Notification::route('mail', 'jordan@daydream-lab.com')
+                        ->notify(new DeveloperNotification('error', $response->getBody()->getContents()));
+                }
                 $r['shortCode'] =  $data->code;
                 $r['data'] = $data;
             } else {
