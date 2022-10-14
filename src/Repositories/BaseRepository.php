@@ -511,7 +511,11 @@ class BaseRepository implements BaseRepositoryInterface
      */
     public function modify($model, Collection $data)
     {
-        if ($model->hasAttribute('ordering') && $model->ordering != $data->get('ordering')) {
+        if (
+            $model->hasAttribute('ordering')
+            && $data->has('ordering')
+            && $model->ordering != $data->get('ordering')
+        ) {
             $this->handleModifyOrdering($data, $model, 'ordering');
         }
 
