@@ -352,49 +352,50 @@ class BaseRepository implements BaseRepositoryInterface
                 }
                 else
                 {
-                    if ($item != null)
+//                    if ($item != null)
+//                    {
+
+                    // 需要重寫這段
+                    if ($this->isNested())
                     {
-                        // 需要重寫這段
-                        if ($this->isNested())
+                        if ($key == 'id')
                         {
-                            if ($key == 'id')
-                            {
-                                $category = $this->find($input->id);
-                                $query = $query->where('_lft', '>=', $category->_lft)
-                                                ->where('_rgt', '<=', $category->_rgt);
-                            }
-                            else if ($key == 'tag_id')
-                            {
-                                $tag = $this->find($input->tag_id);
-                                $query = $query->where('_lft', '>', $tag->_lft)
-                                                ->where('_rgt', '>', $tag->_rgt);
-                            }
-                            else
-                            {
-                                $query = $query->where("$key", '=', $item);
-                            }
+                            $category = $this->find($input->id);
+                            $query = $query->where('_lft', '>=', $category->_lft)
+                                            ->where('_rgt', '<=', $category->_rgt);
+                        }
+                        else if ($key == 'tag_id')
+                        {
+                            $tag = $this->find($input->tag_id);
+                            $query = $query->where('_lft', '>', $tag->_lft)
+                                            ->where('_rgt', '>', $tag->_rgt);
                         }
                         else
                         {
+                            $query = $query->where("$key", '=', $item);
+                        }
+                    }
+                    else
+                    {
 //                            if ($key == 'category_id')
 //                            {
 //                                $query = $query->whereIn('category_id', $item);
 //                            }
 //                            else
 
-                            if ($key == 'withCount') {
-                                foreach ($item as $withCount) {
-                                    $query = $query->withCount($withCount);
-                                }
-                            } elseif ($key == 'has') {
-                                foreach ($item as $has) {
-                                    $query = $query->has($has['key'], $has['operator'],$has['value']);
-                                }
-                            } else {
-                                $query = $query->where("$key", '=', $item);
+                        if ($key == 'withCount') {
+                            foreach ($item as $withCount) {
+                                $query = $query->withCount($withCount);
                             }
+                        } elseif ($key == 'has') {
+                            foreach ($item as $has) {
+                                $query = $query->has($has['key'], $has['operator'],$has['value']);
+                            }
+                        } else {
+                            $query = $query->where("$key", '=', $item);
                         }
                     }
+//                    }
                 }
             }
         }
