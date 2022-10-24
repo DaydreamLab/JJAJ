@@ -235,7 +235,7 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function getQuery(Collection $input)
     {
-        $query = $this->model;
+        $query = $this->model->query();
         foreach ($input->toArray() as $key => $item)
         {
             if (!in_array($key, $this->ignore_keys))
@@ -349,6 +349,10 @@ class BaseRepository implements BaseRepositoryInterface
                     {
                         $query = $query->load($load);
                     }
+                }
+                elseif ($key == 'query')
+                {
+                    $item($query); // 套用客製化query
                 }
                 else
                 {
