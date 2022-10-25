@@ -236,21 +236,24 @@ class BaseRepository implements BaseRepositoryInterface
     public function getQuery(Collection $input)
     {
         $query = $this->model->query();
+
         foreach ($input->toArray() as $key => $item)
         {
             if (!in_array($key, $this->ignore_keys))
             {
-                if ($key == 'search' && !InputHelper::null($input, 'search'))
+                if ($key == 'search')
                 {
-                    $query = $query->where(function ($query) use ($item, $input) {
-                        $search_keys = $input->get('search_keys');
+                    if (!InputHelper::null($input, 'search')) {
+                        $query = $query->where(function ($query) use ($item, $input) {
+                            $search_keys = $input->get('search_keys');
 
-                        foreach ($search_keys as $search_key)
-                        {
-                            $query->orWhere($search_key, 'LIKE', '%%'.$item.'%%');
-                        }
+                            foreach ($search_keys as $search_key)
+                            {
+                                $query->orWhere($search_key, 'LIKE', '%%'.$item.'%%');
+                            }
 
-                    });
+                        });
+                    }
                 }
                 elseif ($key == 'special_queries')
                 {
