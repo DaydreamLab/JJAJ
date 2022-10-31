@@ -29,11 +29,13 @@ trait RecordChanger
         static::updating(function ($item) {
             $user = auth()->guard('api')->user();
 
-            if ($user) {
-                $item->updated_by = $user->id;
-            } else {
-                if (!$item->updated_by) {
-                    $item->updated_by = 999999993;
+            if (!(count($item->getDirty()) == 2 && $item->getDirty('locked_at') && $item->getDirty('locked_by'))) {
+                if ($user) {
+                    $item->updated_by = $user->id;
+                } else {
+                    if (!$item->updated_by) {
+                        $item->updated_by = 999999993;
+                    }
                 }
             }
         });
