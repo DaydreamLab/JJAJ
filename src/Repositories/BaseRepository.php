@@ -353,9 +353,11 @@ class BaseRepository implements BaseRepositoryInterface
                         $query = $query->load($load);
                     }
                 }
-                elseif ($key == 'query')
+                elseif ($key == 'queries')
                 {
-                    $item($query); // 套用客製化query
+                    foreach ($item as $singleQuery) {
+                        $singleQuery($query); // 套用客製化query
+                    }
                 }
                 else
                 {
