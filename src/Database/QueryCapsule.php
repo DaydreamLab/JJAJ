@@ -12,7 +12,7 @@ class QueryCapsule
 
     public $extraSearch = [];
 
-    public $has = [];
+    public $doesntHave = [];
 
     public $having = [];
 
@@ -48,6 +48,8 @@ class QueryCapsule
 
     public $whereHas = [];
 
+    public $whereDoesntHave = [];
+
     public $whereIn = [];
 
     public $whereNull = [];
@@ -71,9 +73,9 @@ class QueryCapsule
             }
         }
 
-        if (count($this->has)) {
-            foreach ($this->has as $has) {
-                $q = $q->has(...$has);
+        if (count($this->doesntHave)) {
+            foreach ($this->doesntHave as $doesntHave) {
+                $q = $q->doesntHave(...$doesntHave);
             }
         }
 
@@ -84,8 +86,8 @@ class QueryCapsule
         }
 
         if (count($this->having)) {
-            foreach ($this->has as $has) {
-                $q = $q->having(...$has);
+            foreach ($this->having as $having) {
+                $q = $q->having(...$having);
             }
         }
 
@@ -135,6 +137,12 @@ class QueryCapsule
             }
         }
 
+        if (count($this->whereDoesntHave)) {
+            foreach ($this->whereDoesntHave as $whereDoesntHave) {
+                $q = $q->whereDoesntHave(...$whereDoesntHave);
+            }
+        }
+
         if (count($this->whereNull)) {
             foreach ($this->whereNull as $whereNull) {
                 $q = $q->whereNull($whereNull);
@@ -179,7 +187,7 @@ class QueryCapsule
         if ($this->toSql) {
             $sql = $q->toSql();
             $bindings = $q->getBindings();
-            $sqlStr = Str::replaceArray('?', $bindings,$sql);
+            $sqlStr = Str::replaceArray('?', $bindings, $sql);
             return $sqlStr;
         }
 
@@ -232,7 +240,7 @@ class QueryCapsule
             } elseif ($key == 'extraRelations') {
                 $this->extraRelations = array_merge($this->extraRelations, $value);
             } else {
-                if ($value !== '' && $value !== null)  {
+                if ($value !== '' && $value !== null) {
                     $this->where($key, $value);
                 }
             }
@@ -242,10 +250,17 @@ class QueryCapsule
     }
 
 
-    public function having(...$data) : QueryCapsule
+    public function having(...$data): QueryCapsule
     {
         $this->having[] = $data;
 
+        return $this;
+    }
+
+
+    public function doesntHave(...$data)
+    {
+        $this->doesntHave[] = $data;
         return $this;
     }
 
@@ -258,7 +273,7 @@ class QueryCapsule
     }
 
 
-    public function load(...$data) : QueryCapsule
+    public function load(...$data): QueryCapsule
     {
         $this->load[] = $data;
 
@@ -282,7 +297,8 @@ class QueryCapsule
     }
 
 
-    public function orderBy($orderBy, $order) {
+    public function orderBy($orderBy, $order)
+    {
         if ($orderBy) {
             $this->orderBy = $orderBy;
         }
@@ -295,7 +311,7 @@ class QueryCapsule
     }
 
 
-    public function orWhere(...$data) : QueryCapsule
+    public function orWhere(...$data): QueryCapsule
     {
         $this->orWhere[] = $data;
 
@@ -303,7 +319,7 @@ class QueryCapsule
     }
 
 
-    public function orWhereHas(...$data) : QueryCapsule
+    public function orWhereHas(...$data): QueryCapsule
     {
         $this->orWhereHas[] = $data;
 
@@ -319,7 +335,7 @@ class QueryCapsule
     }
 
 
-    public function select(...$data) : QueryCapsule
+    public function select(...$data): QueryCapsule
     {
         $this->select = array_merge($this->select, $data);
 
@@ -343,7 +359,7 @@ class QueryCapsule
     }
 
 
-    public function with(...$data) : QueryCapsule
+    public function with(...$data): QueryCapsule
     {
         $this->with[] = $data;
 
@@ -351,7 +367,7 @@ class QueryCapsule
     }
 
 
-    public function where(...$data) : QueryCapsule
+    public function where(...$data): QueryCapsule
     {
         $this->where[] = $data;
 
@@ -360,7 +376,7 @@ class QueryCapsule
 
 
 
-    public function whereHas(...$data) : QueryCapsule
+    public function whereHas(...$data): QueryCapsule
     {
         $this->whereHas[] = $data;
 
@@ -368,7 +384,15 @@ class QueryCapsule
     }
 
 
-    public function whereIn(...$data) : QueryCapsule
+    public function whereDoesntHave(...$data): QueryCapsule
+    {
+        $this->whereDoesntHave[] = $data;
+
+        return $this;
+    }
+
+
+    public function whereIn(...$data): QueryCapsule
     {
         $this->whereIn[] = $data;
 
@@ -376,7 +400,7 @@ class QueryCapsule
     }
 
 
-    public function whereNull($data) : QueryCapsule
+    public function whereNull($data): QueryCapsule
     {
         $this->whereNull[] = $data;
 
@@ -384,7 +408,7 @@ class QueryCapsule
     }
 
 
-    public function whereNotNull($data) : QueryCapsule
+    public function whereNotNull($data): QueryCapsule
     {
         $this->whereNotNull[] = $data;
 
@@ -392,7 +416,7 @@ class QueryCapsule
     }
 
 
-    public function whereRaw($data) : QueryCapsule
+    public function whereRaw($data): QueryCapsule
     {
         $this->whereRaw[] = $data;
 
