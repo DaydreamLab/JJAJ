@@ -792,4 +792,67 @@ class BaseService
 
         return true;
     }
+
+
+    public function orderingByRefId(Collection $input)
+    {
+        $this->status =  Str::upper(Str::snake($this->type . 'UpdateOrderingSuccess'));
+
+        // 沒移動的話直接給過
+        if ($input->get('id') == $input->get('refId')) {
+            return;
+        }
+
+        $targetItem = $this->getItem(collect([
+            'id' => $input->get('id'),
+            'merchant_id' => $input->get('merchant_id')
+        ]));
+
+        $referenceItem = $this->getItem(collect([
+            'id' => $input->get('refId'),
+            'merchant_id' => $input->get('merchant_id'),
+        ]));
+
+        switch ($input->get('action')) {
+            case 'after':
+                if ($targetItem->ordering < $referenceItem->ordering) {
+                    $tweakOrderingRange = [$targetItem->ordering + 1, $referenceItem->ordering];
+                    $tweakMode = 'decrement';
+                    $newOrdering = $referenceItem->ordering;
+                } else {
+                    $tweakOrderingRange = [$referenceItem->ordering + 1, $targetItem->ordering - 1];
+                    $tweakMode = 'increment';
+                    $newOrdering = $referenceItem->ordering + 1;
+                }
+                break;
+            case 'before':
+                if ($targetItem->ordering < $referenceItem->ordering) {
+                    $tweakOrderingRange = [$targetItem->ordering + 1, $referenceItem->ordering - 1];
+                    $tweakMode = 'decrement';
+                    $newOrdering = $referenceItem->ordering - 1;
+                } else {
+                    $tweakOrderingRange = [$referenceItem->ordering, $targetItem->ordering - 1];
+                    $tweakMode = 'increment';
+                    $newOrdering = $referenceItem->ordering;
+                }
+                break;
+        }
+
+        $query = $this->getModel();
+
+        if ($input->get('merchant_id')) {
+            $query->where('merchant_id', $input->get('merchant_id'));
+        }
+
+        $query
+            ->whereBetween('ordering', $tweakOrderingRange)
+            ->$tweakMode('ordering');
+
+        $targetItem->update([
+            'ordering' => $newOrdering
+        ]);
+
+        $this->status =  Str::upper(Str::snake($this->type . 'UpdateOrderingSuccess'));
+        $this->response = null;
+    }
 }
