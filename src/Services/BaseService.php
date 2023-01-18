@@ -72,9 +72,7 @@ abstract class BaseService
     {
         $this->checkPathExist($input);
         $this->beforeAdd($input);
-
         $model = $this->repo->addNested($input);
-
         $this->addMapping($model, $input);
         $this->afterAdd($input, $model);
 
@@ -790,7 +788,6 @@ abstract class BaseService
             $input->put('access', $parent ? $parent->access : config('daydreamlab.cms.default_viewlevel_id'));
         }
         $input  = $this->setStoreDefaultInput($input);
-
         if (InputHelper::null($input, 'id')) {
             return $this->addNested($input);
         } else {

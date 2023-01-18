@@ -44,13 +44,19 @@ class QueryCapsule
 
     public $withCount = [];
 
+    public $withSum = [];
+
     public $where = [];
+
+    public $whereBetween = [];
 
     public $whereHas = [];
 
     public $whereDoesntHave = [];
 
     public $whereIn = [];
+
+    public $whereNotIn = [];
 
     public $whereNull = [];
 
@@ -114,8 +120,13 @@ class QueryCapsule
         }
 
         if (count($this->withCount)) {
-            foreach ($this->withCount as $withCount) {
-                $q = $q->withCount(...$withCount);
+            $q = $q->withCount(...$this->withCount);
+        }
+
+
+        if (count($this->withSum)) {
+            foreach ($this->withSum as $withSum) {
+                $q = $q->withSum(...$withSum);
             }
         }
 
@@ -125,9 +136,22 @@ class QueryCapsule
             }
         }
 
+        if (count($this->whereBetween)) {
+            foreach ($this->whereBetween as $whereBetween) {
+                $q = $q->whereBetween($whereBetween[0], $whereBetween[1], $whereBetween[2]);
+            }
+        }
+
         if (count($this->whereIn)) {
             foreach ($this->whereIn as $whereIn) {
                 $q = $q->whereIn(...$whereIn);
+            }
+        }
+
+
+        if (count($this->whereNotIn)) {
+            foreach ($this->whereNotIn as $whereNotIn) {
+                $q = $q->whereNotIn(...$whereNotIn);
             }
         }
 
@@ -335,7 +359,7 @@ class QueryCapsule
     }
 
 
-    public function select(...$data): QueryCapsule
+    public function select($data): QueryCapsule
     {
         $this->select = array_merge($this->select, $data);
 
@@ -375,6 +399,13 @@ class QueryCapsule
     }
 
 
+    public function whereBetween($key, $floor, $ceil): QueryCapsule
+    {
+        $this->whereBetween[] = [$key, $floor, $ceil];
+
+        return $this;
+    }
+
 
     public function whereHas(...$data): QueryCapsule
     {
@@ -400,6 +431,14 @@ class QueryCapsule
     }
 
 
+    public function whereNotIn(...$data): QueryCapsule
+    {
+        $this->whereNotIn[] = $data;
+
+        return $this;
+    }
+
+
     public function whereNull($data): QueryCapsule
     {
         $this->whereNull[] = $data;
@@ -419,6 +458,22 @@ class QueryCapsule
     public function whereRaw($data): QueryCapsule
     {
         $this->whereRaw[] = $data;
+
+        return $this;
+    }
+
+
+    public function withCount($relation): QueryCapsule
+    {
+        $this->withCount[] = $relation;
+
+        return $this;
+    }
+
+
+    public function withSum($relation, $key): QueryCapsule
+    {
+        $this->withSum[] = [$relation, $key];
 
         return $this;
     }

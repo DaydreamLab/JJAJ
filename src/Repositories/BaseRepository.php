@@ -114,6 +114,7 @@ class BaseRepository implements BaseRepositoryInterface
             $q = new QueryCapsule();
             $q = $q->whereNull('parent_id');
             if ($inputOrdering) {
+
                 if ($this->getModel()->hasAttribute('path') && $this->getModel()->hasAttribute('alias')) {
                     if ($input->get('extension') != '') {
                         $q = $q->where('extension', $input->get('extension'));
@@ -857,7 +858,6 @@ class BaseRepository implements BaseRepositoryInterface
             : new QueryCapsule();
 
         $q = $q->getQuery($data->except('q'));
-
         $result = $q->exec($this->model);
 
         return $result;
@@ -887,3 +887,4 @@ class BaseRepository implements BaseRepositoryInterface
         return $item->update($data);
     }
 }
+
