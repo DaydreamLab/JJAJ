@@ -2,6 +2,7 @@
 
 namespace DaydreamLab\JJAJ\Repositories;
 
+use Closure;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
@@ -13,7 +14,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Closure;
 
 class BaseRepository implements BaseRepositoryInterface
 {
@@ -264,7 +264,7 @@ class BaseRepository implements BaseRepositoryInterface
                             $query = $query->{$q['type']}(function ($query) use ($q) {
                                 foreach ($q['callback'] as $c)
                                 {
-                                    $query = $query->{$c['type']}($c['key'], $c['operator'], $c['value']);
+                                    $query->{$c['type']}($c['key'], $c['operator'], $c['value']);
                                 }
                             });
                         }
