@@ -261,10 +261,12 @@ class BaseRepository implements BaseRepositoryInterface
                     {
                         if(count($q) == 2)
                         {
-                            foreach ($q['callback'] as $c)
-                            {
-                                $query = $query->{$c['type']}($c['key'], $c['operator'], $c['value']);
-                            }
+                            $query = $query->{$q['type']}(function ($query) use ($q) {
+                                foreach ($q['callback'] as $c)
+                                {
+                                    $query = $query->{$c['type']}($c['key'], $c['operator'], $c['value']);
+                                }
+                            });
                         }
                         elseif(count($q) == 3)
                         {
