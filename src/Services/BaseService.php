@@ -645,6 +645,7 @@ abstract class BaseService
                 ? $this->getUser()->accessIds
                 : (config('daydreamlab.cms.item.front.access_ids') ?: [1]);
             $q = $input->get('q') ? $input->get('q') : new QueryCapsule();
+
             $q = $q->whereIn('access', $accessIds);
             $input->put('q', $q);
         }

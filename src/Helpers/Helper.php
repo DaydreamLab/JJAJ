@@ -7,8 +7,8 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-class Helper {
-
+class Helper
+{
     public static function show($data)
     {
         $args = func_get_args();
@@ -16,8 +16,7 @@ class Helper {
         if (count($args) > 1) {
             $prints = array();
             $i = 1;
-            foreach ($args as $arg)
-            {
+            foreach ($args as $arg) {
                 $prints[] = "[Value " . $i . "]\n" . print_r($arg, 1);
                 $i++;
             }
@@ -72,8 +71,7 @@ class Helper {
         }
 
         // 處理新增 key
-        foreach ($data as $key => $value)
-        {
+        foreach ($data as $key => $value) {
             $newLines[] = trim($key) . "={$value}\n";
         }
 
@@ -128,20 +126,16 @@ class Helper {
 
         $paginate = new LengthAwarePaginator($items->forPage($page, $perPage)->values(), $items->count(), $perPage, $page, $options);
 
-        if (count($options))
-        {
+        if (count($options)) {
             $url = url()->current() . '?';
             $counter = 0;
-            foreach ($options as $key => $option)
-            {
-                $url .= $key . '=' .$option;
+            foreach ($options as $key => $option) {
+                $url .= $key . '=' . $option;
                 $counter++;
-                $counter != count($options) ? $url.= '&' : true;
+                $counter != count($options) ? $url .= '&' : true;
             }
             $paginate = $paginate->setPath($url);
-        }
-        else
-        {
+        } else {
             $paginate = $paginate->setPath(url()->current());
         }
 
@@ -170,5 +164,37 @@ class Helper {
     public static function stopLog()
     {
         DB::connection()->disableQueryLog();
+    }
+
+
+
+    public static function exportXlsx($headers, $data, $filename)
+    {
+        $spreedsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreedsheet->getActiveSheet();
+        $sizeOfHeader = count($headers);
+        $startColumn = 'A';
+        for ($i = 0; $i < $sizeOfHeader; $i++) {
+            $spreedsheet->getActiveSheet()->getColumnDimension($startColumn++)->setAutoSize(true);
+        }
+
+        $h = 1;
+        foreach ($headers as $header) {
+            $sheet->setCellValueByColumnAndRow($h, 1, $header);
+            $h += 1;
+        }
+
+        $r = 2;
+        foreach ($data as $item) {
+            for ($i = 0; $i < count($headers); $i++) {
+                $sheet->setCellValueExplicitByColumnAndRow(($i + 1), $r, $item[$i], 's');
+            }
+            $r++;
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreedsheet);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . urlencode($filename) . '"');
+        $writer->save(public_path($filename));
     }
 }
