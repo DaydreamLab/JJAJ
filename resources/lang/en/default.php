@@ -55,6 +55,7 @@ return [
     'STORE_NESTED_WITH_EXIST_PATH'          => '{$ModelName} store with exist path',
     'SEARCH_SUCCESS'                        => '{$ModelName} search success',
     'SEARCH_NESTED_SUCCESS'                 => '{$ModelName} search nested success',
+    'STATE_TRANSITION_INVALID'              => '{$ModelName} state transition invalid',
 
     'TRASH_SUCCESS'                         => '{$ModelName} trash success',
     'TRASH_FAIL'                            => '{$ModelName} search fail',

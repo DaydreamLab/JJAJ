@@ -55,6 +55,7 @@ return [
     'STORE_NESTED_WITH_EXIST_PATH'          => '{$ModelName} 已存在相同的別名路徑',
     'SEARCH_SUCCESS'                        => '{$ModelName} 搜尋項目成功',
     'SEARCH_NESTED_SUCCESS'                 => '{$ModelName} 搜尋項目成功',
+    'STATE_TRANSITION_INVALID'              => '狀態轉換錯誤',
 
     'TRASH_SUCCESS'                         => '{$ModelName} 丟到垃圾桶成功',
     'TRASH_FAIL'                            => '{$ModelName} 丟到垃圾桶失敗',
