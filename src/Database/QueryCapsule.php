@@ -56,6 +56,8 @@ class QueryCapsule
 
     public $whereIn = [];
 
+    public $whereJsonContains = [];
+
     public $whereNotIn = [];
 
     public $whereNull = [];
@@ -182,6 +184,12 @@ class QueryCapsule
         if (count($this->whereRaw)) {
             foreach ($this->whereRaw as $whereRaw) {
                 $q = $q->whereRaw($whereRaw);
+            }
+        }
+
+        if (count($this->whereJsonContains)) {
+            foreach ($this->whereJsonContains as $whereJsonContains) {
+                $q = $q->whereJsonContains(...$whereJsonContains);
             }
         }
 
@@ -426,6 +434,14 @@ class QueryCapsule
     public function whereIn(...$data): QueryCapsule
     {
         $this->whereIn[] = $data;
+
+        return $this;
+    }
+
+
+    public function whereJsonContains(...$data): QueryCapsule
+    {
+        $this->whereJsonContains[] = $data;
 
         return $this;
     }
