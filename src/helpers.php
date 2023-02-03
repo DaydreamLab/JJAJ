@@ -42,7 +42,7 @@ if (!function_exists('showLogTime')) {
     {
         $sum = 0;
         foreach (DB::getQueryLog() as $log) {
-           $sum += $log['time'];
+            $sum += $log['time'];
         }
 
         show('time:' . $sum);
@@ -63,7 +63,7 @@ if (!function_exists('stopLog')) {
     }
 }
 
-if (!function_exists('stopLog')) {
+if (!function_exists('showLogCount')) {
     function showLogCount()
     {
         show(count(DB::getQueryLog()));
