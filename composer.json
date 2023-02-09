@@ -14,7 +14,7 @@
     },
     "minimum-stability": "dev",
     "require": {
-        "daydreamlab/observer": "dev-base/develop"
+        "daydreamlab/observer": "dev-v2/main"
     },
     "repositories" : [
         {
