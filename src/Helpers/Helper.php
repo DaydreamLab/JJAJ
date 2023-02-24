@@ -124,7 +124,13 @@ class Helper
 
         $items = $items instanceof Collection ? $items : Collection::make($items);
 
-        $paginate = new LengthAwarePaginator($items->forPage($page, $perPage)->values(), $items->count(), $perPage, $page, $options);
+        $paginate = new LengthAwarePaginator(
+            $items->forPage($page, $perPage)->values(),
+            $items->count(),
+            $perPage,
+            $page,
+            $options
+        );
 
         if (count($options)) {
             $url = url()->current() . '?';

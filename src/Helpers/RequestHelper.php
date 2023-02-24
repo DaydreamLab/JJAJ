@@ -53,9 +53,14 @@ class RequestHelper
      * @param string $tz
      * @return string
      */
-    public static function toSystemTime($time, $tz = 'Asia/Taipei')
+    public static function toSystemTime($time, $tz = 'Asia/Taipei', $function = null)
     {
-        return Carbon::parse($time, $tz)->tz(config('app.timezone'))->toDateTimeString();
+        $date = Carbon::parse($time, $tz);
+        if ($function) {
+            $date = $date->{$function}();
+        }
+
+        return $date->tz(config('app.timezone'))->toDateTimeString();
     }
 
     #
@@ -65,7 +70,7 @@ class RequestHelper
             return [];
         }
 
-        return array_map(function($i) {
+        return array_map(function ($i) {
             return $i['id'];
         }, $array);
     }

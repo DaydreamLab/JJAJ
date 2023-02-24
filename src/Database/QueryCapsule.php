@@ -8,6 +8,12 @@ use phpDocumentor\Reflection\Types\String_;
 
 class QueryCapsule
 {
+    public $timestamps = true;
+
+    public $increment = [];
+
+    public $decrement = [];
+
     public $extraRelations = [];
 
     public $extraSearch = [];
@@ -74,6 +80,10 @@ class QueryCapsule
     public function exec($model)
     {
         $q = $model;
+
+        if (!$this->timestamps) {
+            $q->timestamps = $this->timestamps;
+        }
 
         if (count($this->extraRelations)) {
             foreach ($this->extraRelations as $k => $extraRelation) {
@@ -204,6 +214,18 @@ class QueryCapsule
             );
         }
 
+        if (count($this->increment) || count($this->decrement)) {
+            $q->timestamps = false;
+            foreach ($this->increment as $increment) {
+                $q = $q->increment(...$increment);
+            }
+            foreach ($this->decrement as $decrement) {
+                $q = $q->decrement(...$decrement);
+            }
+
+            return $q;
+        }
+
         if ($this->max) {
             return $q->max($this->max);
         }
@@ -281,6 +303,21 @@ class QueryCapsule
         return $this;
     }
 
+    public function decrement(...$data): QueryCapsule
+    {
+        $this->decrement[] = $data;
+
+        return $this;
+    }
+
+
+    public function doesntHave(...$data)
+    {
+        $this->doesntHave[] = $data;
+
+        return $this;
+    }
+
 
     public function having(...$data): QueryCapsule
     {
@@ -290,9 +327,10 @@ class QueryCapsule
     }
 
 
-    public function doesntHave(...$data)
+    public function increment(...$data): QueryCapsule
     {
-        $this->doesntHave[] = $data;
+        $this->increment[] = $data;
+
         return $this;
     }
 
@@ -382,6 +420,13 @@ class QueryCapsule
         return $this;
     }
 
+
+    public function timestamps($value)
+    {
+        $this->timestamps = $value;
+
+        return $this;
+    }
 
     public function toSql()
     {

@@ -300,42 +300,44 @@ class BaseRepository implements BaseRepositoryInterface
     public function handleAddOrdering(Collection &$input, $key)
     {
         $q = new QueryCapsule();
-        $inputOrdering = $input->get($key);
-        if ($inputOrdering !== null) {
-            $q = $q->where($key, '>', $inputOrdering);
-            $updateItems = $this->search(collect(['q' => $q]));
-            $updateItems->each(function ($item) use ($key) {
-                $item->{$key}++;
-                $item->save();
-            });
-            $input->put($key, $inputOrdering + 1);
-        } else {
-            $q = $q->max($key);
-            $maxFeaturedOrdering = $this->search(collect(['q' => $q]));
-            $input->put($key, $maxFeaturedOrdering + 1);
+        if ($this->model->hasAttribute('category_id')) {
+            $q->where('category_id', $input->get('category_id'));
         }
+        $maxOrdering = $q->max($key)->exec($this->model);
+
+        $inputOrdering = $input->get($key) <= 1
+            ? 1
+            : ($input->get($key) <= $maxOrdering ? $input->get($key) : $maxOrdering + 1);
+        $q = new QueryCapsule();
+        if ($this->model->hasAttribute('category_id')) {
+            $q->where('category_id', $input->get('category_id'));
+        }
+        $q->where($key, '>', $inputOrdering)
+            ->timestamps(false)
+            ->increment($key, 1)
+            ->exec($this->model);
+
+        $input->put($key, $maxOrdering + 1);
     }
 
 
     /**
      * 處理刪除項目時排序問題
      * - 該排序後面的所有項目排序-1
-     * @param $ordering
+     * @param Collection $input
+     * @param $item
      * @param $key
      */
-    public function handleDeleteOrdering($ordering, $key)
+    public function handleDeleteOrdering(Collection &$input, $item, $key)
     {
         $q = new QueryCapsule();
-        $q = $q->where($key, '>', $ordering);
-
-        $updateItems = $this->search(collect(['q' => $q]));
-        $updateItems->each(function ($item) use ($key) {
-            $item->{$key}--;
-            $item->save();
-            if (!$item->save()) {
-                throw new InternalServerErrorException('OrderingFail', null, null, $this->modelName);
-            }
-        });
+        $q->where($key, '>', $item->{$key});
+        if ($this->model->hasAttribute('category_id')) {
+            $q->where('category_id', $item->category_id);
+        }
+        $q->timestamps(false)
+            ->decrement($key, 1)
+            ->exec($this->model);
     }
 
 
@@ -347,6 +349,7 @@ class BaseRepository implements BaseRepositoryInterface
     {
         $item->getNextSiblings()->each(function ($sibling) {
             $sibling->ordering--;
+            $sibling->timestamps = false;
             if (!$sibling->save()) {
                 throw new InternalServerErrorException('OrderingNestedFail', null, null, $this->modelName);
             }
@@ -386,54 +389,73 @@ class BaseRepository implements BaseRepositoryInterface
      */
     public function handleModifyOrdering(Collection &$input, $node, $key)
     {
-        $inputOrdering = $input->get($key) === null
-            ? 99999999
-            : ($input->get($key) <=  0
-                ? 0
-                : $input->get($key));
-        $nodeOrdering = $node->{$key};
-
-        $q = new QueryCapsule();
-        if ($nodeOrdering > $inputOrdering) {
-            $updateItems = $q->where($key, '>=', $inputOrdering)
-                ->where($key, '<', $nodeOrdering)
-                ->orderBy($key, 'asc')
-                ->exec($this->model);
-
-            $updateItems->each(function ($item) use ($key) {
-                $item->{$key}++;
-                $item->save();
-            });
-        } elseif ($nodeOrdering < $inputOrdering) {
-            $updateItems = $q->where($key, '>', $nodeOrdering)
-                ->where($key, '<=', $inputOrdering)
-                ->orderBy($key, 'asc')
-                ->exec($this->model);
-
-            $updateItems->each(function ($item) use ($key) {
-                $item->{$key}--;
-                $item->save();
-            });
-        } else {
-            return ;
-        }
-
-        $q = new QueryCapsule();
-        $allItems = $q->whereNotNull($key)->exec($this->model);
-
-        if ($inputOrdering > $allItems->count()) {
-            $input->put($key, $allItems->count());
-        } else {
-            if ($inputOrdering === 0) {
-                $input->put($key, 1);
-            }/* else {
-                if ($updateItems->last()) {
-                    $input->put($key, $updateItems->last()->{$key} + 1);
+        if ($this->model->hasAttribute('category_id')) {
+            $maxOrdering = (new QueryCapsule())
+                ->where('category_id', $input->get('category_id'))
+                ->max($key)->exec($this->model);
+            $inputOrdering = $input->get($key) <= 1
+                ? 1
+                : ($input->get($key) <= $maxOrdering ? $input->get('ordering') : $maxOrdering + 1);
+            if ($input->get('category_id') == $node->category_id) {
+                $nodeOrdering = $node->{$key};
+                if ($nodeOrdering > $inputOrdering) {
+                    (new QueryCapsule())->where('category_id', $node->category_id)
+                        ->where($key, '>=', $inputOrdering)
+                        ->where($key, '<', $nodeOrdering)
+                        ->orderBy($key, 'asc')
+                        ->timestamps(false)
+                        ->increment($key, 1)
+                        ->exec($this->model);
                 } else {
-                    $input->put($key, $inputOrdering + 1);
+                    (new QueryCapsule())->where('category_id', $node->category_id)
+                        ->where($key, '>', $nodeOrdering)
+                        ->where($key, '<=', $inputOrdering)
+                        ->orderBy($key, 'asc')
+                        ->timestamps(false)
+                        ->decrement($key, 1)
+                        ->exec($this->model);
                 }
-            }*/
+            } else {
+                # 處理原分類排序
+                (new QueryCapsule())->where('category_id', $node->category_id)
+                    ->where($key, '>', $node->{$key})
+                    ->orderBy($key, 'asc')
+                    ->timestamps(false)
+                    ->decrement($key, 1)
+                    ->exec($this->model);
+                # 處理新分類排序
+                (new QueryCapsule())->where('category_id', $input->get('category_id'))
+                    ->where($key, '>=', $node->{$key})
+                    ->orderBy($key, 'asc')
+                    ->timestamps(false)
+                    ->increment($key, 1)
+                    ->exec($this->model);
+            }
+        } else {
+            $q = new QueryCapsule();
+            $maxOrdering = $q->max($key)->exec($this->model);
+            $nodeOrdering = $node->{$key};
+            $inputOrdering = $input->get($key) <= 1
+                ? 1
+                : ($input->get($key) <= $maxOrdering ? $input->get('ordering') : $maxOrdering + 1);
+            if ($nodeOrdering > $inputOrdering) {
+                (new QueryCapsule())->where($key, '>=', $inputOrdering)
+                    ->where($key, '<', $nodeOrdering)
+                    ->orderBy($key, 'asc')
+                    ->timestamps(false)
+                    ->increment($key, 1)
+                    ->exec($this->model);
+            } else {
+                (new QueryCapsule())->where($key, '>', $nodeOrdering)
+                    ->where($key, '<=', $inputOrdering)
+                    ->orderBy($key, 'asc')
+                    ->timestamps(false)
+                    ->decrement($key, 1)
+                    ->exec($this->model);
+            }
         }
+
+        $input->put($key, $inputOrdering);
     }
 
 

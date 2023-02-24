@@ -19,7 +19,10 @@ use Illuminate\Support\Str;
 
 abstract class BaseService
 {
-    use FormatDateTime, Mapping, ActionHook, LoggedIn;
+    use FormatDateTime;
+    use Mapping;
+    use ActionHook;
+    use LoggedIn;
 
     public $response = null;
 
@@ -86,7 +89,7 @@ abstract class BaseService
 
     public function canAccess($item_access)
     {
-        if (config('app.seeding'))  {
+        if (config('app.seeding')) {
             return true;
         }
 
@@ -110,7 +113,8 @@ abstract class BaseService
      */
     public function checkAliasExist(Collection $input)
     {
-        if ($this->repo->getModel()->hasAttribute('alias')
+        if (
+            $this->repo->getModel()->hasAttribute('alias')
             && $input->get('alias')
             && $this->repo->getModel()->getTable() != 'extrafields'
         ) {
@@ -153,7 +157,8 @@ abstract class BaseService
     public function checkLocked($item)
     {
         $user = $this->getUser();
-        if ($item->locked_by
+        if (
+            $item->locked_by
             && $item->locked_by != $user->id
             && $user
             && !$user->higherPermissionThan($item->locker)
@@ -179,7 +184,7 @@ abstract class BaseService
     {
         $inputParentId = $input->get('parentId') ?: $input->get('parent_id');
 
-        if($this->getModel()->hasAttribute('path') && $this->getModel()->hasAttribute('alias')) {
+        if ($this->getModel()->hasAttribute('path') && $this->getModel()->hasAttribute('alias')) {
             if (!$input->get('alias') && $item) {
                 $input->put('alias', $item->alias);
             } elseif (!$input->get('alias') && !$item) {
@@ -232,7 +237,7 @@ abstract class BaseService
             $same = $this->search(collect(['q' => $q]))->first();
 
             if ($same && $same->id != $input->get('id')) {
-                throw new ForbiddenException('StoreNestedWithExistPath',  [
+                throw new ForbiddenException('StoreNestedWithExistPath', [
                     'path' => $path,
                     'alias' => $alias
                 ], null, $this->modelName);
@@ -302,17 +307,19 @@ abstract class BaseService
             $updateData['featured'] = $input->get('featured');
 
             $result =  $this->repo->update($item, $updateData);
-            if(!$result) break;
+            if (!$result) {
+                break;
+            }
         }
 
         $action = $input->get('featured') == 0
             ? 'Unfeatured'
             : 'Featured';
         if ($result) {
-            $this->status   = $action.'Success';
+            $this->status   = $action . 'Success';
             $this->response = null;
         } else {
-            throw new InternalServerErrorException($action.'Fail', null, null, $this->modelName);
+            throw new InternalServerErrorException($action . 'Fail', null, null, $this->modelName);
         }
 
         return $this->response;
@@ -516,7 +523,7 @@ abstract class BaseService
 
         $action = $key == 'ordering' ? 'Ordering' : 'FeaturedOrdering';
         if (!$result) {
-            throw new InternalServerErrorException($action.'Fail', null, null, $this->modelName);
+            throw new InternalServerErrorException($action . 'Fail', null, null, $this->modelName);
         } else {
             $this->status = $action . 'Success';
         }
@@ -556,6 +563,10 @@ abstract class BaseService
     }
 
 
+    /**
+     * @throws NotFoundException
+     * @throws InternalServerErrorException
+     */
     public function remove(Collection $input)
     {
         $result = false;
@@ -563,16 +574,17 @@ abstract class BaseService
             $q = $input->get('q')
                 ? clone ($input->get('q'))
                 : new QueryCapsule();
-            $item = $this->checkItem(collect(['id' => $id, 'q' => $q]));;
+            $item = $this->checkItem(collect(['id' => $id, 'q' => $q]));
+            ;
             $this->beforeRemove($input, $item);
             $this->removeMapping($item);
             // 若有排序的欄位則要調整 ordering 大於刪除項目的值
-            if ($this->getModel()->hasAttribute('ordering') && ($item->ordering != null) ) {
-                 $this->repo->handleDeleteOrdering($item->ordering, 'ordering');
+            if ($this->getModel()->hasAttribute('ordering') && ($item->ordering != null)) {
+                 $this->repo->handleDeleteOrdering($input, $item, 'ordering');
             }
 
             if ($this->getModel()->hasAttribute('featured') && $item->featured == 1) {
-                $this->repo->handleDeleteOrdering($item->featured_ordering, 'featured_ordering');
+                $this->repo->handleDeleteOrdering($input, $item, 'featured_ordering');
             }
 
             $result = $this->repo->delete($item);
@@ -597,12 +609,12 @@ abstract class BaseService
             $this->removeMapping($item);
             $this->repo->handleDeleteNestedOrdering($item);
             $result = $this->repo->delete($item);
-            if(!$result) {
+            if (!$result) {
                 break;
             }
         }
 
-        if($result) {
+        if ($result) {
             $this->status = 'DeleteNestedSuccess';
         } else {
             throw new InternalServerErrorException('DeleteNestedFail', null, null, $this->modelName);
