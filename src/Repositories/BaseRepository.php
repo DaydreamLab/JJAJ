@@ -410,7 +410,6 @@ class BaseRepository implements BaseRepositoryInterface
             $inputOrdering = $this->getInputOrderingValue($input->get($key), $maxOrdering);
             if ($input->get('category_id') == $node->category_id) {
                 $nodeOrdering = $node->{$key};
-                show($nodeOrdering, $key);
                 if ($key == 'featured_ordering' && $input->get('featured') == 0) {
                     if ($nodeOrdering) {
                         (new QueryCapsule())->where('category_id', $node->category_id)
