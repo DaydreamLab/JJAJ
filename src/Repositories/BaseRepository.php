@@ -440,17 +440,22 @@ class BaseRepository implements BaseRepositoryInterface
                     }
                 }
             } else {
-                # 處理原分類排序
-                (new QueryCapsule())->where('category_id', $node->category_id)
-                    ->where($key, '>', $node->{$key})
-                    ->orderBy($key, 'asc')
-                    ->timestamps(false)
-                    ->decrement($key, 1)
-                    ->exec($this->model);
-                if ($key != 'featured_ordering' || $input->get('featured') != 0) {
+                # 處理原分類因移出所以遞減
+                $nodeOrdering = $node->{$key};
+                if ($nodeOrdering) {
+                    (new QueryCapsule())->where('category_id', $node->category_id)
+                        ->where($key, '>', $nodeOrdering)
+                        ->orderBy($key, 'asc')
+                        ->timestamps(false)
+                        ->decrement($key, 1)
+                        ->exec($this->model);
+                }
+
+                # 處理新分類因新增且有設定排序則遞增
+                if (($key != 'featured_ordering' || $input->get('featured') != 0) && $inputOrdering) {
                     # 處理新分類排序
                     (new QueryCapsule())->where('category_id', $input->get('category_id'))
-                        ->where($key, '>=', $node->{$key})
+                        ->where($key, '>=', $inputOrdering)
                         ->orderBy($key, 'asc')
                         ->timestamps(false)
                         ->increment($key, 1)
