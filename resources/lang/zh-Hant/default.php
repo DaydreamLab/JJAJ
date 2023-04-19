@@ -63,6 +63,7 @@ return [
 
     'UNDEFINED_STATUS'                      => '未定義回應代碼: :status',
     'UNAUTHORIZED'                          => '使用者未認證',
+    'UNAUTHORIZED_ACTION'                   => '未經授權的操作',
     'UNFEATURED_SUCCESS'                    => '{$ModelName} 取消精選項目成功',
     'UNFEATURED_FAIL'                       => '{$ModelName} 取消精選項目失敗',
     'UPDATE_SUCCESS'                        => '{$ModelName} 更新項目成功',

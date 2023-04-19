@@ -63,6 +63,7 @@ return [
 
     'UNDEFINED_STATUS'                      => 'Undefined status string: :status',
     'UNAUTHORIZED'                          => 'Unauthorized',
+    'UNAUTHORIZED_ACTION'                   => 'Unauthorized Action',
     'UNFEATURED_SUCCESS'                    => '{$ModelName} unfeatured success',
     'UNFEATURED_FAIL'                       => '{$ModelName} unfeatured fail',
     'UPDATE_SUCCESS'                        => '{$ModelName} update success',
