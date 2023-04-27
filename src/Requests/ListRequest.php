@@ -20,6 +20,7 @@ class ListRequest extends BaseRequest
                 'nullable',
                 Rule::in([0,1])
             ],
+            'page' => 'nullable',
         ];
     }
 }
