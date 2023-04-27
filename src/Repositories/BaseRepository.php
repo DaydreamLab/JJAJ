@@ -382,55 +382,53 @@ class BaseRepository implements BaseRepositoryInterface
         $origin         = $item->{$orderingKey};
         $index_diff     = $input->get('order') == 'asc' ? $input->index_diff : - $input->index_diff;
 
-        if ($input_order == 'asc')
+        if ($this->model->hasAttribute('category_id'))
         {
-            if ($this->model->hasAttribute('category_id'))
+            if ($input->index_diff < 0 )
             {
-                if ($input->index_diff < 0 )
-                {
-                    $item->{$orderingKey} = $origin + $index_diff;
-                    $update_items = $this->findByChain([$orderingKey, $orderingKey, 'category_id'], ['>=', '<', '='], [$item->{$orderingKey}, $origin , $item->category_id]);
-                    if ($update_items->count() == 0) return false;
-                    $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
-                        $item->{$orderingKey}++;
-                        return $item->save();
-                    });
-                }
-                else
-                {
-                    $item->{$orderingKey} = $origin + $index_diff;
-                    $update_items = $this->findByChain([$orderingKey, $orderingKey, 'category_id'], ['>', '<=', '='], [$origin, $item->{$orderingKey}, $item->category_id]);
-                    if ($update_items->count() == 0) return false;
-                    $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
-                        $item->{$orderingKey}--;
-                        return $item->save();
-                    });
-                }
+                $item->{$orderingKey} = $origin + $index_diff;
+                $update_items = $this->findByChain([$orderingKey, $orderingKey, 'category_id'], ['>=', '<', '='], [$item->{$orderingKey}, $origin , $item->category_id]);
+                if ($update_items->count() == 0) return false;
+                $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
+                    $item->{$orderingKey}++;
+                    return $item->save();
+                });
             }
             else
             {
-                if ($input->index_diff < 0 )
-                {
-                    $item->{$orderingKey} = $origin + $index_diff;
-                    $update_items = $this->findByChain([$orderingKey, $orderingKey], ['>=', '<'], [$item->{$orderingKey}, $origin]);
-                    if ($update_items->count() == 0) return false;
-                    $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
-                        $item->{$orderingKey}++;
-                        return $item->save();
-                    });
-                }
-                else
-                {
-                    $item->{$orderingKey} = $origin + $index_diff;
-                    $update_items = $this->findByChain([$orderingKey, $orderingKey], ['>', '<='], [$origin, $item->{$orderingKey}]);
-                    if ($update_items->count() == 0) return false;
-                    $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
-                        $item->{$orderingKey}--;
-                        return $item->save();
-                    });
-                }
+                $item->{$orderingKey} = $origin + $index_diff;
+                $update_items = $this->findByChain([$orderingKey, $orderingKey, 'category_id'], ['>', '<=', '='], [$origin, $item->{$orderingKey}, $item->category_id]);
+                if ($update_items->count() == 0) return false;
+                $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
+                    $item->{$orderingKey}--;
+                    return $item->save();
+                });
             }
         }
+        else
+        {
+            if ($input->index_diff < 0 )
+            {
+                $item->{$orderingKey} = $origin + $index_diff;
+                $update_items = $this->findByChain([$orderingKey, $orderingKey], ['>=', '<'], [$item->{$orderingKey}, $origin]);
+                if ($update_items->count() == 0) return false;
+                $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
+                    $item->{$orderingKey}++;
+                    return $item->save();
+                });
+            }
+            else
+            {
+                $item->{$orderingKey} = $origin + $index_diff;
+                $update_items = $this->findByChain([$orderingKey, $orderingKey], ['>', '<='], [$origin, $item->{$orderingKey}]);
+                if ($update_items->count() == 0) return false;
+                $result = $update_items->each(function ($item) use ($orderingKey, $input_order) {
+                    $item->{$orderingKey}--;
+                    return $item->save();
+                });
+            }
+        }
+
 
         return $result ? $item->save() : $result;
     }
