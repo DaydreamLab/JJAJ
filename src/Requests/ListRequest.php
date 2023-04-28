@@ -19,8 +19,7 @@ class ListRequest extends BaseRequest
             'paginate'      => [
                 'nullable',
                 Rule::in([0,1])
-            ],
-            'page' => 'nullable',
+            ]
         ];
     }
 }
