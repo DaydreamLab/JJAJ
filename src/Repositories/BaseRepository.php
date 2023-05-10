@@ -194,11 +194,11 @@ class BaseRepository implements BaseRepositoryInterface
      */
     public function find($value, QueryCapsule $q = null)
     {
-        $q = $q ?? new QueryCapsule();
+        $query = $q ? clone($q) : new QueryCapsule();
         $primaryKey = $this->model->getPrimaryKey();
-        $q->where($primaryKey, $value);
+        $query->where($primaryKey, $value);
 
-        return $q->exec($this->model)->first();
+        return $query->exec($this->model)->first();
     }
 
 

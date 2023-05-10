@@ -604,8 +604,9 @@ abstract class BaseService
     public function removeNested(Collection $input)
     {
         $result = false;
+        $q = $input->get('q');
         foreach ($input->get('ids') as $id) {
-            $item = $this->checkItem(collect(['id' => $id]));
+            $item = $this->checkItem(collect(['id' => $id, 'q' => $input->get('q') ?: new QueryCapsule()]));
             $this->removeMapping($item);
             $this->repo->handleDeleteNestedOrdering($item);
             $result = $this->repo->delete($item);
