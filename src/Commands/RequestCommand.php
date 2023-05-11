@@ -13,7 +13,7 @@ class RequestCommand extends RequestMakeCommand
      *
      * @var string
      */
-    protected $signature = 'jjaj:request {name}, {--list} {--admin} {--front} {--remove} {--store} {--state} {--search} {--ordering} {--featured} {--checkout} {--component=}';
+    protected $signature = 'jjaj:request {name}, {--list} {--admin} {--front} {--remove} {--store} {--state} {--search} {--ordering} {--orderingRef} {--featured} {--checkout} {--component=}';
 
     /**
      * The console command description.
@@ -29,8 +29,7 @@ class RequestCommand extends RequestMakeCommand
     {
         try {
             $stub = $this->files->get($this->getStub());
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             echo $e->getMessage();
             return false;
         }
@@ -38,64 +37,55 @@ class RequestCommand extends RequestMakeCommand
         if ($this->option('component')) {
             $name = str_replace('App\Http\Requests\\', '', $name);
         }
-        return  $this->replaceNamespace($stub, $name)->replaceScaffold($stub,$name)->replaceClass($stub, $name);
+        return $this->replaceNamespace($stub, $name)->replaceScaffold($stub, $name)->replaceClass($stub, $name);
     }
 
 
     public function getStub()
     {
         if ($this->option('list')) {
-            return __DIR__.'/../Requests/Stubs/request.list.stub';
-        }
-        elseif($this->option('admin')){
-            return __DIR__.'/../Requests/Stubs/request.admin.admin.stub';
-        }
-        elseif($this->option('front')){
-            return __DIR__.'/../Requests/Stubs/request.admin.front.stub';
-        }
-        else if($this->option('remove') || $this->option('checkout') ){
-            return __DIR__.'/../Requests/Stubs/request.admin.remove.stub';
-        }
-        else if($this->option('state')){
-            return __DIR__.'/../Requests/Stubs/request.admin.state.stub';
-        }
-        else if($this->option('store')){
-            return __DIR__.'/../Requests/Stubs/request.admin.store.stub';
-        }
-        else if($this->option('ordering')){
-            return __DIR__.'/../Requests/Stubs/request.admin.ordering.stub';
-        }
-        else if($this->option('search')){
-            return __DIR__.'/../Requests/Stubs/request.list.search.stub';
-        }
-        else if($this->option('featured')){
-            return __DIR__.'/../Requests/Stubs/request.admin.featured.stub';
-        }
-        else {
-            return __DIR__.'/../Requests/Stubs/request.admin.stub';
+            return __DIR__ . '/../Requests/Stubs/request.list.stub';
+        } elseif ($this->option('admin')) {
+            return __DIR__ . '/../Requests/Stubs/request.admin.admin.stub';
+        } elseif ($this->option('front')) {
+            return __DIR__ . '/../Requests/Stubs/request.admin.front.stub';
+        } elseif ($this->option('remove') || $this->option('checkout')) {
+            return __DIR__ . '/../Requests/Stubs/request.admin.remove.stub';
+        } elseif ($this->option('state')) {
+            return __DIR__ . '/../Requests/Stubs/request.admin.state.stub';
+        } elseif ($this->option('store')) {
+            return __DIR__ . '/../Requests/Stubs/request.admin.store.stub';
+        } elseif ($this->option('ordering')) {
+            return __DIR__ . '/../Requests/Stubs/request.admin.ordering.stub';
+        } elseif ($this->option('orderingRef')) {
+            return __DIR__ . '/../Requests/Stubs/request.admin.ordering.byref.stub';
+        } elseif ($this->option('search')) {
+            return __DIR__ . '/../Requests/Stubs/request.list.search.stub';
+        } elseif ($this->option('featured')) {
+            return __DIR__ . '/../Requests/Stubs/request.admin.featured.stub';
+        } else {
+            return __DIR__ . '/../Requests/Stubs/request.admin.stub';
         }
     }
 
     protected function replaceScaffold(&$stub, $name)
     {
-        $model          = str_replace($this->getNamespace($name).'\\', '', $name);
-        $parent_model   = CommandHelper::getParent($model);
-        $type           = CommandHelper::getType($name);
+        $model = str_replace($this->getNamespace($name) . '\\', '', $name);
+        $parent_model = CommandHelper::getParent($model);
+        $type = CommandHelper::getType($name);
 
-        $component      = $this->option('component');
+        $component = $this->option('component');
         if ($component) {
-            $prefix = 'DaydreamLab\\'.$component;
-        }
-        else {
+            $prefix = 'DaydreamLab\\' . $component;
+        } else {
             $prefix = 'App\Http';
         }
 
-        $stub  = str_replace('DummyPostRequest', $model . 'Repository' , $stub);
-        $stub  = str_replace('DummyType', $type , $stub);
-        $stub  = str_replace('DummyParentRequest', $parent_model , $stub);
-        $stub  = str_replace('DummyPrefix', $prefix , $stub);
+        $stub = str_replace('DummyPostRequest', $model . 'Repository', $stub);
+        $stub = str_replace('DummyType', $type, $stub);
+        $stub = str_replace('DummyParentRequest', $parent_model, $stub);
+        $stub = str_replace('DummyPrefix', $prefix, $stub);
 
-        return  $this;
+        return $this;
     }
-
 }

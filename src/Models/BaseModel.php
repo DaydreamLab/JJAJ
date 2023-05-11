@@ -30,6 +30,12 @@ class BaseModel extends Model
         parent::boot();
     }
 
+    public function getCreatorAttribute()
+    {
+        $creator = $this->creator()->first();
+
+        return $creator ? $creator->last_name . ' ' . $creator->first_name : '';
+    }
 
     public function creator()
     {
@@ -37,15 +43,6 @@ class BaseModel extends Model
 
         return $creator;
     }
-
-
-    public function getCreatorAttribute()
-    {
-        $creator = $this->creator()->first() ;
-
-        return $creator ? $creator->last_name . ' ' . $creator->first_name : '';
-    }
-
 
     public function getDepthAttribute()
     {
@@ -58,55 +55,75 @@ class BaseModel extends Model
         return $this->limit;
     }
 
+    public function setLimit($limit)
+    {
+        if ($limit && $limit != '') {
+            $this->limit = $limit;
+        }
+    }
 
     public function getLockerAttribute()
     {
         return $this->locker();
     }
 
+    public function locker()
+    {
+        $locker = $this->hasOne(User::class, 'id', 'locked_by')->first();
+        return $locker ? $locker->nickname : null;
+    }
 
     public function getOrder()
     {
         return $this->order;
     }
 
+    public function setOrder($order)
+    {
+        if ($order && $order != '') {
+            $this->order = $order;
+        }
+    }
 
     public function getOrderBy()
     {
         return $this->order_by;
     }
 
+    public function setOrderBy($order_by)
+    {
+        if ($order_by && $order_by != '') {
+            $this->order_by = $order_by;
+        }
+    }
 
     public function getTreeTitleAttribute()
     {
         $depth = $this->depth;
         $str = '';
-        for ($j = 0 ; $j < $depth -1; $j++) {
+        for ($j = 0; $j < $depth - 1; $j++) {
             $str .= '.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
         }
 
 
-        if($depth !== 0)
-        {
+        if ($depth !== 0) {
             $str .= '<sup>|_</sup> ';
         }
 
         //return $depth - 1 == 0 ? $this->title : $str . ' '. $this->title;
-        return $depth == 0 || $depth == 1 ? $this->title : $str . ' '. $this->title;
+        return $depth == 0 || $depth == 1 ? $this->title : $str . ' ' . $this->title;
     }
-
 
     public function getTreeListTitleAttribute()
     {
         $depth = $this->depth;
         $str = '';
-        for ($j = 0 ; $j < $depth ; $j++) {
+        for ($j = 0; $j < $depth; $j++) {
             $str .= '-';
         }
 
-        return $depth == 0  ? $this->title : $str . ' '. $this->title;
+        return $depth == 0 ? $this->title : $str . ' ' . $this->title;
     }
-
 
     public function getUpdaterAttribute()
     {
@@ -114,46 +131,14 @@ class BaseModel extends Model
         return $updater ? $updater->nickname : null;
     }
 
+    public function updater()
+    {
+        $updater = $this->hasOne(User::class, 'id', 'updated_by')->first();
+        return $updater;
+    }
 
     public function hasAttribute($attribute)
     {
         return in_array($attribute, $this->fillable);
-    }
-
-
-    public function locker()
-    {
-        $locker =  $this->hasOne(User::class, 'id', 'locked_by')->first();
-        return $locker ? $locker->nickname : null;
-    }
-
-
-    public function setLimit($limit)
-    {
-        if ($limit && $limit != ''){
-            $this->limit = $limit;
-        }
-    }
-
-    public function setOrder($order)
-    {
-        if ($order && $order != ''){
-            $this->order = $order;
-        }
-    }
-
-
-    public function setOrderBy($order_by)
-    {
-        if ($order_by && $order_by != ''){
-            $this->order_by = $order_by;
-        }
-    }
-
-
-    public function updater()
-    {
-        $updater =  $this->hasOne(User::class, 'id', 'updated_by')->first();
-        return $updater;
     }
 }
