@@ -30,12 +30,12 @@ class BaseModel extends Model
         parent::boot();
     }
 
-    public function getCreatorAttribute()
-    {
-        $creator = $this->creator()->first();
-
-        return $creator ? $creator->last_name . ' ' . $creator->first_name : '';
-    }
+//    public function getCreatorAttribute()
+//    {
+//        $creator = $this->creator()->first();
+//
+//        return $creator ? $creator->last_name . ' ' . $creator->first_name : '';
+//    }
 
     public function creator()
     {
@@ -62,15 +62,14 @@ class BaseModel extends Model
         }
     }
 
-    public function getLockerAttribute()
-    {
-        return $this->locker();
-    }
+//    public function getLockerAttribute()
+//    {
+//        return $this->locker();
+//    }
 
     public function locker()
     {
-        $locker = $this->hasOne(User::class, 'id', 'locked_by')->first();
-        return $locker ? $locker->nickname : null;
+        return $this->hasOne(User::class, 'id', 'locked_by');
     }
 
     public function getOrder()
@@ -125,16 +124,15 @@ class BaseModel extends Model
         return $depth == 0 ? $this->title : $str . ' ' . $this->title;
     }
 
-    public function getUpdaterAttribute()
-    {
-        $updater = $this->updater();
-        return $updater ? $updater->nickname : null;
-    }
+//    public function getUpdaterAttribute()
+//    {
+//        $updater = $this->updater();
+//        return $updater ? $updater->nickname : null;
+//    }
 
     public function updater()
     {
-        $updater = $this->hasOne(User::class, 'id', 'updated_by')->first();
-        return $updater;
+        return $this->hasOne(User::class, 'id', 'updated_by');
     }
 
     public function hasAttribute($attribute)

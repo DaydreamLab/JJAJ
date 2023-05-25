@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\DB;
 
-if (! function_exists('show')) {
+if (!function_exists('show')) {
     function show($data)
     {
         $args = func_get_args();
@@ -64,9 +64,9 @@ if (!function_exists('stopLog')) {
 }
 
 if (!function_exists('showLogCount')) {
-    function showLogCount()
+    function showLogCount($str = null)
     {
-        show(count(DB::getQueryLog()));
+        show($str ? $str . ':' . count(DB::getQueryLog()) : count(DB::getQueryLog()));
     }
 }
 
