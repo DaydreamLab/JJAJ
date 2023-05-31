@@ -14,6 +14,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class BaseRepository implements BaseRepositoryInterface
 {
@@ -431,7 +432,20 @@ class BaseRepository implements BaseRepositoryInterface
                             $search_keys = $input->get('search_keys');
 
                             foreach ($search_keys as $search_key) {
-                                $query->orWhere($search_key, 'LIKE', '%%' . $item . '%%');
+                                if (Str::contains($search_key, '.')) {
+                                    $tmp            = explode('.', $search_key);
+                                    $filterColumn   = array_pop($tmp);
+                                    $relation       = implode('.', $tmp);
+
+                                    $query->orWhereHas(
+                                        $relation,
+                                        function ($query) use ($filterColumn, $item) {
+                                            $query->where($query->qualifyColumn($filterColumn), 'like', '%%' . $item . '%%');
+                                        }
+                                    );
+                                } else {
+                                    $query->orWhere($search_key, 'LIKE', '%%' . $item . '%%');
+                                }
                             }
                         });
                     }
