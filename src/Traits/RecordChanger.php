@@ -19,12 +19,10 @@ trait RecordChanger
     {
         parent::boot();
 
-        $user = Auth::guard('api')->user();
+        $user = app()->runningInConsole() ? null : Auth::guard('api')->user();
 
-        static::creating(function ($item) use($user)
-        {
-            if (!$item->created_by)
-            {
+        static::creating(function ($item) use ($user) {
+            if (!$item->created_by) {
                 if ($user) {
                     if ($user->token()->name == 'Merchant Member') {
                         $item->created_by = 999999990;
