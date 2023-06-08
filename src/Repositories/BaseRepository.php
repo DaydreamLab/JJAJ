@@ -212,7 +212,7 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function getQuery(Collection $input)
     {
-        $query = $this->model;
+        $query = $this->model->query();
 
         foreach ($input->toArray() as $key => $item)
         {
