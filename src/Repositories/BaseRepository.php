@@ -259,7 +259,12 @@ class BaseRepository implements BaseRepositoryInterface
                         $query = $query->where($q['key'], $q['operator'], $q['value']);
                     }
                 }
-
+                elseif ($key == 'queries')
+                {
+                    foreach ($item as $singleQuery) {
+                        $singleQuery($query); // 套用客製化query
+                    }
+                }
                 elseif ($key == 'eagers')
                 {
                     foreach ($input->get('eagers') as $eager)
