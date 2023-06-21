@@ -76,3 +76,22 @@ if (!function_exists('getJson')) {
         return json_decode(file_get_contents($path), $assoc);
     }
 }
+
+
+if (! function_exists('getClosuresInfo')) {
+    function getClosuresInfo($closures)
+    {
+        $result = [];
+        foreach ($closures as $closure) {
+            $reflection = new ReflectionFunction($closure);
+            $filename = $reflection->getFileName();
+            $startLine = $reflection->getStartLine();
+            $endLine = $reflection->getEndLine();
+
+            $lines = file($filename);
+            $result[] = implode("", array_slice($lines, $startLine - 1, $endLine - $startLine + 1));
+        }
+
+        return $result;
+    }
+}
