@@ -21,7 +21,7 @@ class ArrayToXml
         array $array,
         $rootElement = '',
         $replaceSpacesByUnderScoresInKeyNames = true,
-        $xmlEncoding = null,
+        $xmlEncoding = 'UTF-8',
         $xmlVersion = '1.0',
         $domProperties = [],
         $xmlStandalone = null
@@ -58,10 +58,11 @@ class ArrayToXml
         array $array,
         $rootElement = '',
         bool $replaceSpacesByUnderScoresInKeyNames = true,
-        string $xmlEncoding = null,
+        string $xmlEncoding = 'UTF-8',
         string $xmlVersion = '1.0',
         array $domProperties = [],
-        bool $xmlStandalone = null
+        bool $xmlStandalone = null,
+        bool $addXmlDeclaration = true
     ) {
         $converter = new static(
             $array,
@@ -73,29 +74,7 @@ class ArrayToXml
             $xmlStandalone
         );
 
-        return $converter->toXml();
-    }
-
-
-    public static function convertWithoutDeclaration(
-        array $array,
-        $rootElement = '',
-        bool $replaceSpacesByUnderScoresInKeyNames = true,
-        string $xmlEncoding = null,
-        string $xmlVersion = '1.0',
-        array $domProperties = [],
-        bool $xmlStandalone = null
-    ) {
-        $converter = new static(
-            $array,
-            $rootElement,
-            $replaceSpacesByUnderScoresInKeyNames,
-            $xmlEncoding,
-            $xmlVersion,
-            $domProperties,
-            $xmlStandalone
-        );
-        $converter->addXmlDeclaration = false;
+        $converter->addXmlDeclaration = $addXmlDeclaration;
 
         return $converter->toXml();
     }
@@ -118,8 +97,8 @@ class ArrayToXml
     protected function ensureValidDomProperties(array $domProperties)
     {
         foreach ($domProperties as $key => $value) {
-            if (! property_exists($this->document, $key)) {
-                throw new Exception($key.' is not a valid property of DOMDocument');
+            if (!property_exists($this->document, $key)) {
+                throw new Exception($key . ' is not a valid property of DOMDocument');
             }
         }
     }
