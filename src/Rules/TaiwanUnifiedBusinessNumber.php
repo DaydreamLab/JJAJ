@@ -31,15 +31,15 @@ class TaiwanUnifiedBusinessNumber extends BaseRule implements Rule
         }
 
         $sum = 0;
-        $ubn_str    = str_split($value);
-        $multiple   = [1, 2, 1, 2, 1, 2, 4, 1];
+        $ubn_str  = str_split($value);
+        $multiple = [1, 2, 1, 2, 1, 2, 4, 1];
         $result = [];
         foreach ($ubn_str as $key => $ubn_digit) {
             $result[$key] = (int) $ubn_digit * $multiple[$key];
             $sum += floor($result[$key] / 10) + $result[$key] % 10;
         }
 
-        if (($sum % 5 == 0) || ((($sum - 1) % 5 == 0) && $ubn_str[6] === '7')) {
+        if (($sum % 5 == 0) || ((($sum + 1) % 5 == 0) && $ubn_str[6] === '7')) {
             return true;
         } else {
             return false;
