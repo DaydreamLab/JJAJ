@@ -95,3 +95,23 @@ if (! function_exists('getClosuresInfo')) {
         return $result;
     }
 }
+
+
+if (! function_exists('arrayToXmlStr')) {
+    function arrayToXmlStr($array, $rootElement = '<?xml version="1.0" encoding="UTF-8"?><root></root>', $xml = null)
+    {
+        if ($xml === null) {
+            $xml = new SimpleXMLElement($rootElement ?: '<root/>');
+        }
+
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                arrayToXmlStr($value, $key, $xml->addChild($key));
+            } else {
+                $xml->addChild($key, $value);
+            }
+        }
+
+        return $xml->asXML();
+    }
+}
