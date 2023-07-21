@@ -115,3 +115,12 @@ if (! function_exists('arrayToXmlStr')) {
         return $xml->asXML();
     }
 }
+
+
+if (! function_exists('xmlStrToArray')) {
+    function xmlStrToArray($xmlStr)
+    {
+        $xml = simplexml_load_string($xmlStr, "SimpleXMLElement", LIBXML_NOCDATA);
+        return json_decode(json_encode($xml), true);
+    }
+}
