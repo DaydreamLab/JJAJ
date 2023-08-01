@@ -134,6 +134,14 @@ class ResponseHelper
             $response['items']      = $data->resource;
             $response['records']    = count($data->resource);
 
+            if (get_class($data->resource) == 'Illuminate\Pagination\LengthAwarePaginator') {
+                $data = $data->resource->toArray(request());
+                $response['items'] = $data['data'];
+
+                unset($data['data']);
+                $response['pagination'] = $data;
+            }
+
             return $response;
         }
         elseif (gettype($data) == 'object' && isset($data->collection) && get_class($data->collection) == 'Illuminate\Support\Collection')
