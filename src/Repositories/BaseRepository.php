@@ -513,6 +513,8 @@ class BaseRepository implements BaseRepositoryInterface
                     foreach ($item as $singleQuery) {
                         $singleQuery($query); // 套用客製化query
                     }
+                } elseif ($key == 'lockMethod') {
+                    $query->{$input->get($key)}();
                 } else {
                     if ($item !== null) {
                         // 需要重寫這段
