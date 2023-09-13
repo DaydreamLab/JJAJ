@@ -16,7 +16,7 @@ trait ApiJsonResponse
 
     public function formatResponse($data, $resource, $wrapItems)
     {
-        if (!$data) {
+        if (!$data || is_string($data)) {
             $response = $data;
         } elseif (gettype($data) == 'boolean') {
             $response = null;

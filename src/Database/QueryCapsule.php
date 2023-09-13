@@ -238,10 +238,12 @@ class QueryCapsule
             $q = $q->sharedLock();
         }
 
+//          $this->toSql = 1;
         if ($this->toSql) {
             $sql = $q->toSql();
             $bindings = $q->getBindings();
             $sqlStr = Str::replaceArray('?', $bindings, $sql);
+//          show($sqlStr);
             return $sqlStr;
         }
 

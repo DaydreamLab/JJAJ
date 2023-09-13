@@ -11,7 +11,7 @@ class ListRequest extends BaseRequest
 
     public function rules()
     {
-        $rulse = [
+        $rules = [
             'search'        => 'nullable|string',
             'searchKeys'    => 'nullable|array',
             'page'          => 'nullable|integer',
@@ -27,7 +27,7 @@ class ListRequest extends BaseRequest
             ],
         ];
 
-        return array_merge(parent::rules(), $rulse);
+        return array_merge(parent::rules(), $rules);
     }
 
 
