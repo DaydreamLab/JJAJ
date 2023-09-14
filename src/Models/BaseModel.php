@@ -63,18 +63,16 @@ class BaseModel extends Model
     {
         $depth = $this->depth;
         $str = '';
-        for ($j = 0 ; $j < $depth -1; $j++) {
+        for ($j = 0; $j < $depth - 1; $j++) {
             $str .= '.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
         }
 
-
-        if($depth !== 0)
-        {
+        if ($depth !== 0) {
             $str .= '<sup>|_</sup> ';
         }
 
         //return $depth - 1 == 0 ? $this->title : $str . ' '. $this->title;
-        return $depth == 0 || $depth == 1 ? $this->title : $str . ' '. $this->title;
+        return ($depth == 0 || $depth == 1) ? $this->title : $str . ' ' . $this->title;
     }
 
 
@@ -82,11 +80,11 @@ class BaseModel extends Model
     {
         $depth = $this->depth;
         $str = '';
-        for ($j = 0 ; $j < $depth ; $j++) {
+        for ($j = 0; $j < $depth; $j++) {
             $str .= '-';
         }
 
-        return $depth == 0  ? $this->title : $str . ' '. $this->title;
+        return $depth == 0  ? $this->title : $str . ' ' . $this->title;
     }
 
 
@@ -98,14 +96,14 @@ class BaseModel extends Model
 
     public function setLimit($limit)
     {
-        if ($limit && $limit != ''){
+        if ($limit && $limit != '') {
             $this->limit = $limit;
         }
     }
 
     public function setOrder($order)
     {
-        if ($order && $order != ''){
+        if ($order && $order != '') {
             $this->order = $order;
         }
     }
@@ -113,7 +111,7 @@ class BaseModel extends Model
 
     public function setOrderBy($order_by)
     {
-        if ($order_by && $order_by != ''){
+        if ($order_by && $order_by != '') {
             $this->order_by = $order_by;
         }
     }
