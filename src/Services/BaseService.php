@@ -3,11 +3,11 @@
 namespace DaydreamLab\JJAJ\Services;
 
 use Carbon\Carbon;
-use DaydreamLab\JJAJ\Traits\LoggedIn;
 use DaydreamLab\JJAJ\Helpers\InputHelper;
 use DaydreamLab\JJAJ\Helpers\ResponseHelper;
 use DaydreamLab\JJAJ\Models\BaseModel;
 use DaydreamLab\JJAJ\Repositories\BaseRepository;
+use DaydreamLab\JJAJ\Traits\LoggedIn;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -588,7 +588,7 @@ class BaseService
             } else {
                 $same = $this->findBy('alias', '=', $input->get('alias'))->first();
             }
- 
+
             if ($same && $same->id != $input->get('id')) {
                 $this->throwResponse($this->type . 'StoreWithExistAlias');
             }
@@ -731,7 +731,7 @@ class BaseService
                 break;
         }
 
-        $query = $this->getModel();
+        $query = $this->getModel()->query();
 
         if ($input->get('merchant_id')) {
             $query->where('merchant_id', $input->get('merchant_id'));
@@ -739,9 +739,7 @@ class BaseService
 
         $query
             ->whereBetween('ordering', $tweakOrderingRange)
-            ->$tweakMode(
-                'ordering'
-            );
+            ->$tweakMode('ordering');
 
         $targetItem->update([
             'ordering' => $newOrdering
