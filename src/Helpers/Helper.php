@@ -203,4 +203,18 @@ class Helper
         header('Content-Disposition: attachment; filename="' . urlencode($filename) . '"');
         $writer->save(public_path($filename));
     }
+
+
+    public static function recursiveMap($collection, $callback)
+    {
+        return $collection->map(function ($item) use ($callback) {
+            if ($item->children->count()) {
+                $item = $callback($item);
+                $item['children'] = self::recursiveMap($item['children'], $callback);
+                return $item;
+            } else {
+                return $callback($item);
+            }
+        });
+    }
 }
