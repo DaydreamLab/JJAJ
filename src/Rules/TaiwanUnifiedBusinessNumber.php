@@ -27,8 +27,7 @@ class TaiwanUnifiedBusinessNumber extends BaseRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        if(!preg_match("/^[0-9]{8}$/", $value))
-        {
+        if (! preg_match("/^[0-9]{8}$/", $value)) {
             return false;
         }
 
@@ -36,16 +35,13 @@ class TaiwanUnifiedBusinessNumber extends BaseRule implements Rule
         $ubn_str    = str_split($value);
         $multiple   = [1, 2, 1, 2, 1, 2, 4, 1];
         $result = [];
-        foreach ($ubn_str as $key => $ubn_digit)
-        {
+
+        foreach ($ubn_str as $key => $ubn_digit) {
             $result[$key] = (int) $ubn_digit * $multiple[$key];
-            $sum += floor($result[$key]/10) + $result[$key]%10;
+            $sum += floor($result[$key] / 10) + $result[$key] % 10;
         }
 
-        if($sum%10 == 0 || ($sum%9 == 9 && $ubn_str[5] == '7'))
-            return true;
-        else
-            return false;
+        return $sum % 5 == 0 || (($sum + 1) % 5 == 0 && $ubn_str[6] == '7');
     }
 
     /**
