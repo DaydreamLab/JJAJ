@@ -6,8 +6,8 @@ use DaydreamLab\Dsth\Notifications\DeveloperNotification;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Notification;
 
-class UriHelper {
-
+class UriHelper
+{
     public static function getShortCode($fullUrl)
     {
         $client = new Client();
@@ -16,12 +16,12 @@ class UriHelper {
             ? config('app.dingsomthing.dsth.url', 'https://dsth.me/')
             : 'https://demo.dsth.me/';
 
-        $shortCodeUri = $domain . 'shortcode.php';
-        $shortenUrl = $domain . 'shorten.php';
+        $shortCodeUri = $domain . config('app.env') == 'production' ? 'shorten' : 'shortcode.php';
+        $shortenUrl = $domain . config('app.env') == 'production' ? 'shorten' : 'shorten.php';
         $response = $client->request('POST', $shortCodeUri, [
             'form_params' => [
                 'url' => $fullUrl
-            ]
+            ],
         ]);
 
         $r = [];

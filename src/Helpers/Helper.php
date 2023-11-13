@@ -6,6 +6,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class Helper
 {
@@ -92,7 +93,7 @@ class Helper
     }
 
 
-    public static function generateRandomIntegetString($length = 6)
+    public static function generateRandomIntegerString($length = 6)
     {
         $characters = '0123456789';
         $charactersLength = strlen($characters);
@@ -173,6 +174,12 @@ class Helper
     }
 
 
+    public static function exportJson($data, $filePath)
+    {
+        $jsonData = json_encode($data);
+
+        File::put($filePath, $jsonData);
+    }
 
     public static function exportXlsx($headers, $data, $filename)
     {
