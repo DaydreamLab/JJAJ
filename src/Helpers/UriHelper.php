@@ -18,6 +18,7 @@ class UriHelper
 
         $shortCodeUri = $domain . (config('app.env') == 'production' ? 'shorten' : 'shortcode.php');
         $shortenUrl = $domain . (config('app.env') == 'production' ? 'shorten' : 'shorten.php');
+
         $response = $client->request('POST', $shortCodeUri, [
             'form_params' => [
                 'url' => $fullUrl
@@ -27,7 +28,8 @@ class UriHelper
         $r = [];
         if ($response->getStatusCode() == 200) {
             $data = json_decode($response->getBody()->getContents());
-            $r['shortCode'] =  $data->code;
+            show($data);
+            $r['shortCode'] =  $data['code'];
             $r['data'] = $data;
         } elseif ($response->getStatusCode() == 303) {
             $response = $client->request('POST', $shortenUrl, [
@@ -46,7 +48,7 @@ class UriHelper
                     ]);
                     $data = json_decode($response->getBody()->getContents());
                 }
-                $r['shortCode'] =  $data->code;
+                $r['shortCode'] =  $data['code'];
                 $r['data'] = $data;
             } else {
                 $r['shortCode'] = 'error!!';
