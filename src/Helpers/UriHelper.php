@@ -16,8 +16,8 @@ class UriHelper
             ? config('app.dingsomthing.dsth.url', 'https://dsth.me/')
             : 'https://demo.dsth.me/';
 
-        $shortCodeUri = $domain . config('app.env') == 'production' ? 'shorten' : 'shortcode.php';
-        $shortenUrl = $domain . config('app.env') == 'production' ? 'shorten' : 'shorten.php';
+        $shortCodeUri = $domain . (config('app.env') == 'production' ? 'shorten' : 'shortcode.php');
+        $shortenUrl = $domain . (config('app.env') == 'production' ? 'shorten' : 'shorten.php');
         $response = $client->request('POST', $shortCodeUri, [
             'form_params' => [
                 'url' => $fullUrl
