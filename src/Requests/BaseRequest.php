@@ -93,9 +93,9 @@ class BaseRequest extends FormRequest
     }
 
 
-    public function validated()
+    public function validated($key = null, $default = null)
     {
-        $validated = parent::validated();
+        $validated = parent::validated($key, $default);
         $validated['q'] = $this->q;
 
         $validated = collect($validated);

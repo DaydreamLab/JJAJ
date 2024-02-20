@@ -31,9 +31,9 @@ class ListRequest extends BaseRequest
     }
 
 
-    public function validated()
+    public function validated($key = null, $default = null)
     {
-        $validated = parent::validated();
+        $validated = parent::validated($key, $default);
 
         if (!$validated->get('searchKeys')) {
             $validated->put('searchKeys', $this->searchKeys);
