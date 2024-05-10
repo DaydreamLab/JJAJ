@@ -7,6 +7,9 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class Helper
 {
@@ -183,8 +186,8 @@ class Helper
 
     public static function exportXlsx($headers, $data, $filename)
     {
-        $spreedsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-        $sheet = $spreedsheet->getActiveSheet();
+        $spreedsheet = new Spreadsheet();
+        $sheet = $spreedsheet->getSheet(0);
         $sizeOfHeader = count($headers);
         $startColumn = 'A';
         for ($i = 0; $i < $sizeOfHeader; $i++) {
@@ -193,22 +196,26 @@ class Helper
 
         $h = 1;
         foreach ($headers as $header) {
-            $sheet->setCellValueByColumnAndRow($h, 1, $header);
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($h) . '1', $header);
             $h += 1;
         }
 
         $r = 2;
-        foreach ($data as $item) {
-            for ($i = 0; $i < count($headers); $i++) {
-                $sheet->setCellValueExplicitByColumnAndRow(($i + 1), $r, $item[$i], 's');
+        foreach ($data as $rowData) {
+            $col = 1;
+            foreach ($rowData as $value) {
+                $cellIndex = Coordinate::stringFromColumnIndex($col) . $r;
+                $sheet->setCellValue($cellIndex, $value); // 先設置值
+                $col++;
             }
             $r++;
         }
 
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreedsheet);
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="' . urlencode($filename) . '"');
-        $writer->save(public_path($filename));
+        $writer = new Xlsx($spreedsheet);
+        header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        header("Content-Disposition: attachment;filename=\"$filename\"");
+        $writer->save("php://output");
+        exit();
     }
 
 
