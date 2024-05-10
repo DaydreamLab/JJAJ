@@ -150,7 +150,7 @@ class QueryCapsule
 
         if (count($this->whereBetween)) {
             foreach ($this->whereBetween as $whereBetween) {
-                $q = $q->whereBetween($whereBetween[0], $whereBetween[1], $whereBetween[2]);
+                $q = $q->whereBetween($whereBetween[0], [$whereBetween[1], $whereBetween[2]]);
             }
         }
 
