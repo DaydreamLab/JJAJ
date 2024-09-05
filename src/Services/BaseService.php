@@ -62,7 +62,6 @@ abstract class BaseService
         $model = $this->repo->add($input);
         $this->addMapping($model, $input);
         $this->afterAdd($input, $model);
-
         $this->status = 'CreateSuccess';
         $this->response = $model->refresh();
 
@@ -663,7 +662,12 @@ abstract class BaseService
             $input->put('q', $q);
         }
 
-        $items = $this->repo->search($input);
+        try {
+            $items = $this->repo->search($input);
+        } catch (\Throwable $t) {
+            show($t->getMessage());
+        }
+
 
         $this->status = 'SearchSuccess';
         $this->response = $items;

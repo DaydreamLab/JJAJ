@@ -21,7 +21,7 @@ trait ApiJsonResponse
         } elseif (gettype($data) == 'boolean') {
             $response = null;
         } elseif (gettype($data) == 'array') {
-            $response['items'] = $data;
+            $response['items'] = $resource ? new $resource($data) : $data;
         } elseif ($data instanceof \stdClass) {
             $response['items'] = $resource
                 ? new $resource($data)
@@ -74,6 +74,7 @@ trait ApiJsonResponse
         $modelName      = isset($this->modelName) ? $this->modelName : null;
         $error          = isset($this->error) ? $this->error : false;
         $data           = $this->formatResponse($response, $resource, $wrapItems);
+
         $r              = [];
         $lowerPackage   = Str::lower($package);
         $lowerModelName = Str::lower($modelName);
@@ -129,9 +130,16 @@ trait ApiJsonResponse
             } else {
                 $r['data'] = $data ?: null;
             }
+
         }
         $r['code'] = $code;
 
-        return response()->json($r, $this->code ?: $code);
+        try {
+            return response()->json($r, $this->code ?: $code);
+        } catch (Throwable $t) {
+            show($t->getMessage(), $t->getTrace());
+            $r['data'] = $response;
+            return response()->json($r, $this->code ?: $code);
+        }
     }
 }

@@ -4,7 +4,6 @@ namespace DaydreamLab\JJAJ\Database;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use phpDocumentor\Reflection\Types\String_;
 
 class QueryCapsule
 {
@@ -22,6 +21,8 @@ class QueryCapsule
 
     public $having = [];
 
+    public $havingRaw = [];
+
     public $limit = null;
 
     public $load = [];
@@ -36,6 +37,8 @@ class QueryCapsule
 
     public $select = [];
 
+    public $selectRaw = [];
+
     public $orderBy = null;
 
     public $order = null;
@@ -43,6 +46,8 @@ class QueryCapsule
     public $orWhere = [];
 
     public $orWhereHas = [];
+
+    public $orWhereHasMorph = [];
 
     public $toSql = false;
 
@@ -56,9 +61,15 @@ class QueryCapsule
 
     public $whereBetween = [];
 
+    public $whereColumn = [];
+
     public $whereHas = [];
 
     public $whereDoesntHave = [];
+
+    public $whereHasMorph = [];
+
+    public $whereDoesntHaveMorph = [];
 
     public $whereIn = [];
 
@@ -109,6 +120,14 @@ class QueryCapsule
             }
         }
 
+
+        if (count($this->havingRaw)) {
+            foreach ($this->havingRaw as $havingRaw) {
+                $q = $q->havingRaw($havingRaw);
+            }
+        }
+
+
         if (count($this->orWhere)) {
             foreach ($this->orWhere as $orWhere) {
                 $q = $q->orWhere(...$orWhere);
@@ -121,8 +140,18 @@ class QueryCapsule
             }
         }
 
+        if (count($this->orWhereHasMorph)) {
+            foreach ($this->orWhereHasMorph as $orWhereHasMorph) {
+                $q = $q->orWhereHas(...$orWhereHasMorph);
+            }
+        }
+
         if (count($this->select)) {
             $q = $q->select($this->select);
+        }
+
+        if (count($this->selectRaw)) {
+            $q = $q->selectRaw($this->selectRaw);
         }
 
         if (count($this->with)) {
@@ -145,6 +174,12 @@ class QueryCapsule
         if (count($this->where)) {
             foreach ($this->where as $where) {
                 $q = $q->where(...$where);
+            }
+        }
+
+        if (count($this->whereColumn)) {
+            foreach ($this->whereColumn as $whereColumn) {
+                $q = $q->whereColumn(...$whereColumn);
             }
         }
 
@@ -176,6 +211,19 @@ class QueryCapsule
         if (count($this->whereDoesntHave)) {
             foreach ($this->whereDoesntHave as $whereDoesntHave) {
                 $q = $q->whereDoesntHave(...$whereDoesntHave);
+            }
+        }
+
+
+        if (count($this->whereHasMorph)) {
+            foreach ($this->whereHasMorph as $whereHasMorph) {
+                $q = $q->whereHasMorph(...$whereHasMorph);
+            }
+        }
+
+        if (count($this->whereDoesntHaveMorph)) {
+            foreach ($this->whereDoesntHaveMorph as $whereDoesntHaveMorph) {
+                $q = $q->whereDoesntHaveMorph(...$whereDoesntHaveMorph);
             }
         }
 
@@ -238,12 +286,11 @@ class QueryCapsule
             $q = $q->sharedLock();
         }
 
-//          $this->toSql = 1;
         if ($this->toSql) {
             $sql = $q->toSql();
             $bindings = $q->getBindings();
             $sqlStr = Str::replaceArray('?', $bindings, $sql);
-//          show($sqlStr);
+
             return $sqlStr;
         }
 
@@ -329,6 +376,14 @@ class QueryCapsule
     }
 
 
+    public function havingRaw($data): QueryCapsule
+    {
+        $this->havingRaw[] = $data;
+
+        return $this;
+    }
+
+
     public function increment(...$data): QueryCapsule
     {
         $this->increment[] = $data;
@@ -398,6 +453,13 @@ class QueryCapsule
         return $this;
     }
 
+    public function orWhereHasMorph(...$data): QueryCapsule
+    {
+        $this->orWhereHasMorph[] = $data;
+
+        return $this;
+    }
+
 
     public function page($data)
     {
@@ -410,6 +472,14 @@ class QueryCapsule
     public function select(...$data): QueryCapsule
     {
         $this->select = array_merge($this->select, $data);
+
+        return $this;
+    }
+
+
+    public function selectRaw(...$data): QueryCapsule
+    {
+        $this->selectRaw = array_merge($this->selectRaw, $data);
 
         return $this;
     }
@@ -462,6 +532,14 @@ class QueryCapsule
     }
 
 
+    public function whereColumn(...$data): QueryCapsule
+    {
+        $this->whereColumn[] = $data;
+
+        return $this;
+    }
+
+
     public function whereHas(...$data): QueryCapsule
     {
         $this->whereHas[] = $data;
@@ -473,6 +551,22 @@ class QueryCapsule
     public function whereDoesntHave(...$data): QueryCapsule
     {
         $this->whereDoesntHave[] = $data;
+
+        return $this;
+    }
+
+
+    public function whereHasMorph(...$data): QueryCapsule
+    {
+        $this->whereHasMorph[] = $data;
+
+        return $this;
+    }
+
+
+    public function whereDoesntHaveMorph(...$data): QueryCapsule
+    {
+        $this->whereDoesntHaveMorph[] = $data;
 
         return $this;
     }

@@ -97,7 +97,6 @@ class BaseRequest extends FormRequest
     {
         $validated = parent::validated($key, $default);
         $validated['q'] = $this->q;
-
         $validated = collect($validated);
         $validated->forget('pageGroupId');
         $validated->forget('pageId');
