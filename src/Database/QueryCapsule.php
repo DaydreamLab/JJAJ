@@ -290,7 +290,6 @@ class QueryCapsule
             $sql = $q->toSql();
             $bindings = $q->getBindings();
             $sqlStr = Str::replaceArray('?', $bindings, $sql);
-
             return $sqlStr;
         }
 

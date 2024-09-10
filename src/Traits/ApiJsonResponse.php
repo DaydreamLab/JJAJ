@@ -137,7 +137,7 @@ trait ApiJsonResponse
         try {
             return response()->json($r, $this->code ?: $code);
         } catch (Throwable $t) {
-            show($t->getMessage(), $t->getTrace());
+//            show($t->getMessage(), $t->getTrace());
             $r['data'] = $response;
             return response()->json($r, $this->code ?: $code);
         }
