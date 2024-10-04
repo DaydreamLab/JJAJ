@@ -139,7 +139,6 @@ class BaseRepository implements BaseRepositoryInterface
                 $q = $q->max('ordering');
                 $maxOrdering = $this->search(collect(['q' => $q]));
                 $input->put('ordering', $maxOrdering + 1);
-
                 return  $this->create($input->toArray());
             }
         }

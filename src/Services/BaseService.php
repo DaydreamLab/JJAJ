@@ -662,12 +662,7 @@ abstract class BaseService
             $input->put('q', $q);
         }
 
-        try {
-            $items = $this->repo->search($input);
-        } catch (\Throwable $t) {
-            show($t->getMessage());
-        }
-
+        $items = $this->repo->search($input);
 
         $this->status = 'SearchSuccess';
         $this->response = $items;

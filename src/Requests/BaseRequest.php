@@ -49,7 +49,6 @@ class BaseRequest extends FormRequest
                         ? 'edit' . $this->modelName
                         : 'add' . $this->modelName;
                 }
-
                 return $apis->filter(function ($api) use ($method, $pageGroupId, $pageId) {
                     return $api->method == $method
                         && $api->pivot->asset_group_id == $pageGroupId
