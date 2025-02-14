@@ -13,7 +13,7 @@ class UriHelper
         $client = new Client();
 
         $domain = config('app.env') == 'production'
-            ? config('app.dingsomthing.dsth.url', 'https://dsth.me/')
+            ? config('app.dingsomething.dsth.url', 'https://dsth.me/')
             : 'https://demo.dsth.me/';
 
         $shortCodeUri = $domain . (config('app.env') == 'production' ? 'shorten' : 'shortcode.php');
